@@ -92,8 +92,8 @@
 	charge_max = 60 SECONDS
 	clothes_req = 0
 	action_icon_state = "jaunt"
-	jaunt_duration = 6 SECONDS
-	movement_cooldown = -1
+	jaunt_duration = 7 SECONDS
+	movement_cooldown = 0.5
 	ignore_NOJAUNT = TRUE
 	action_icon_state = "spell_default"
 

@@ -25,8 +25,8 @@
 			to_chat(target, "<span class='userdanger'>Your gaze is forcibly drawn into [src]'s eyes, and you are mesmerized by the heavenly lights...</span>")
 		else //Only alludes to the shadowling if the target is close by
 			to_chat(target, "<span class='userdanger'>Red lights suddenly dance in your vision, and you are mesmerized by their heavenly beauty...</span>")
-		target.Stun(10)
-		target.silent += 10
+		target.Stun(7)
+		target.silent += 7
 
 
 
