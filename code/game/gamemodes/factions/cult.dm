@@ -64,10 +64,16 @@
 			var/added_lead = FALSE
 			for(var/mob/living/carbon/human/H in religion.members)
 				if(H.stat != DEAD && H.client?.inactivity <= 20 MINUTES && H.mind?.holy_role != CULT_ROLE_MASTER)
-					var/datum/role/R = H.mind.GetRole(CULTIST)
+					var/datum/role/cultist/leader/R = H.mind.GetRole(CULTIST)
 					R.Drop(H.mind)
 					R = HandleNewMind(H.mind)
 					R.OnPostSetup(TRUE)
+
+					/*var/datum/role/cultist/leader/L = R
+					to_chat(world,"ROLE")
+					if(!cult_religion.reckoning_complete)
+						to_chat(world,"GRANT")
+						L.reckoning.Grant(H)*/
 
 					to_chat(H, "<span class='warning'>Вы теперь новый предвестник культа.</span>")
 					added_lead = TRUE

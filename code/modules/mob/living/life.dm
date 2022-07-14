@@ -125,7 +125,6 @@
 		if(!A.target)
 			actions -= A
 			qdel(A)
-
 	if(hud_used.action_buttons_hidden)
 		if(!hud_used.hide_actions_toggle)
 			hud_used.hide_actions_toggle = new(hud_used)
@@ -137,7 +136,6 @@
 
 		client.screen += hud_used.hide_actions_toggle
 		return
-
 	var/button_number = 0
 	for(var/datum/action/A in actions)
 		button_number++

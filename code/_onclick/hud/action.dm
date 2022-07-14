@@ -43,9 +43,12 @@
 		if(owner == T)
 			return
 		Remove(owner)
+	to_chat(world,"OWNER")
 	owner = T
+	to_chat(world,"[owner]")
 	owner.actions.Add(src)
 	owner.update_action_buttons()
+	to_chat(world,"UPDATE")
 	return
 
 /datum/action/proc/Remove(mob/living/T)
