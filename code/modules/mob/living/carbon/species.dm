@@ -1290,7 +1290,7 @@
 	,NO_EMOTION = TRUE
 	)
 
-	burn_mod = 2
+	burn_mod = 1.8
 	brain_mod = 0
 
 	has_gendered_icons = FALSE
