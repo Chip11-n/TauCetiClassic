@@ -151,3 +151,25 @@
 
 	if(possible_targets.len)
 		sacrifice_target = pick(possible_targets)
+
+/datum/faction/cult/proc/root_out_cult()
+	var/datum/objective/cult/summon_narsie/SN = objective_holder.FindObjective(/datum/objective/cult/summon_narsie)
+	if(!SN || SN.check_completion() != OBJECTIVE_LOSS) //If we have no such objective or it wasn't fail
+		return
+	for(var/datum/role/R in members)
+		if(!ishuman(R.antag.current))
+			to_chat(R.antag.current,"<span class='cult'>Что же ты тут забыл? Впрочем, ты тоже подвёл</span>")
+			R.antag.current.gib()
+			continue
+		var/mob/living/carbon/human/M = R.antag.current
+		var/dam_zone = list(BP_L_ARM, BP_R_ARM, BP_L_LEG, BP_R_LEG)
+		to_chat(M,"<span class='cult'> У тебя была задача. И ты её успешно провалил. Наслаждайся.</span>")
+		for(var/i = 0, i<4, i++)
+			sleep(20)
+			var/bp2eat = pick(dam_zone)
+			var/obj/item/organ/external/BP = M.bodyparts_by_name[ran_zone(bp2eat)]
+			BP.droplimb(null, null, DROPLIMB_EDGE)
+			dam_zone -= bp2eat
+		sleep(20)
+		M.gib()
+

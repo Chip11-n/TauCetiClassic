@@ -251,6 +251,10 @@ SUBSYSTEM_DEF(shuttle)
 								M.playsound_local(null, 'sound/effects/escape_shuttle/ep_undocking.ogg', VOL_EFFECTS_MASTER, null, FALSE)
 							CHECK_TICK
 						last_es_sound = world.time + 10
+
+				for(var/datum/faction/cult/C in SSticker.mode.factions)
+					C.root_out_cult()
+
 				return FALSE
 
 			/* --- Shuttle leaves the station, enters transit --- */
