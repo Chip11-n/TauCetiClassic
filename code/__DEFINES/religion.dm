@@ -49,6 +49,8 @@
 #define RTECH_BUILD_EVERYWHERE      "Build Everywhere"
 #define RTECH_MORE_RUNES            "More Runes"
 #define RTECH_MIRROR_SHIELD         "Mirror Shield"
+#define RTECH_SEWN_HOMUNCULUS       "Sewn Homunculus"
+#define RTECH_RUNED_HOMUNCULUS      "Runed Homulculus"
 
 /*
  * ENCYCLOPEDIA

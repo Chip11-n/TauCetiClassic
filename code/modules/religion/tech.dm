@@ -38,3 +38,9 @@
 
 /datum/religion_tech/cult/mirror_shield
 	id = RTECH_MIRROR_SHIELD
+
+/datum/religion_tech/cult/sewn_homunculus
+	id = RTECH_SEWN_HOMUNCULUS
+
+/datum/religion_tech/cult/runed_homulculus
+	id = RTECH_RUNED_HOMUNCULUS

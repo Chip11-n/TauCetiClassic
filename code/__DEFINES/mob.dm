@@ -88,6 +88,7 @@
 #define SHADOWLING     	 "Shadowling"
 #define GOLEM          	 "Adamantine Golem"
 #define HOMUNCULUS     	 "Homunculus"
+#define SEWN_HOMUNCULUS  "Sewn Homunculus"
 #define ZOMBIE         	 "Zombie"
 #define ZOMBIE_TAJARAN 	 "Zombie Tajaran"
 #define ZOMBIE_SKRELL  	 "Zombie Skrell"

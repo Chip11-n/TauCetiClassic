@@ -282,7 +282,18 @@
 	g_eyes = rand(0, 255)
 	b_eyes = rand(0, 255)
 
+	//var/S
+	/*if(cult_religion && cult_religion.get_tech(RTECH_SEWN_HOMUNCULUS))
+		. = ..(mapload, SEWN_HOMUNCULUS)//S = SEWN_HOMUNCULUS
+	else . = ..(mapload, HOMUNCULUS)//S = HOMUNCULUS
+*/
 	. = ..(mapload, HOMUNCULUS)
+
+	if(cult_religion && cult_religion.get_tech(RTECH_RUNED_HOMUNCULUS))
+		species.brute_mod = 1.4
+		species.burn_mod = 1.4
+		species.speed_mod -= 0.3
+
 
 	var/obj/item/organ/external/E = get_bodypart(BP_HEAD)
 	var/list/facials = get_valid_styles_from_cache(facial_hairs_cache, E.species, gender)
@@ -294,6 +305,21 @@
 	update_hair()
 
 	ADD_TRAIT(src, TRAIT_SOULSTONE_IMMUNE, GENERIC_TRAIT)
+
+/mob/living/carbon/human/homunculus/examine(mob/user)
+	. = ..()
+
+	if(!iscultist(user))
+		return
+	if(!cult_religion)
+		return
+	if(my_religion != cult_religion)
+		return
+
+	if(cult_religion.get_tech(RTECH_RUNED_HOMUNCULUS))
+		desc += "Creature has runes all over the body"
+	if(cult_religion.get_tech(RTECH_SEWN_HOMUNCULUS))
+		desc += "Also, this creature has thread marks all over the body"
 
 /datum/religion_rites/instant/cult/create_slave
 	name = "Создание Гомункула"
@@ -312,11 +338,11 @@
 	var/list/candidates = pollGhostCandidates("Не хотите ли вы стать гомункулом [religion.name]?", ROLE_CULTIST, IGNORE_NARSIE_SLAVE, 10 SECONDS)
 	if(!candidates.len)
 		to_chat(user, "<span class='warning'>Ни одна душа не захотела вселяться в гомункула.</span>")
-		return FALSE
+		//return FALSE
 	playsound(AOG, 'sound/magic/manifest.ogg', VOL_EFFECTS_MASTER)
 	for(var/i in 1 to divine_power)
-		if(candidates.len < divine_power)
-			return TRUE
+		//if(candidates.len < divine_power)
+		//	return TRUE
 
 		var/mob/M = pick(candidates)
 		candidates -= M

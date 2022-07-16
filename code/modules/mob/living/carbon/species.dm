@@ -1679,6 +1679,8 @@
 
 	default_mood_event = /datum/mood_event/homunculus
 
+	var/no_loses = FALSE
+
 /datum/species/homunculus/on_gain(mob/living/carbon/human/H)
 	..()
 	var/list/tail_list = icon_states('icons/mob/species/tail.dmi') - "vox_armalis"
@@ -1710,7 +1712,7 @@
 	)
 
 	for(var/type in has_bodypart)
-		if((type in list(BP_L_LEG, BP_R_LEG, BP_R_ARM, BP_L_ARM)) && prob(10))
+		if((type in list(BP_L_LEG, BP_R_LEG, BP_R_ARM, BP_L_ARM)) && prob(10) || !no_loses)
 			continue
 		var/path = has_bodypart[type]
 		var/obj/item/organ/external/O = new path(null)
@@ -1719,3 +1721,8 @@
 		O.adjust_pumped(rand(0, 60))
 		if(prob(80) && (part_species.name in list(UNATHI, SKRELL, TAJARAN)))
 			O.original_color = pick(list(COLOR_GREEN, COLOR_LIGHT_PINK, COLOR_ROSE_PINK, COLOR_VIOLET, COLOR_DEEP_SKY_BLUE, COLOR_RED, COLOR_LIME, COLOR_PINK))
+
+/datum/species/homunculus/sewn
+	name = SEWN_HOMUNCULUS
+	speed_mod = 1.3 //unathi 0.7
+	no_loses = TRUE
