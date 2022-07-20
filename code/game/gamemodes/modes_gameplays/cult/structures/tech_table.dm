@@ -137,7 +137,7 @@
 
 /obj/structure/cult/tech_table/proc/get_upgrade_cost(datum/aspect/in_religion)
 	if(!in_religion)
-		return 300
+		return 75
 	return in_religion.power * 50
 
 /obj/structure/cult/tech_table/proc/gen_category_images()
