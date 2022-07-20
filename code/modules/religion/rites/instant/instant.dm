@@ -282,18 +282,21 @@
 	g_eyes = rand(0, 255)
 	b_eyes = rand(0, 255)
 
-	//var/S
-	/*if(cult_religion && cult_religion.get_tech(RTECH_SEWN_HOMUNCULUS))
-		. = ..(mapload, SEWN_HOMUNCULUS)//S = SEWN_HOMUNCULUS
-	else . = ..(mapload, HOMUNCULUS)//S = HOMUNCULUS
-*/
-	. = ..(mapload, HOMUNCULUS)
+	if(cult_religion)//It would be a huge issue if we get a being without head and torso
+		cult_religion.get_tech(RTECH_SEWN_HOMUNCULUS) ? (. = ..(mapload, SEWN_HOMUNCULUS)) : (. = ..(mapload, HOMUNCULUS))
+
+		if(cult_religion.get_tech(RTECH_RUNED_HOMUNCULUS))
+			species.brute_mod = 1.4
+			species.burn_mod = 1.4
+			species.speed_mod -= 0.3
+	else . = ..(mapload, HOMUNCULUS)
+/*	. = ..(mapload, HOMUNCULUS)
 
 	if(cult_religion && cult_religion.get_tech(RTECH_RUNED_HOMUNCULUS))
 		species.brute_mod = 1.4
 		species.burn_mod = 1.4
 		species.speed_mod -= 0.3
-
+*/
 
 	var/obj/item/organ/external/E = get_bodypart(BP_HEAD)
 	var/list/facials = get_valid_styles_from_cache(facial_hairs_cache, E.species, gender)
@@ -338,11 +341,11 @@
 	var/list/candidates = pollGhostCandidates("Не хотите ли вы стать гомункулом [religion.name]?", ROLE_CULTIST, IGNORE_NARSIE_SLAVE, 10 SECONDS)
 	if(!candidates.len)
 		to_chat(user, "<span class='warning'>Ни одна душа не захотела вселяться в гомункула.</span>")
-		//return FALSE
+		return FALSE
 	playsound(AOG, 'sound/magic/manifest.ogg', VOL_EFFECTS_MASTER)
 	for(var/i in 1 to divine_power)
-		//if(candidates.len < divine_power)
-		//	return TRUE
+		if(candidates.len < divine_power)
+			return TRUE
 
 		var/mob/M = pick(candidates)
 		candidates -= M

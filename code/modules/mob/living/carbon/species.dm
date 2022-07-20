@@ -1679,7 +1679,7 @@
 
 	default_mood_event = /datum/mood_event/homunculus
 
-	var/no_loses = FALSE
+	var/no_loss = FALSE
 
 /datum/species/homunculus/on_gain(mob/living/carbon/human/H)
 	..()
@@ -1712,7 +1712,7 @@
 	)
 
 	for(var/type in has_bodypart)
-		if((type in list(BP_L_LEG, BP_R_LEG, BP_R_ARM, BP_L_ARM)) && prob(10) || !no_loses)
+		if((type in list(BP_L_LEG, BP_R_LEG, BP_R_ARM, BP_L_ARM)) && !no_loss && prob(10))
 			continue
 		var/path = has_bodypart[type]
 		var/obj/item/organ/external/O = new path(null)
@@ -1724,5 +1724,5 @@
 
 /datum/species/homunculus/sewn
 	name = SEWN_HOMUNCULUS
-	speed_mod = 1.3 //unathi 0.7
-	no_loses = TRUE
+	speed_mod = 1.4 //unathi 0.7
+	no_loss = TRUE
