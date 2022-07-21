@@ -184,16 +184,16 @@
 
 /datum/building_agent/tech/cult/sewn_homunculus
 	name = "Крепкие Связки Гомункулам"
-	icon = 'icons/obj/rune.dmi'
-	icon_state = "3"
+	icon = 'icons/effects/effects.dmi'
+	icon_state = "sewn"
 	building_type = /datum/religion_tech/cult/sewn_homunculus
 	favor_cost = 400
 	piety_cost = 90
 
 /datum/building_agent/tech/cult/runed_homulculus
 	name = "Защита Рун Гомункулам"
-	icon = 'icons/obj/rune.dmi'
-	icon_state = "3"
+	icon = 'icons/effects/effects.dmi'
+	icon_state = "shielded"
 	building_type = /datum/religion_tech/cult/runed_homulculus
 	favor_cost = 800
 	piety_cost = 60
