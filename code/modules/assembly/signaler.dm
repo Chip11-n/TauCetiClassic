@@ -17,6 +17,8 @@
 	var/datum/wires/connected = null
 	var/datum/radio_frequency/radio_connection
 	var/deadman = 0
+	action_button_name = "Send Signal"
+	action_button_is_hands_free = TRUE
 
 /obj/item/device/assembly/signaler/atom_init()
 	. = ..()
@@ -74,6 +76,9 @@ Code:
 	popup.open()
 	return
 
+/obj/item/device/assembly/signaler/ui_action_click()
+	spawn(0)
+		signal()
 
 /obj/item/device/assembly/signaler/Topic(href, href_list)
 	..()
