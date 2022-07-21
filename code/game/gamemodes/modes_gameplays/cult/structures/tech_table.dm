@@ -83,7 +83,7 @@
 	for(var/datum/building_agent/B in uniq_images)
 		B.name = "[initial(B.name)] [B.get_costs()]"
 
-	choosed_tech = show_radial_menu(user, src, uniq_images, tooltips = TRUE, require_near = TRUE)
+	choosed_tech = show_radial_menu(user, src, uniq_images, radius = 32+3*uniq_images.len, tooltips = TRUE, require_near = TRUE)
 	if(!choosed_tech || choosed_tech.researching)
 		return
 	if(!religion.check_costs(choosed_tech.favor_cost, choosed_tech.piety_cost, user))
