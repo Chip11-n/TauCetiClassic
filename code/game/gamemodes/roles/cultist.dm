@@ -114,7 +114,6 @@
 
 /datum/action/innate/cult/master/finalreck
 	name = "Final Reckoning"
-	//desc = "A single-use spell that brings the entire cult to the master's location."
 	button_icon_state = "sintouch"
 	check_flags = AB_CHECK_RESTRAINED | AB_CHECK_STUNNED | AB_CHECK_ALIVE
 	action_type = AB_INNATE
@@ -137,7 +136,7 @@
 		if(!destinations.len)
 			to_chat(owner, "<span class='warning'>You need more space to summon your cult!</span>")
 			return
-		if(do_after(owner, 150, target = owner))
+		if(do_after(owner, 100, target = owner))
 			for(var/mob/B in cult_religion.members)
 				if(B && B.stat != DEAD)
 					var/turf/mobloc = get_turf(B)
