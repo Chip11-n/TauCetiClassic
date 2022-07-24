@@ -439,7 +439,7 @@
 	var/in_use = FALSE
 
 /datum/rune/cult/convert/action(mob/living/carbon/user)
-	if(!do_after(user, 10 SECONDS, target=user))
+	if(!do_after(user, 3 SECONDS, target=user))
 		return
 	if(in_use)
 		to_chat(user, "<span class='cult'>Эта руна сейчас используется!</span>")
