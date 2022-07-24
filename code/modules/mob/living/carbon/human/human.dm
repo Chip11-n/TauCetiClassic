@@ -1327,7 +1327,7 @@
 		if(BP.status & ORGAN_SPLINTED) //Splints prevent movement.
 			continue
 		for(var/obj/item/weapon/O in BP.implants)
-			if(!istype(O,/obj/item/weapon/implant) && prob(5)) //Moving with things stuck in you could be bad.
+			if(!istype(O,/obj/item/weapon/implant) && prob(5*O.embedding)) //Moving with things stuck in you could be bad.
 				// All kinds of embedded objects cause bleeding.
 				var/msg = null
 				switch(rand(1,3))
@@ -1340,6 +1340,7 @@
 				to_chat(src, msg)
 
 				BP.take_damage(rand(1,3), 0, 0)
+				apply_effect(O.embedding[2],AGONY,0)
 				if(!BP.is_robotic()) //There is no blood in protheses.
 					if(!reagents.has_reagent("metatrombine")) // metatrombine just prevents bleeding, not toxication
 						BP.status |= ORGAN_BLEEDING

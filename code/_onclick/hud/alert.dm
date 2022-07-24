@@ -321,6 +321,11 @@
 			If you're feeling frisky, click yourself in help intent to pull the object out."
 	icon_state = "embeddedobject"
 
+/atom/movable/screen/alert/embeddedobject/action(location, control, params)
+	. = ..()
+	to_chat(world,"[mob_viewer]")
+	mob_viewer.yank_out_object()
+
 /atom/movable/screen/alert/weightless
 	name = "Weightless"
 	desc = "Gravity has ceased affecting you, and you're floating around aimlessly. You'll need something large and heavy, like a \

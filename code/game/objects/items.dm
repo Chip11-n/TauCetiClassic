@@ -15,6 +15,7 @@
 	var/usesound = null
 	var/wet = 0
 	var/can_embed = 1
+	var/embedding = list(1,1) //A multiplier of how often it will cause damage on embedding
 	var/slot_flags = 0		//This is used to determine on which slots an item can fit.
 	pass_flags = PASSTABLE
 //	causeerrorheresoifixthis
@@ -763,14 +764,14 @@
 		return
 
 	var/skill_bonus = 1
-	
+
 	//in case item have no defined default required_skill or we need to check other skills e.g. check crowbar for surgery
 	if(required_skills_override)
 		skill_bonus = apply_skill_bonus(user, 1, required_skills_override, skills_speed_bonus)
 	else if(required_skills) //default check for item
 		skill_bonus = apply_skill_bonus(user, 1, required_skills, skills_speed_bonus)
-	
-	
+
+
 	delay *= toolspeed
 	delay *= skill_bonus
 
