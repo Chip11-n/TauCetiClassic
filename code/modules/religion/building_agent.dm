@@ -134,6 +134,10 @@
 	name = "Активация Пилонов"
 	rune_type = /datum/rune/cult/charge_pylons
 
+/datum/building_agent/rune/cult/convert
+	name = "Добровольное Обращение"
+	rune_type = /datum/rune/cult/convert
+
 
 // For tech_table
 /datum/building_agent/tech

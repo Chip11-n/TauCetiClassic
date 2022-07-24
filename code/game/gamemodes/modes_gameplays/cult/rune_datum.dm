@@ -431,3 +431,57 @@
 		pylons++
 
 	holder.visible_message("<span class='warning'>[pluralize_russian(pylons, "Пилон", "Пилоны")] начинают зловеще светиться.</span>")
+
+/datum/rune/cult/convert
+	name = "Добровольное Обращение"
+	words = list("join", "blood", "hell")
+
+	var/in_use = FALSE
+
+/datum/rune/cult/convert/action(mob/living/carbon/user)
+	if(!do_after(user, 10 SECONDS, target=user))
+		return
+	if(in_use)
+		to_chat(user, "<span class='cult'>Эта руна сейчас используется!</span>")
+		return fizzle(user)
+	for(var/mob/living/carbon/M in get_turf(holder))
+		if(iscultist(M) || M.stat == DEAD)
+			continue
+		user.say("Мэх[pick("'","`")]вейх плегх ет е'нтрэс!")
+		M.visible_message("<span class='userdanger'>[M] корчится от боли, когда отметины под ним светятся кроваво-красным.</span>", \
+			"<span class='cult'>ААААРГХ!</span>", \
+			"<span class='userdanger'>Вы слышите мучительный крик.</span>")
+		in_use = TRUE
+		window_flash(M.client)
+		if(tgui_alert(M, "Согласие", "Хочешь ли ты отдать свою душу Геометру?", list("Да", "Нет"))=="Да")
+		//if(alert(M, "Хочешь ли ты отдать свою душу Геометру?",,"Да", "Нет") == "Да")
+			to_chat(M, "<span class='cult'>Твоя кровь пульсирует. Твоя голова раскалывается. Мир окрашивается в красный. В один момент вы узнаёте о страшной, ужасающей правде. \
+				Вуаль реальности была разорвана и в гноящейся ране, оставленной позади, пускает корни что-то зловещее.</span>")
+
+			var/passed = TRUE
+			if(!religion.can_convert(M))
+				passed = FALSE
+				to_chat(user, "<span class='cult'Разум [M] сопротивляется!</span>")
+				to_chat(M, "<span class='userdanger'Твой Разум сопротивляется!</span>")
+			else if(jobban_isbanned(M, ROLE_CULTIST) || jobban_isbanned(M, "Syndicate"))
+				passed = FALSE
+				to_chat(user, "<span class='cult'Ваш бог запретил обращать [M]!</span>")
+
+			else if(role_available_in_minutes(M, ROLE_CULTIST))
+				passed = FALSE
+				to_chat(user, "<span class='cult'Эта душа слишком молода для Геометра!</span>")
+
+			if(passed)
+				religion.add_member(M, CULT_ROLE_HIGHPRIEST)
+				to_chat(M, "<span class='cult'>Помогай другим культистам в тёмных делах. Их цель - твоя цель, а твоя - их. Вы вместе служите Тьме и тёмным богам. \
+					Кое-кто существует свыше. Возврати его.</span>")
+				religion.adjust_favor(300)
+				religion.adjust_piety(30)
+			else
+				to_chat(M, "<span class='userdanger'>И ты был способен изгнать это из своего разума. Ты знаешь правду, что-то страшное грядёт, \
+					останови Это и этих прислужников любой ценой.</span>")
+		else
+			to_chat(user, "<span class='userdanger'>Неблагодарный еретик отказался от вашего дара!</span>")
+		break
+	in_use = FALSE
+	return fizzle(user)
