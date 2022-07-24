@@ -51,10 +51,6 @@
 				return
 			F.set_light(0)
 
-		for(var/obj/machinery/light/L in T.contents)
-			L.on = 0
-			L.visible_message("<span class='danger'>[L] flickers and falls dark.</span>")
-			L.update(0)
 
 		for(var/mob/living/carbon/human/H in T.contents)
 			for(var/obj/item/F in H)
@@ -64,11 +60,24 @@
 				F.set_light(0)
 			H.set_light(0) //This is required with the object-based lighting
 
-		for(var/obj/machinery/door/airlock/A in T.contents)
-			if(get_dist(center, A) <= 4)
-				if(A.lights && A.hasPower())
-					A.lights = 0
-					A.update_icon()
+		for(var/obj/machinery/M in T.contents)
+			if(istype(M,/obj/machinery/light))
+				var/obj/machinery/light/L = M
+				L.on = 0
+				L.visible_message("<span class='danger'>[L] flickers and falls dark.</span>")
+				L.update(0)
+			else if(istype(M,/obj/machinery/door/airlock))
+				var/obj/machinery/door/airlock/A = M
+				if(get_dist(center, A) <= 4)
+					if(A.lights && A.hasPower())
+						A.lights = 0
+						A.update_icon()
+			else if(istype(M,/obj/machinery/vending))
+				var/obj/machinery/vending/V = M
+				V.set_light(0)
+			else if(istype(M,/obj/machinery/computer))
+				var/obj/machinery/computer/C = M
+				C.set_light(0)
 
 		for(var/obj/effect/glowshroom/G in T.contents)
 			if(get_dist(center, G) <= 2) //Very small radius
