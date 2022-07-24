@@ -18,5 +18,5 @@
 	sharp = 1
 	edge = 1
 	can_embed = 1
-	embedding = list(2,2)
+	embedding = list(10,2,5)
 	materials = list(MAT_METAL=500, MAT_GLASS=500)

@@ -15,7 +15,7 @@
 	var/usesound = null
 	var/wet = 0
 	var/can_embed = 1
-	var/embedding = list(1,1) //A multiplier of how often it will cause damage on embedding
+	var/embedding = list(5,2,0) //1st is probability of how often it will cause damage on moving, 2nd - how much damage, 3rd - how much stamdam
 	var/slot_flags = 0		//This is used to determine on which slots an item can fit.
 	pass_flags = PASSTABLE
 //	causeerrorheresoifixthis
