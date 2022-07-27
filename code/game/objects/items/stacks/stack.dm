@@ -272,13 +272,17 @@
 		s.update_ui_after_item_removal()
 	S.add(transfer)
 
-/obj/item/stack/Crossed(atom/movable/AM)
+/obj/item/stack/Moved(atom/OldLoc, Dir)
 	. = ..()
-	if(throwing || AM.throwing)
-		return
-	if(istype(AM, merge_type))
-		var/obj/item/stack/S = AM
-		merge(S)
+	var/turf/T = loc
+	if(!T && isturf(T)) return
+	for(var/obj/item/stack/S in T.contents)
+		if(!isturf(S.loc)) return
+		if(throwing || S.throwing || !OldLoc || get_turf(OldLoc) == get_turf(S.loc) || OldLoc == loc)
+			return
+		if(istype(S, merge_type))
+			//var/obj/item/stack/S = S
+			S.merge(src)
 
 /obj/item/stack/attack_hand(mob/user)
 	if (user.get_inactive_hand() == src)
