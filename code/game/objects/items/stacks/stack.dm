@@ -277,9 +277,15 @@
 	var/turf/T = loc
 	if(!T && isturf(T)) return
 	for(var/obj/item/stack/S in T.contents)
-		if(!isturf(S.loc)) return
-		if(throwing || S.throwing || !OldLoc || get_turf(OldLoc) == get_turf(S.loc) || OldLoc == loc)
-			return
+		if(!isturf(S.loc)) continue //Inventory
+		if(get_turf(OldLoc) == get_turf(S.loc))
+			continue
+		if(OldLoc == loc)
+			continue
+		if(!OldLoc || !isturf(OldLoc))
+			continue
+		if(throwing || S.throwing)
+			continue
 		if(istype(S, merge_type))
 			//var/obj/item/stack/S = S
 			S.merge(src)
@@ -319,13 +325,15 @@
 			to_chat(user, "<span class='notice'>You take [stackmaterial] sheets out of the stack</span>")
 
 /obj/item/stack/proc/change_stack(mob/living/user, amount)
+	if(!use(amount, TRUE))
+		return
 	var/obj/item/stack/F = new type(loc, amount, FALSE)
 	user.try_take(F, loc)
 	. = F
 	F.copy_evidences(src)
 	add_fingerprint(user)
 	F.add_fingerprint(user)
-	use(amount, TRUE)
+	//use(amount, TRUE)
 
 /obj/item/stack/attackby(obj/item/I, mob/user, params)
 	if(istype(I, merge_type))
