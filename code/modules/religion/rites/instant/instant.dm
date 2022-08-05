@@ -282,21 +282,14 @@
 	g_eyes = rand(0, 255)
 	b_eyes = rand(0, 255)
 
-	if(cult_religion)//It would be a huge issue if we get a being without head and torso
+	if(cult_religion)//It would be a huge issue - being without head and torso
 		cult_religion.get_tech(RTECH_SEWN_HOMUNCULUS) ? (. = ..(mapload, SEWN_HOMUNCULUS)) : (. = ..(mapload, HOMUNCULUS))
 
 		if(cult_religion.get_tech(RTECH_RUNED_HOMUNCULUS))
-			species.brute_mod = 1.4
-			species.burn_mod = 1.4
+			species.brute_mod = 1.5
+			species.burn_mod = 1.5
 			species.speed_mod -= 0.3
 	else . = ..(mapload, HOMUNCULUS)
-/*	. = ..(mapload, HOMUNCULUS)
-
-	if(cult_religion && cult_religion.get_tech(RTECH_RUNED_HOMUNCULUS))
-		species.brute_mod = 1.4
-		species.burn_mod = 1.4
-		species.speed_mod -= 0.3
-*/
 
 	var/obj/item/organ/external/E = get_bodypart(BP_HEAD)
 	var/list/facials = get_valid_styles_from_cache(facial_hairs_cache, E.species, gender)
@@ -311,13 +304,6 @@
 
 /mob/living/carbon/human/homunculus/examine(mob/user)
 	. = ..()
-
-	if(!iscultist(user))
-		return
-	if(!cult_religion)
-		return
-	if(my_religion != cult_religion)
-		return
 
 	if(cult_religion.get_tech(RTECH_RUNED_HOMUNCULUS))
 		desc += "Creature has runes all over the body"

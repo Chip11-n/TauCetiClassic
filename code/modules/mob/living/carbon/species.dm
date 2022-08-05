@@ -1724,5 +1724,5 @@
 
 /datum/species/homunculus/sewn
 	name = SEWN_HOMUNCULUS
-	speed_mod = 1.4 //unathi 0.7
+	speed_mod = 1.6 //unathi 0.7
 	no_loss = TRUE
