@@ -67,13 +67,13 @@
 		return blood_am
 
 	else if(isbodypart(I))
-		return 50
+		return 80
 
 	else if(istype(I, /obj/item/brain))
-		return 100
+		return 150
 
 	else if(istype(I, /obj/item/weapon/reagent_containers/food/snacks/meat))
-		return 25
+		return 35
 
 	return 0
 
@@ -89,7 +89,7 @@
 	god_desc = "Хомосапиенс и другие инородные расы могут дарить все сорта научных вещей."
 
 /datum/aspect/science/sacrifice(obj/item/I, mob/living/L, obj/structure/altar_of_gods/AOG)
-	. = AOG.experiments.get_object_research_value(I) * 0.01
+	. = AOG.experiments.get_object_research_value(I) * 0.03
 	AOG.experiments.do_research_object(I)
 
 //Gives mana from: any food
@@ -107,7 +107,7 @@
 	if(istype(I, /obj/item/weapon/reagent_containers/food) && I.reagents)
 		var/favour_amount = 0
 		for(var/datum/reagent/R in I.reagents.reagent_list)
-			favour_amount += R.nutriment_factor * R.volume * 0.25
+			favour_amount += R.nutriment_factor * R.volume * 0.5
 		return favour_amount
 
 	return 0
@@ -129,7 +129,7 @@
 		var/cost = 0
 		for(var/obj/item/ammo_casing/A in G.ammo_type)
 			var/obj/item/projectile/P = initial(A.projectile_type)
-			cost += initial(P.damage) * 15
+			cost += initial(P.damage) * 20
 		return cost
 
 	if(istype(I,/obj/item/weapon/gun/projectile))
@@ -139,13 +139,13 @@
 		var/obj/item/ammo_box/A = initial(W.mag_type)
 		var/obj/item/ammo_casing/C = initial(A.ammo_type)
 		var/obj/item/projectile/P = initial(C.projectile_type)
-		cost += initial(P.damage) * 20
+		cost += initial(P.damage) * 25
 
 		if(W.mag_type2)
 			var/obj/item/ammo_box/A2 = initial(W.mag_type2)
 			var/obj/item/ammo_casing/C2 = initial(A2.ammo_type)
 			var/obj/item/projectile/P2 = initial(C2.projectile_type)
-			cost += initial(P2.damage) * 20
+			cost += initial(P2.damage) * 25
 		return cost
 
 	if(istype(I, /obj/item/weapon) && !istype(I,/obj/item/weapon/melee/cultblade))
@@ -169,7 +169,7 @@
 /datum/aspect/resources/sacrifice(obj/item/I, mob/living/L, obj/AOG)
 	if(istype(I, /obj/item/stack/sheet))
 		var/obj/item/stack/sheet/material = I
-		return material.amount * 5
+		return material.amount * 7
 	return 0
 
 //Gives mana from: does not affect mana accumulation
@@ -213,14 +213,14 @@
 /datum/aspect/technology/sacrifice(obj/item/I, mob/living/L, obj/AOG)
 	if(istype(I, /obj/item/weapon/stock_parts/cell))
 		var/obj/item/weapon/stock_parts/cell/C = I
-		return C.charge * 0.01
+		return C.charge * 0.02
 
 	if(istype(I, /obj/item/weapon/stock_parts))
 		var/obj/item/weapon/stock_parts/part = I
-		return 25 * part.rating
+		return 40 * part.rating
 
 	else if(istype(I, /obj/item/weapon/circuitboard))
-		return 30
+		return 100
 
 	else if(isassembly(I))
 		return 10 * I.w_class
@@ -273,7 +273,7 @@
 	if(M.stat != CONSCIOUS || !M.client)
 		return
 
-	F.holy.religion.adjust_favor(weaken_duration * power * 0.5)
+	F.holy.religion.adjust_favor(weaken_duration * power)
 
 /datum/aspect/wacky/holy_turf_exit(datum/source, atom/movable/mover, atom/newLoc)
 	..()
@@ -329,7 +329,7 @@
 	god_desc = "Вам нужная тьма на святой земле."
 
 /datum/aspect/lightbending/darkness/get_light_gain(turf/simulated/floor/F)
-	return (0.6 - F.get_lumcount()) * 0.05 * (1.4 * sqrt(power) + (power / 4)) //https://www.desmos.com/calculator/nwle5biewp
+	return (0.6 - F.get_lumcount()) * 0.03 * (1.4 * sqrt(power) + (power / 4)) //https://www.desmos.com/calculator/nwle5biewp
 
 //Gives mana from: light levels on holy turfs
 //Needed for: spells and rituals related to the theme of receiving light
@@ -357,4 +357,4 @@
 	god_desc = "Не всё то золото, что блестит, иногда купюры могут этому следовать. Вам нужно богатств."
 
 /datum/aspect/greed/sacrifice(obj/item/I, mob/living/L, obj/AOG)
-	return I.get_price() * 0.05
+	return I.get_price() * 0.1
