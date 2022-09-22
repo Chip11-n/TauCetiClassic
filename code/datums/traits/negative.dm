@@ -106,7 +106,7 @@
 	var/obj/item/clothing/glasses/regular/G = new
 	if(!H.equip_to_slot_if_possible(G, SLOT_GLASSES, null, TRUE))
 		H.put_in_hands(G)
-
+	quirk_holder.become_nearsighted(QUIRK_TRAIT)
 
 
 /datum/quirk/nervous

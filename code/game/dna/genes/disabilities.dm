@@ -115,7 +115,7 @@
 
 /datum/dna/gene/disability/blindness/New()
 	block=BLINDBLOCK
-
+/*
 /datum/dna/gene/disability/blindness/OnMobLife(mob/living/carbon/human/M) //#Z2
 	if(!istype(M)) return
 	M.setBlurriness(200)
@@ -125,6 +125,14 @@
 	..(M,connected,flags)
 	M.setBlurriness(0)
 	M.eye_blind = 0 //##Z2
+*/
+/datum/dna/gene/disability/blindness/activate(mob/M, connected, flags)
+	. = ..()
+	M.become_blind(QUIRK_TRAIT)
+
+/datum/dna/gene/disability/blindness/deactivate(mob/living/carbon/human/M, connected, flags)
+	. = ..()
+	M.cure_blind(QUIRK_TRAIT)
 
 /datum/dna/gene/disability/deaf
 	name="Deafness"

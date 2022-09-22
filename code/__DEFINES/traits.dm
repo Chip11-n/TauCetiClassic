@@ -128,6 +128,11 @@
 /// Prevents hands and legs usage
 #define TRAIT_INCAPACITATED "incapacitated"
 
+#define BLINDFOLD_TRAIT "blindfolded"
+//#define TRAIT_BLIND "blind"
+/// Any traits granted by quirks.
+#define QUIRK_TRAIT "quirk_trait"
+
 #define TRAIT_ALCOHOL_TOLERANCE   "alcohol_tolerance"
 #define TRAIT_BLIND               "blind"
 #define TRAIT_COUGH               "cough"

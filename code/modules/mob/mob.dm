@@ -1081,6 +1081,57 @@ note dizziness decrements automatically in the mob's Life() proc.
 					client.perspective = EYE_PERSPECTIVE
 				client.eye = A
 
+/// proc that adds and removes blindness overlays when necessary
+/mob/proc/update_blindness()
+	switch(stat)
+		if(CONSCIOUS)
+			if(HAS_TRAIT(src, TRAIT_BLIND) || eye_blind)
+				throw_alert(ALERT_BLIND, /atom/movable/screen/alert/blind)
+				do_set_blindness(TRUE)
+			else
+				do_set_blindness(FALSE)
+		if(UNCONSCIOUS)
+			do_set_blindness(TRUE)
+		if(DEAD)
+			do_set_blindness(FALSE)
+
+///Proc that handles adding and removing the blindness overlays.
+/mob/proc/do_set_blindness(now_blind)
+	if(now_blind)
+		overlay_fullscreen("blind", /atom/movable/screen/fullscreen/blind)
+		// You are blind why should you be able to make out details like color, only shapes near you
+		//H.sightglassesmod = "greyscale"//add_client_colour(/datum/client_colour/monochrome/blind)
+	else
+		clear_alert(ALERT_BLIND)
+		clear_fullscreen("blind")
+		//remove_client_colour(/datum/client_colour/monochrome/blind)
+
+/* TRAIT PROCS */
+/mob/living/proc/cure_blind(source)
+	if(source)
+		REMOVE_TRAIT(src, TRAIT_BLIND, source)
+	else
+		REMOVE_TRAIT_NOT_FROM(src, TRAIT_BLIND, list(QUIRK_TRAIT, EYES_COVERED, BLINDFOLD_TRAIT))
+	if(!HAS_TRAIT(src, TRAIT_BLIND))
+		update_blindness()
+
+/mob/living/proc/become_blind(source)
+	if(!HAS_TRAIT(src, TRAIT_BLIND)) // not blind already, add trait then overlay
+		ADD_TRAIT(src, TRAIT_BLIND, source)
+		update_blindness()
+	else
+		ADD_TRAIT(src, TRAIT_BLIND, source)
+
+/mob/living/proc/cure_nearsighted(source)
+	REMOVE_TRAIT(src, TRAIT_NEARSIGHT, source)
+	if(!HAS_TRAIT(src, TRAIT_NEARSIGHT))
+		clear_fullscreen("nearsighted")
+
+/mob/living/proc/become_nearsighted(source)
+	if(!HAS_TRAIT(src, TRAIT_NEARSIGHT))
+		overlay_fullscreen("nearsighted", /atom/movable/screen/fullscreen/impaired, 1)
+	ADD_TRAIT(src, TRAIT_NEARSIGHT, source)
+
 //You can buckle on mobs if you're next to them since most are dense
 /mob/buckle_mob(mob/living/M)
 	if(M.buckled)

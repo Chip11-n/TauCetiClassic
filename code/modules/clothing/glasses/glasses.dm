@@ -209,6 +209,15 @@
 	item_state = "blindfold"
 	//vision_flags = BLIND  	// This flag is only supposed to be used if it causes permanent blindness, not temporary because of glasses
 
+/obj/item/clothing/glasses/sunglasses/blindfold/equipped(mob/living/carbon/human/user, slot)
+	. = ..()
+	if(slot == SLOT_GLASSES)
+		user.become_blind(BLINDFOLD_TRAIT)
+
+/obj/item/clothing/glasses/sunglasses/blindfold/dropped(mob/living/carbon/human/user)
+	..()
+	user.cure_blind(BLINDFOLD_TRAIT)
+
 /obj/item/clothing/glasses/sunglasses/blindfold/white
 	name = "blind personnel blindfold"
 	desc = "Indicates that the wearer suffers from blindness."
@@ -385,7 +394,7 @@
 /obj/item/clothing/glasses/sunglasses/noir/verb/toggle_noir()
 	set name = "Toggle Noir"
 	set category = "Object"
-	
+
 	if(usr.incapacitated())
 		return
 	active = !active

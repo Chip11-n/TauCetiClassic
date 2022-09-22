@@ -310,6 +310,15 @@
 	armor = list(melee = 10, bullet = 5, laser = 5,energy = 3, bomb = 5, bio = 0, rad = 0)
 	force = 5
 
+/obj/item/weapon/reagent_containers/glass/bucket/equipped(mob/living/carbon/human/user, slot)
+	. = ..()
+	if(slot == SLOT_FLAGS_HEAD)
+		user.become_blind(BLINDFOLD_TRAIT)
+
+/obj/item/weapon/reagent_containers/glass/bucket/dropped(mob/living/carbon/human/user)
+	..()
+	user.cure_blind(BLINDFOLD_TRAIT)
+
 /obj/item/weapon/reagent_containers/glass/bucket/attackby(obj/item/I, mob/user, params)
 	if(isprox(I))
 		to_chat(user, "<span class = 'notice'>You add [I] to [src].</span>")
