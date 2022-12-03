@@ -89,6 +89,8 @@
 	var/mob/camera/eminence/eminence
 	var/research_forbidden = FALSE //If Eminence forbade research for fellow cultist
 
+	var/datum/hive_status_ui/hive_ui
+
 /datum/religion/cult/New()
 	..()
 	// Init anomalys
@@ -109,6 +111,8 @@
 	RegisterSignal(area, list(COMSIG_AREA_EXITED), .proc/area_exited)
 
 	START_PROCESSING(SSreligion, src)
+
+	hive_ui = new(src)
 
 /datum/religion/cult/setup_religions()
 	global.cult_religion = src
