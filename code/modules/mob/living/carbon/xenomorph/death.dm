@@ -18,6 +18,9 @@
 	if(!gibbed)
 		update_canmove()
 
+	for(var/mob/living/carbon/human/H in view(2, src))
+		H.invoke_vomit_async()
+
 	tod = worldtime2text() //weasellos time of death patch
 	if(mind)	mind.store_memory("Time of death: [tod]", 0)
 	alive_mob_list -= src
