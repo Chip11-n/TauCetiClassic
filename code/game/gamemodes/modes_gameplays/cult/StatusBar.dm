@@ -31,14 +31,9 @@
 	update_cultist_info(FALSE)
 	SStgui.update_uis(src)
 
-// Updates the list tracking how many xenos there are in each tier, and how many there are in total
+// Updates the list tracking how many cultists there are in each tier, and how many there are in total
 /datum/cult_status_ui/proc/update_cultist_counts(send_update = TRUE)
 	cultist_counts = assoc_cult.members.len
-
-	total_cultists = 0
-	for(var/counts in cultist_counts)
-		for(var/caste in counts)
-			total_cultists += counts[caste]
 
 	if(send_update)
 		SStgui.update_uis(src)
@@ -58,7 +53,7 @@
 	if(send_update)
 		SStgui.update_uis(src)
 */
-// Updates the sorted list of all xenos that we use as a key for all other information
+// Updates the sorted list of all cultists that we use as a key for all other information
 /datum/cult_status_ui/proc/update_cultists_keys(send_update = TRUE)
 	cultists_keys = get_cultists_keys()
 
@@ -66,29 +61,27 @@
 		SStgui.update_uis(src)
 
 /datum/cult_status_ui/proc/get_cultists_keys()
-	var/list/xenos[assoc_cult.members.len]
+	var/list/cultists[assoc_cult.members.len]
 
 	var/index = 1
-	for(var/mob/living/X in assoc_cult.members)
+	for(var/mob/living/L in assoc_cult.members)
 		// Insert without doing list merging
-		xenos[index++] = list(
-			"nicknumber" = X.real_name,
-			"is_queen" = iseminence(X),
-			"caste_type" = X.mind.assigned_job
+		cultists[index++] = list(
+			"real_name" = L.real_name,
+			"is_eminence" = iseminence(L),
+			"assigned_job" = L.mind.assigned_job
 		)
 
-	return xenos
-// Mildly related to the above, but only for when xenos are removed from the cult
+	return cultists
+// Mildly related to the above, but only for when cultists are removed from the cult
 // If a xeno dies, we don't have to regenerate all xeno info and sort it again, just remove them from the data list
-/datum/cult_status_ui/proc/xeno_removed(mob/living/X)
+/datum/cult_status_ui/proc/xeno_removed(mob/living/L)
 	if(!cultists_keys)
 		return
 
 	for(var/index in 1 to length(cultists_keys))
 		var/list/info = cultists_keys[index]
-		if(info["nicknumber"] == X.real_name)
-
-			// tried Remove(), didn't work. *shrug*
+		if(info["real_name"] == L.real_name)
 			cultists_keys[index] = null
 			cultists_keys -= null
 			return
@@ -102,21 +95,21 @@
 	if(send_update)
 		SStgui.update_uis(src)
 
-// Returns a list with some more info about all xenos in the cult
+// Returns a list with some more info about all cultists in the cult
 /datum/cult_status_ui/proc/get_cultist_info()
-	var/list/xenos = list()
+	var/list/cultists = list()
 
-	for(var/mob/living/X in assoc_cult.members)
+	for(var/mob/living/L in assoc_cult.members)
 
-		var/xeno_name = X.name
-		xenos["[X.real_name]"] = list(
+		var/xeno_name = L.name
+		cultists["[L.real_name]"] = list(
 			"name" = xeno_name,
-			"strain" = X.mind.assigned_job,
-			"ref" = "\ref[X]"
+			"strain" = L.mind.assigned_job,
+			"ref" = "\ref[L]"
 		)
 
-	return xenos
-// Updates vital information about xenos such as health and location. Only info that should be updated regularly
+	return cultists
+// Updates vital information about cultists such as health and location. Only info that should be updated regularly
 /datum/cult_status_ui/proc/update_cultist_vitals()
 	cultist_vitals = get_cultist_vitals()
 /*
@@ -124,7 +117,7 @@
 /datum/cult_status_ui/proc/update_pooled_larva(send_update = TRUE)
 	pooled_larva = assoc_cult.stored_larva
 	/*if(SSxevolution)
-		evilution_level = SSxevolution.get_evolution_boost_power(assoc_cult.cultnumber)
+		evilution_level = SSxevolution.get_evolution_boost_power(assoc_cult.cultreal_name)
 	else
 		evilution_level = 1*/
 
@@ -134,24 +127,24 @@
 
 // Returns a list of xeno healths and locations
 /datum/cult_status_ui/proc/get_cultist_vitals()
-	var/list/xenos = list()
+	var/list/cultists = list()
 
-	for(var/mob/living/X in assoc_cult.members)
-		var/area/A = get_area(X)
+	for(var/mob/living/L in assoc_cult.members)
+		var/area/A = get_area(L)
 		var/area_name = "Unknown"
 		if(A)
 			area_name = A.name
 
-		xenos["[X.real_name]"] = list(
-			"health" = round((X.health / X.maxHealth) * 100, 1),
+		cultists["[L.real_name]"] = list(
+			"health" = round((L.health / L.maxHealth) * 100, 1),
 			"area" = area_name,
-			"is_ssd" = (!X.client)
+			"is_ssd" = (!L.client)
 		)
 
-	return xenos
+	return cultists
 
-// Updates all data except pooled larva
-/datum/cult_status_ui/proc/update_all_xeno_data(send_update = TRUE)
+// Updates all data
+/datum/cult_status_ui/proc/update_all_cultist_data(send_update = TRUE)
 	update_cultist_counts(FALSE)
 	update_cultist_vitals()
 	update_cultists_keys(FALSE)
@@ -160,10 +153,10 @@
 	if(send_update)
 		SStgui.update_uis(src)
 
-// Updates all data, including pooled larva
+// Updates all data
 /datum/cult_status_ui/proc/update_all_data()
 	data_initialized = TRUE
-	update_all_xeno_data(FALSE)
+	update_all_cultist_data(FALSE)
 	SStgui.update_uis(src)
 /*
 /datum/cult_status_ui/tgui_state(mob/user)
@@ -191,7 +184,7 @@
 	.["cult_color"] = COLOR_CRIMSON_RED
 	.["cult_name"] = assoc_cult.name
 
-/datum/cult_status_ui/proc/open_cult_status(var/mob/user)
+/datum/cult_status_ui/proc/open_cult_status(mob/user)
 	if(!user)
 		return
 
@@ -210,13 +203,34 @@
 		ui = new(user, src, "StatusBar", "[assoc_cult.name] Status")
 		ui.open()
 		ui.set_autoupdate(FALSE)
-/*
-/datum/cult_status_ui/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
+
+/datum/cult_status_ui/tgui_act(action, list/params, datum/tgui/ui, datum/tgui_state/state)
 	. = ..()
 	if(.)
 		return
 
-	switch(action)/*
+	switch(action)
+		if("overwatch")
+			var/mob/living/Target = locate(params["target_ref"]) in assoc_cult.members
+			var/mob/living/Src = ui.user
+
+			if(QDELETED(Target))
+				return
+
+			if(iseminence(Src))
+				var/mob/camera/eminence/O = src
+				O.eminence_track(Target)
+			return
+/*
+			if(!src.check_state(TRUE))
+				return
+
+			var/isQueen = (src.assigned_job == XENO_CASTE_QUEEN)
+			if (isQueen)
+				src.overwatch(Target)
+			else
+				src.overwatch(Target)
+				/*
 		if("give_plasma")
 			var/mob/living/Target = locate(params["target_ref"]) in GLOB.living_xeno_list
 			var/mob/living/Src = ui.user
@@ -243,25 +257,4 @@
 			var/datum/action/xeno_action/A = get_xeno_action_by_type(src, /datum/action/xeno_action/activable/queen_heal)
 			A?.use_ability_wrapper(Target, TRUE)
 
-		if("overwatch")
-			var/mob/living/Target = locate(params["target_ref"]) in GLOB.living_xeno_list
-			var/mob/living/Src = ui.user
-
-			if(QDELETED(Target) || Target.stat == DEAD || is_admin_level(Target.z))
-				return
-
-			if(src.stat == DEAD)
-				if(isobserver(src))
-					var/mob/dead/observer/O = src
-					O.ManualFollow(Target)
-				return
-
-			if(!src.check_state(TRUE))
-				return
-
-			var/isQueen = (src.caste_type == XENO_CASTE_QUEEN)
-			if (isQueen)
-				src.overwatch(Target, movement_event_handler = /datum/event_handler/xeno_overwatch_onmovement/queen)
-			else
-				src.overwatch(Target)
 */

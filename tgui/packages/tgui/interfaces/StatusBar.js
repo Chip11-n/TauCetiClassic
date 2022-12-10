@@ -18,15 +18,15 @@ const filterCultists = data => {
   const cultist_entries = [];
 
   cultists_keys.map((key, i) => {
-    const nicknumber = key.nicknumber.toString();
+    const real_name = key.real_name.toString();
     let entry = {
-      nicknumber: nicknumber,
-      name: cultist_info[nicknumber].name,
-      strain: cultist_info[nicknumber].strain,
-      location: cultist_vitals[nicknumber].area,
-      health: cultist_vitals[nicknumber].health,
-      ref: cultist_info[nicknumber].ref,
-      is_ssd: cultist_vitals[nicknumber].is_ssd,
+      real_name: real_name,
+      name: cultist_info[real_name].name,
+      strain: cultist_info[real_name].strain,
+      location: cultist_vitals[real_name].area,
+      health: cultist_vitals[real_name].health,
+      ref: cultist_info[real_name].ref,
+      is_ssd: cultist_vitals[real_name].is_ssd,
       is_leader: key.is_leader,
       is_eminence: key.is_eminence,
     };
@@ -122,7 +122,7 @@ const GeneralInformation = (props, context) => {
       <Flex.Item
         mt={1}
       >
-        <i>Total sisters: {total_cultists}</i>
+        <i>Total acolytes: {total_cultists}</i>
       </Flex.Item>
     </Flex>
   );

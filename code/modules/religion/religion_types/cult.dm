@@ -113,6 +113,7 @@
 	START_PROCESSING(SSreligion, src)
 
 	cult_ui = new(src)
+	cult_ui.update_all_cultist_data()
 
 /datum/religion/cult/setup_religions()
 	global.cult_religion = src
@@ -249,6 +250,7 @@
 	handle_appearence(M)
 	ADD_TRAIT(M, TRAIT_HEALS_FROM_PYLONS, RELIGION_TRAIT)
 	M.update_alt_apperance_by(/datum/atom_hud/alternate_appearance/basic/my_religion)
+	cult_ui.update_all_cultist_data()
 	return TRUE
 
 /datum/religion/cult/proc/handle_appearence(mob/M)
@@ -321,3 +323,4 @@
 	if(HAS_TRAIT(L, TRAIT_CULT_HALO))
 		L.RemoveElement(/datum/element/cult_halo)
 	M.update_alt_apperance_by(/datum/atom_hud/alternate_appearance/basic/my_religion)
+	cult_ui.update_all_cultist_data()
