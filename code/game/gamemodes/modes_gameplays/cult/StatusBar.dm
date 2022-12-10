@@ -1,75 +1,75 @@
 
-/mob/verb/hive_status()
-	set name = "Hive Status"
-	set desc = "Check the status of the hive."
+/mob/verb/cult_status()
+	set name = "cult Status"
+	set desc = "Check the status of the cult."
 	set category = "Ghost"
 
-	if(cult_religion) // Only one hive, don't need an input menu for that
-		cult_religion.hive_ui.open_hive_status(src)
+	if(cult_religion)
+		cult_religion.cult_ui.open_cult_status(src)
 
-/datum/hive_status_ui
-	var/name = "Hive Status"
+/datum/cult_status_ui
+	var/name = "Cult Status"
 
 	// Data to pass when rendering the UI (not static)
-	var/total_xenos
-	var/list/xeno_counts
-	var/list/xeno_vitals
-	var/list/xeno_keys
-	var/list/xeno_info
+	var/total_cultists
+	var/list/cultist_counts
+	var/list/cultist_vitals
+	var/list/cultists_keys
+	var/list/cultist_info
 
 	var/data_initialized = FALSE
 
-	var/datum/religion/cult/assoc_hive = null
+	var/datum/religion/cult/assoc_cult = null
 
-/datum/hive_status_ui/New(datum/religion/cult/hive)
-	assoc_hive = hive
+/datum/cult_status_ui/New(datum/religion/cult/cult)
+	assoc_cult = cult
 	update_all_data()
 	START_PROCESSING(SSprocessing, src)
 
-/datum/hive_status_ui/process()
-	update_xeno_vitals()
-	update_xeno_info(FALSE)
+/datum/cult_status_ui/process()
+	update_cultist_vitals()
+	update_cultist_info(FALSE)
 	SStgui.update_uis(src)
 
 // Updates the list tracking how many xenos there are in each tier, and how many there are in total
-/datum/hive_status_ui/proc/update_xeno_counts(send_update = TRUE)
-	xeno_counts = assoc_hive.members.len
+/datum/cult_status_ui/proc/update_cultist_counts(send_update = TRUE)
+	cultist_counts = assoc_cult.members.len
 
-	total_xenos = 0
-	for(var/counts in xeno_counts)
+	total_cultists = 0
+	for(var/counts in cultist_counts)
 		for(var/caste in counts)
-			total_xenos += counts[caste]
+			total_cultists += counts[caste]
 
 	if(send_update)
 		SStgui.update_uis(src)
 
-	//xeno_counts[1] &= ~"Eminence"
+	//cultist_counts[1] &= ~"Eminence"
 
 /*
 	// Also update the amount of T2/T3 slots
-	//tier_slots = assoc_hive.get_tier_slots()
-// Updates the hive location using the area name of the defined hive location turf
-/datum/hive_status_ui/proc/update_hive_location(send_update = TRUE)
-	if(!assoc_hive.hive_location)
+	//tier_slots = assoc_cult.get_tier_slots()
+// Updates the cult location using the area name of the defined cult location turf
+/datum/cult_status_ui/proc/update_cult_location(send_update = TRUE)
+	if(!assoc_cult.cult_location)
 		return
 
-	hive_location = get_area_name(assoc_hive.hive_location)
+	cult_location = get_area_name(assoc_cult.cult_location)
 
 	if(send_update)
 		SStgui.update_uis(src)
 */
 // Updates the sorted list of all xenos that we use as a key for all other information
-/datum/hive_status_ui/proc/update_xeno_keys(send_update = TRUE)
-	xeno_keys = get_xeno_keys()
+/datum/cult_status_ui/proc/update_cultists_keys(send_update = TRUE)
+	cultists_keys = get_cultists_keys()
 
 	if(send_update)
 		SStgui.update_uis(src)
 
-/datum/hive_status_ui/proc/get_xeno_keys()
-	var/list/xenos[assoc_hive.members.len]
+/datum/cult_status_ui/proc/get_cultists_keys()
+	var/list/xenos[assoc_cult.members.len]
 
 	var/index = 1
-	for(var/mob/living/X in assoc_hive.members)
+	for(var/mob/living/X in assoc_cult.members)
 		// Insert without doing list merging
 		xenos[index++] = list(
 			"nicknumber" = X.real_name,
@@ -78,35 +78,35 @@
 		)
 
 	return xenos
-// Mildly related to the above, but only for when xenos are removed from the hive
+// Mildly related to the above, but only for when xenos are removed from the cult
 // If a xeno dies, we don't have to regenerate all xeno info and sort it again, just remove them from the data list
-/datum/hive_status_ui/proc/xeno_removed(mob/living/X)
-	if(!xeno_keys)
+/datum/cult_status_ui/proc/xeno_removed(mob/living/X)
+	if(!cultists_keys)
 		return
 
-	for(var/index in 1 to length(xeno_keys))
-		var/list/info = xeno_keys[index]
+	for(var/index in 1 to length(cultists_keys))
+		var/list/info = cultists_keys[index]
 		if(info["nicknumber"] == X.real_name)
 
 			// tried Remove(), didn't work. *shrug*
-			xeno_keys[index] = null
-			xeno_keys -= null
+			cultists_keys[index] = null
+			cultists_keys -= null
 			return
 
 	SStgui.update_uis(src)
 
 // Updates the list of xeno names, strains and references
-/datum/hive_status_ui/proc/update_xeno_info(send_update = TRUE)
-	xeno_info = get_xeno_info()
+/datum/cult_status_ui/proc/update_cultist_info(send_update = TRUE)
+	cultist_info = get_cultist_info()
 
 	if(send_update)
 		SStgui.update_uis(src)
 
-// Returns a list with some more info about all xenos in the hive
-/datum/hive_status_ui/proc/get_xeno_info()
+// Returns a list with some more info about all xenos in the cult
+/datum/cult_status_ui/proc/get_cultist_info()
 	var/list/xenos = list()
 
-	for(var/mob/living/X in assoc_hive.members)
+	for(var/mob/living/X in assoc_cult.members)
 
 		var/xeno_name = X.name
 		xenos["[X.real_name]"] = list(
@@ -117,14 +117,14 @@
 
 	return xenos
 // Updates vital information about xenos such as health and location. Only info that should be updated regularly
-/datum/hive_status_ui/proc/update_xeno_vitals()
-	xeno_vitals = get_xeno_vitals()
+/datum/cult_status_ui/proc/update_cultist_vitals()
+	cultist_vitals = get_cultist_vitals()
 /*
 // Updates how many buried larva there are
-/datum/hive_status_ui/proc/update_pooled_larva(send_update = TRUE)
-	pooled_larva = assoc_hive.stored_larva
+/datum/cult_status_ui/proc/update_pooled_larva(send_update = TRUE)
+	pooled_larva = assoc_cult.stored_larva
 	/*if(SSxevolution)
-		evilution_level = SSxevolution.get_evolution_boost_power(assoc_hive.hivenumber)
+		evilution_level = SSxevolution.get_evolution_boost_power(assoc_cult.cultnumber)
 	else
 		evilution_level = 1*/
 
@@ -133,10 +133,10 @@
 */
 
 // Returns a list of xeno healths and locations
-/datum/hive_status_ui/proc/get_xeno_vitals()
+/datum/cult_status_ui/proc/get_cultist_vitals()
 	var/list/xenos = list()
 
-	for(var/mob/living/X in assoc_hive.members)
+	for(var/mob/living/X in assoc_cult.members)
 		var/area/A = get_area(X)
 		var/area_name = "Unknown"
 		if(A)
@@ -151,47 +151,47 @@
 	return xenos
 
 // Updates all data except pooled larva
-/datum/hive_status_ui/proc/update_all_xeno_data(send_update = TRUE)
-	update_xeno_counts(FALSE)
-	update_xeno_vitals()
-	update_xeno_keys(FALSE)
-	update_xeno_info(FALSE)
+/datum/cult_status_ui/proc/update_all_xeno_data(send_update = TRUE)
+	update_cultist_counts(FALSE)
+	update_cultist_vitals()
+	update_cultists_keys(FALSE)
+	update_cultist_info(FALSE)
 
 	if(send_update)
 		SStgui.update_uis(src)
 
 // Updates all data, including pooled larva
-/datum/hive_status_ui/proc/update_all_data()
+/datum/cult_status_ui/proc/update_all_data()
 	data_initialized = TRUE
 	update_all_xeno_data(FALSE)
 	SStgui.update_uis(src)
 /*
-/datum/hive_status_ui/tgui_state(mob/user)
+/datum/cult_status_ui/tgui_state(mob/user)
 	return "Blood"
 */
-/datum/hive_status_ui/tgui_status(mob/user, datum/tgui_state/state)
+/datum/cult_status_ui/tgui_status(mob/user, datum/tgui_state/state)
 	return UI_INTERACTIVE
 	//if(isobserver(user))
 	//	return UI_INTERACTIVE
 
-/datum/hive_status_ui/tgui_data(mob/user)
+/datum/cult_status_ui/tgui_data(mob/user)
 	. = list()
-	.["total_xenos"] = total_xenos
-	.["xeno_counts"] = xeno_counts
-	.["xeno_keys"] = xeno_keys
-	.["xeno_info"] = xeno_info
-	.["xeno_vitals"] = xeno_vitals
+	.["total_cultists"] = total_cultists
+	.["cultist_counts"] = cultist_counts
+	.["cultists_keys"] = cultists_keys
+	.["cultist_info"] = cultist_info
+	.["cultist_vitals"] = cultist_vitals
 
-	var/area/A = get_area(assoc_hive.eminence)
-	.["queen_location"] = get_area_name(A)
+	var/area/A = get_area(assoc_cult.eminence)
+	.["eminence_location"] = get_area_name(A)
 
-/datum/hive_status_ui/tgui_static_data(mob/user)
+/datum/cult_status_ui/tgui_static_data(mob/user)
 	. = list()
 	.["user_ref"] = REF(user)
-	.["hive_color"] = COLOR_CRIMSON_RED
-	.["hive_name"] = assoc_hive.name
+	.["cult_color"] = COLOR_CRIMSON_RED
+	.["cult_name"] = assoc_cult.name
 
-/datum/hive_status_ui/proc/open_hive_status(var/mob/user)
+/datum/cult_status_ui/proc/open_cult_status(var/mob/user)
 	if(!user)
 		return
 
@@ -201,17 +201,17 @@
 
 	tgui_interact(user)
 
-/datum/hive_status_ui/tgui_interact(mob/user, datum/tgui/ui)
-	if(!assoc_hive)
+/datum/cult_status_ui/tgui_interact(mob/user, datum/tgui/ui)
+	if(!assoc_cult)
 		return
 
 	ui = SStgui.try_update_ui(user, src, ui)
 	if (!ui)
-		ui = new(user, src, "StatusBar", "[assoc_hive.name] Status")
+		ui = new(user, src, "StatusBar", "[assoc_cult.name] Status")
 		ui.open()
 		ui.set_autoupdate(FALSE)
 /*
-/datum/hive_status_ui/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
+/datum/cult_status_ui/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
 	. = ..()
 	if(.)
 		return

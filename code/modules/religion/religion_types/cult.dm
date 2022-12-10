@@ -89,7 +89,7 @@
 	var/mob/camera/eminence/eminence
 	var/research_forbidden = FALSE //If Eminence forbade research for fellow cultist
 
-	var/datum/hive_status_ui/hive_ui
+	var/datum/cult_status_ui/cult_ui
 
 /datum/religion/cult/New()
 	..()
@@ -112,7 +112,7 @@
 
 	START_PROCESSING(SSreligion, src)
 
-	hive_ui = new(src)
+	cult_ui = new(src)
 
 /datum/religion/cult/setup_religions()
 	global.cult_religion = src

@@ -1,10 +1,10 @@
 @use 'sass:meta';
 
-.theme-hive_status {
+.theme-cult_status {
   // Components
   @include meta.load-css('../components/BlockQuote.scss');
   @include meta.load-css('../components/Button.scss', $with: (
-    'color-selected': #52375C,
+    'color-selected': #360c0c,
   ));
   @include meta.load-css('../components/Table.scss');
 
@@ -36,23 +36,23 @@
     text-align: center;
   }
 
-  .xenoCountTable {
+  .cultCountTable {
     text-align: center;
     border-collapse: collapse;
     table-layout: fixed;
   }
 
-  .xenoCountRow {
+  .cultCountRow {
     background-color: #52375C;
   }
 
-  .xenoCountCell {
+  .cultCountCell {
     padding: 5px 5px 5px 5px;
     border-bottom: 1px solid #fff;
     text-align: center;
   }
 
-  .xenoListRow {
+  .cultListRow {
     text-align: left;
   }
 
@@ -100,17 +100,17 @@
     background-image: url('../../assets/xenoSSDIcon.png');
   }
 
-  .xeno_list {
+  .cult_list {
     border-collapse: collapse;
     width: 100%;
     table-layout: fixed;
   }
 
-  .xeno_list .Table__row {
+  .cult_list .Table__row {
     height: 40px;
   }
 
-  .xeno_list .Table__row .Table__cell {
+  .cult_list .Table__row .Table__cell {
     vertical-align: middle;
   }
 }
