@@ -272,7 +272,7 @@ const CultList = (props, context) => {
                     />
                   </Flex.Item>
                   {!!is_in_ovi && (
-                    <QueenOviButtons target_ref={entry.ref} />
+                    <EminenceButtons target_ref={entry.ref} />
                   )}
                 </Flex>
               )}
@@ -316,7 +316,7 @@ const CultCollapsible = (props, context) => {
   );
 };
 
-const QueenOviButtons = (props, context) => {
+const EminenceButtons = (props, context) => {
   const { act, data } = useBackend(context);
   const { target_ref } = props;
 
