@@ -5,6 +5,9 @@ import { useBackend, useLocalState } from '../backend';
 import { Input, Button, Flex, Divider, Collapsible, Icon, NumberInput, Table } from '../components';
 import { Window } from '../layouts';
 
+const redFont = {
+  color: "red",
+};
 /**
  * Filters the list of cultists and returns a set of rows that will be used in the
  * Cultist list table
@@ -225,7 +228,7 @@ const CultList = (props, context) => {
         <Table.Row header className="cultistListRow">
           <Table.Cell width="5%" className="noPadCell" />
           <Table.Cell>Name</Table.Cell>
-          <Table.Cell width="15%">assigned_job</Table.Cell>
+          <Table.Cell width="15%">Job</Table.Cell>
           <Table.Cell>Location</Table.Cell>
           <Table.Cell width="75px">Health</Table.Cell>
           <Table.Cell width="100px" />

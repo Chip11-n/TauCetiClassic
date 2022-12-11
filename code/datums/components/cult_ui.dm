@@ -9,9 +9,8 @@
 
 /datum/element/cult_ui/Attach(datum/target)
 	. = ..()
-	if(cult_religion)
+	if(!status)
 		status = global.cult_religion.cult_ui
-
 	if (!ismob(target))
 		return ELEMENT_INCOMPATIBLE
 	// Register signals for mob dust and gibs
