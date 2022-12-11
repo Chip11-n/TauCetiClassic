@@ -4,7 +4,7 @@
   // Components
   @include meta.load-css('../components/BlockQuote.scss');
   @include meta.load-css('../components/Button.scss', $with: (
-    'color-selected': #360c0c,
+    'color-selected': #310000,
   ));
   @include meta.load-css('../components/Table.scss');
 
@@ -13,22 +13,22 @@
   @include meta.load-css('../layouts/TitleBar.scss');
 
   .Layout__content {
-    background-color: #1B1E25;
-    background-image: url('../../assets/bg-xeno.png');
+    background-color: #2b2b2b;
+    background-image: url('../../assets/bg-cult.png');
     background-position: top;
     background-size: contain;
     background-repeat: repeat no-repeat;
   }
 
   .TitleBar {
-    background-image: url('../../assets/titlebar-xeno.png');
+    background-image: url('../../assets/titlebar-cult.png');
     background-position: right 40px top 50%;
     background-repeat: no-repeat;
   }
 
   .Table__cell {
     padding: 10px 10px 10px 10px;
-    border-bottom: 1px solid #252933;
+    border-bottom: 1px solid #1f1313;
   }
 
   .Table__row--header .Table__cell,
@@ -43,7 +43,7 @@
   }
 
   .cultCountRow {
-    background-color: #52375C;
+    background-color: #5f1f1f;
   }
 
   .cultCountCell {
@@ -61,7 +61,7 @@
   }
 
   .ssdRow {
-    background-color: #1D2128;
+    background-color: #180404;
     font-style: italic;
   }
 
@@ -97,7 +97,7 @@
   .ssdIcon {
     width: 16px;
     height: 16px;
-    background-image: url('../../assets/xenoSSDIcon.png');
+    background-image: url('../../assets/SSDIcon.png');
   }
 
   .cult_list {
