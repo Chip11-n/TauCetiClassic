@@ -12,7 +12,7 @@
 
 	// Data to pass when rendering the UI (not static)
 	var/total_cultists
-	var/list/cultist_counts
+	//var/list/cultist_counts
 	var/list/cultist_vitals
 	var/list/cultists_keys
 	var/list/cultist_info
@@ -33,26 +33,11 @@
 
 // Updates the list tracking how many cultists there are in each tier, and how many there are in total
 /datum/cult_status_ui/proc/update_cultist_counts(send_update = TRUE)
-	cultist_counts = assoc_cult.members.len
+	total_cultists = assoc_cult.members.len
 
 	if(send_update)
 		SStgui.update_uis(src)
 
-	//cultist_counts[1] &= ~"Eminence"
-
-/*
-	// Also update the amount of T2/T3 slots
-	//tier_slots = assoc_cult.get_tier_slots()
-// Updates the cult location using the area name of the defined cult location turf
-/datum/cult_status_ui/proc/update_cult_location(send_update = TRUE)
-	if(!assoc_cult.cult_location)
-		return
-
-	cult_location = get_area_name(assoc_cult.cult_location)
-
-	if(send_update)
-		SStgui.update_uis(src)
-*/
 // Updates the sorted list of all cultists that we use as a key for all other information
 /datum/cult_status_ui/proc/update_cultists_keys(send_update = TRUE)
 	cultists_keys = get_cultists_keys()
@@ -73,9 +58,10 @@
 		)
 
 	return cultists
+
 // Mildly related to the above, but only for when cultists are removed from the cult
-// If a xeno dies, we don't have to regenerate all xeno info and sort it again, just remove them from the data list
-/datum/cult_status_ui/proc/xeno_removed(mob/living/L)
+// If a cultist dies, we don't have to regenerate all xeno info and sort it again, just remove them from the data list
+/datum/cult_status_ui/proc/cultist_removed(mob/L)
 	if(!cultists_keys)
 		return
 
@@ -88,7 +74,7 @@
 
 	SStgui.update_uis(src)
 
-// Updates the list of xeno names, strains and references
+// Updates the list of xeno names, assigned_job and references
 /datum/cult_status_ui/proc/update_cultist_info(send_update = TRUE)
 	cultist_info = get_cultist_info()
 
@@ -100,30 +86,18 @@
 	var/list/cultists = list()
 
 	for(var/mob/living/L in assoc_cult.members)
-
 		var/xeno_name = L.name
 		cultists["[L.real_name]"] = list(
 			"name" = xeno_name,
-			"strain" = L.mind.assigned_job,
+			"assigned_job" = L.mind.assigned_job,
 			"ref" = "\ref[L]"
 		)
 
 	return cultists
+
 // Updates vital information about cultists such as health and location. Only info that should be updated regularly
 /datum/cult_status_ui/proc/update_cultist_vitals()
 	cultist_vitals = get_cultist_vitals()
-/*
-// Updates how many buried larva there are
-/datum/cult_status_ui/proc/update_pooled_larva(send_update = TRUE)
-	pooled_larva = assoc_cult.stored_larva
-	/*if(SSxevolution)
-		evilution_level = SSxevolution.get_evolution_boost_power(assoc_cult.cultreal_name)
-	else
-		evilution_level = 1*/
-
-	if(send_update)
-		SStgui.update_uis(src)
-*/
 
 // Returns a list of xeno healths and locations
 /datum/cult_status_ui/proc/get_cultist_vitals()
@@ -170,7 +144,6 @@
 /datum/cult_status_ui/tgui_data(mob/user)
 	. = list()
 	.["total_cultists"] = total_cultists
-	.["cultist_counts"] = cultist_counts
 	.["cultists_keys"] = cultists_keys
 	.["cultist_info"] = cultist_info
 	.["cultist_vitals"] = cultist_vitals

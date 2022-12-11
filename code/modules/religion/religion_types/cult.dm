@@ -250,6 +250,7 @@
 	handle_appearence(M)
 	ADD_TRAIT(M, TRAIT_HEALS_FROM_PYLONS, RELIGION_TRAIT)
 	M.update_alt_apperance_by(/datum/atom_hud/alternate_appearance/basic/my_religion)
+	M.AddElement(/datum/element/cult_ui)
 	cult_ui.update_all_cultist_data()
 	return TRUE
 
@@ -322,5 +323,5 @@
 		L.RemoveElement(/datum/element/cult_eyes)
 	if(HAS_TRAIT(L, TRAIT_CULT_HALO))
 		L.RemoveElement(/datum/element/cult_halo)
+	L.RemoveElement(/datum/element/cult_ui)
 	M.update_alt_apperance_by(/datum/atom_hud/alternate_appearance/basic/my_religion)
-	cult_ui.update_all_cultist_data()

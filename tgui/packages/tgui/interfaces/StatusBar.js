@@ -22,7 +22,7 @@ const filterCultists = data => {
     let entry = {
       real_name: real_name,
       name: cultist_info[real_name].name,
-      strain: cultist_info[real_name].strain,
+      assigned_job: cultist_info[real_name].assigned_job,
       location: cultist_vitals[real_name].area,
       health: cultist_vitals[real_name].health,
       ref: cultist_info[real_name].ref,
@@ -104,8 +104,8 @@ export const StatusBar = (props, context) => {
 const GeneralInformation = (props, context) => {
   const { data } = useBackend(context);
   const {
-    eminence_location,
     total_cultists,
+    eminence_location,
   } = data;
 
   return (
@@ -131,7 +131,7 @@ const GeneralInformation = (props, context) => {
 const CultList = (props, context) => {
   const { act, data } = useBackend(context);
   const [searchKey, setSearchKey] = useLocalState(context, 'searchKey', '');
-  const [searchFilters, setSearchFilters] = useLocalState(context, 'searchFilters', { name: true, strain: true, location: true });
+  const [searchFilters, setSearchFilters] = useLocalState(context, 'searchFilters', { name: true, assigned_job: true, location: true });
   const [maxHealth, setMaxHealth] = useLocalState(context, 'maxHealth', 100);
   const {
     cultists_keys, cultist_vitals,
@@ -171,12 +171,12 @@ const CultList = (props, context) => {
             />
             <Button.Checkbox
               inline
-              content="Strain"
-              checked={searchFilters.strain}
-              backgroundColor={searchFilters.strain && cult_color}
+              content="Job"
+              checked={searchFilters.assigned_job}
+              backgroundColor={searchFilters.assigned_job && cult_color}
               onClick={() => setSearchFilters({
                 ...searchFilters,
-                strain: !searchFilters.strain,
+                assigned_job: !searchFilters.assigned_job,
               })}
             />
             <Button.Checkbox
@@ -225,7 +225,7 @@ const CultList = (props, context) => {
         <Table.Row header className="cultistListRow">
           <Table.Cell width="5%" className="noPadCell" />
           <Table.Cell>Name</Table.Cell>
-          <Table.Cell width="15%">Strain</Table.Cell>
+          <Table.Cell width="15%">assigned_job</Table.Cell>
           <Table.Cell>Location</Table.Cell>
           <Table.Cell width="75px">Health</Table.Cell>
           <Table.Cell width="100px" />
@@ -243,7 +243,7 @@ const CultList = (props, context) => {
               <StatusIcon entry={entry} />
             </Table.Cell>
             <Table.Cell>{entry.name}</Table.Cell>
-            <Table.Cell>{entry.strain}</Table.Cell>
+            <Table.Cell>{entry.assigned_job}</Table.Cell>
             <Table.Cell>{entry.location}</Table.Cell>
             <Table.Cell>
               {entry.health < 30
