@@ -30,7 +30,13 @@
 	update_cultist_vitals()
 	update_cultist_info(FALSE)
 	SStgui.update_uis(src)
-
+/*
+  .leaderIcon {
+    width: 16px;
+    height: 16px;
+    background-image: url('../../assets/xenoLeaderBg.png');
+  }
+*/
 // Updates the list tracking how many cultists there are in each tier, and how many there are in total
 /datum/cult_status_ui/proc/update_cultist_counts(send_update = TRUE)
 	total_cultists = assoc_cult.members.len
@@ -65,6 +71,7 @@
 	if(!cultists_keys)
 		return
 
+	cultists_keys.Remove(null)
 	for(var/index in 1 to length(cultists_keys))
 		var/list/info = cultists_keys[index]
 		if(info["real_name"] == L.real_name)
@@ -185,13 +192,12 @@
 	switch(action)
 		if("overwatch")
 			var/mob/living/Target = locate(params["target_ref"]) in assoc_cult.members
-			var/mob/living/Src = ui.user
 
 			if(QDELETED(Target))
 				return
 
-			if(iseminence(Src))
-				var/mob/camera/eminence/O = src
+			if(iseminence(ui.user))
+				var/mob/camera/eminence/O = ui.user
 				O.eminence_track(Target)
 			return
 /*

@@ -13,7 +13,7 @@
   @include meta.load-css('../layouts/TitleBar.scss');
 
   .Layout__content {
-    background-color: #2b2b2b;
+    background-color: #0E0B09;
     background-image: url('../../assets/bg-cult.png');
     background-position: top;
     background-size: contain;
@@ -86,12 +86,6 @@
   h1 {
     margin: 0;
     padding: 0;
-  }
-
-  .leaderIcon {
-    width: 16px;
-    height: 16px;
-    background-image: url('../../assets/xenoLeaderBg.png');
   }
 
   .ssdIcon {
