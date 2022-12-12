@@ -139,7 +139,7 @@ const CultList = (props, context) => {
   const {
     cultists_keys, cultist_vitals,
     cultist_info, user_ref,
-    cult_color, is_in_ovi,
+    cult_color, is_eminence,
   } = data;
   const cultist_entries = filterCultists({
     searchKey: searchKey,
@@ -148,6 +148,7 @@ const CultList = (props, context) => {
     cultists_keys: cultists_keys,
     cultist_vitals: cultist_vitals,
     cultist_info: cultist_info,
+    is_eminence: is_eminence,
   });
 
   return (
@@ -263,19 +264,18 @@ const CultList = (props, context) => {
                   justify="space-around"
                   inline
                 >
-                  <Flex.Item>
-                    <Button
-                      content="Watch"
-                      color="cultist"
-                      onClick={
-                        () => act("overwatch", {
-                          target_ref: entry.ref,
-                        })
-                      }
-                    />
-                  </Flex.Item>
-                  {!!is_in_ovi && (
-                    <EminenceButtons target_ref={entry.ref} />
+                  {!!is_eminence && (
+                    <Flex.Item>
+                      <Button
+                        content="Watch"
+                        color="cultist"
+                        onClick={
+                          () => act("overwatch", {
+                            target_ref: entry.ref,
+                          })
+                        }
+                      />
+                    </Flex.Item>
                   )}
                 </Flex>
               )}
@@ -316,37 +316,5 @@ const CultCollapsible = (props, context) => {
     >
       {children}
     </Collapsible>
-  );
-};
-
-const EminenceButtons = (props, context) => {
-  const { act, data } = useBackend(context);
-  const { target_ref } = props;
-
-  return (
-    <Fragment>
-      <Flex.Item>
-        <Button
-          content="Heal"
-          color="green"
-          onClick={
-            () => act("heal", {
-              target_ref: target_ref,
-            })
-          }
-        />
-      </Flex.Item>
-      <Flex.Item>
-        <Button
-          content="Give Plasma"
-          color="blue"
-          onClick={
-            () => act("give_plasma", {
-              target_ref: target_ref,
-            })
-          }
-        />
-      </Flex.Item>
-    </Fragment>
   );
 };

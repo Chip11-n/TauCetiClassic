@@ -96,7 +96,7 @@
 		var/xeno_name = L.name
 		cultists["[L.real_name]"] = list(
 			"name" = xeno_name,
-			"assigned_job" = L.mind.assigned_job,
+			"assigned_job" = L.mind.assigned_job ? L.mind.assigned_job.title : "Unemployed",
 			"ref" = "\ref[L]"
 		)
 
@@ -237,3 +237,49 @@
 			A?.use_ability_wrapper(Target, TRUE)
 
 */
+/*
+const EminenceButtons = (props, context) => {
+  const { act, data } = useBackend(context);
+  const { target_ref } = props;
+
+  return (
+    <Fragment>
+      <Flex.Item>
+        <Button
+          content="Watch"
+          color="cultist"
+          onClick={
+            () => act("overwatch", {
+              target_ref: entry.ref,
+            })
+          }
+        />
+      </Flex.Item>
+    </Fragment>
+  );
+};
+*/
+
+/*<Flex.Item>
+        <Button
+          content="Heal"
+          color="green"
+          onClick={
+            () => act("heal", {
+              target_ref: target_ref,
+            })
+          }
+        />
+      </Flex.Item>
+      <Flex.Item>
+        <Button
+          content="Give Plasma"
+          color="blue"
+          onClick={
+            () => act("give_plasma", {
+              target_ref: target_ref,
+            })
+          }
+        />
+      </Flex.Item>
+        */
