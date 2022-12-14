@@ -70,7 +70,7 @@
 	//Eminence. Special case
 	if(assoc_cult.eminence)
 		cultists["[assoc_cult.eminence.real_name]"] = list(
-			"name" = assoc_cult.eminence.real_name,
+			"real_name" = assoc_cult.eminence.real_name,
 			"assigned_job" = "Mentor",
 			"health" = "Immortal",
 			"is_eminence" = TRUE,
