@@ -108,6 +108,7 @@ const GeneralInformation = (props, context) => {
   const { data } = useBackend(context);
   const {
     total_cultists,
+    cultists_alive,
     eminence_location,
   } = data;
 
@@ -126,6 +127,11 @@ const GeneralInformation = (props, context) => {
         mt={1}
       >
         <i>Total acolytes: {total_cultists}</i>
+      </Flex.Item>
+      <Flex.Item
+        mt={1}
+      >
+        <i>Acolytes alive: {cultists_alive}</i>
       </Flex.Item>
     </Flex>
   );
@@ -210,7 +216,7 @@ const CultList = (props, context) => {
               step={1}
               stepPixelSize={5}
               value={maxHealth}
-              minValue={0}
+              minValue={-100}
               maxValue={100}
               onChange={(_, value) => setMaxHealth(value)}
             />
@@ -251,8 +257,8 @@ const CultList = (props, context) => {
             <Table.Cell>{entry.location}</Table.Cell>
             <Table.Cell>
               {entry.health < 30
-                ? <b style={redFont}>{entry.health}%</b>
-                : <Fragment>{entry.health}%</Fragment>}
+                ? <b style={redFont}>{entry.health}</b>
+                : <Fragment> {entry.health}</Fragment>}
             </Table.Cell>
             <Table.Cell className="noPadCell" textAlign="center">
               {entry.ref !== user_ref && (

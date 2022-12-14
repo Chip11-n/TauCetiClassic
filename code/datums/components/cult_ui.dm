@@ -22,8 +22,8 @@
 /datum/element/cult_ui/proc/remove_cultist_ui(mob/target, gibbed)
 	SIGNAL_HANDLER
 	if(gibbed)
-		status.update_cultist_counts()
 		status.cultist_removed(target)
+	status.update_cultist_counts()
 
 /**
  * Detach proc

@@ -12,7 +12,7 @@
 
 	// Data to pass when rendering the UI (not static)
 	var/total_cultists
-	//var/list/cultist_counts
+	var/cultists_alive
 	var/list/cultist_vitals
 	var/list/cultists_keys
 	var/list/cultist_info
@@ -37,9 +37,14 @@
     background-image: url('../../assets/xenoLeaderBg.png');
   }
 */
-// Updates the list tracking how many cultists there are in each tier, and how many there are in total
+// Updates how many cultists alive and in total
 /datum/cult_status_ui/proc/update_cultist_counts(send_update = TRUE)
 	total_cultists = assoc_cult.members.len
+
+	cultists_alive = 0
+	for(var/mob/M as anything in assoc_cult.members)
+		if(M.stat == CONSCIOUS)
+			cultists_alive++
 
 	if(send_update)
 		SStgui.update_uis(src)
@@ -55,18 +60,24 @@
 	var/list/cultists[assoc_cult.members.len]
 
 	var/index = 1
-	for(var/mob/living/L in assoc_cult.members)
+	for(var/mob/L as anything in assoc_cult.members - assoc_cult.eminence)
 		// Insert without doing list merging
 		cultists[index++] = list(
 			"real_name" = L.real_name,
-			"is_eminence" = iseminence(L),
 			"assigned_job" = L.mind.assigned_job
 		)
 
+	//Eminence. Special case
+	if(assoc_cult.eminence)
+		cultists["[assoc_cult.eminence.real_name]"] = list(
+			"name" = assoc_cult.eminence.real_name,
+			"assigned_job" = "Mentor",
+			"health" = "Immortal",
+			"is_eminence" = TRUE,
+		)
 	return cultists
 
-// Mildly related to the above, but only for when cultists are removed from the cult
-// If a cultist dies, we don't have to regenerate all xeno info and sort it again, just remove them from the data list
+// If a cultist dies, we don't have to regenerate all info and sort it again, just remove them from the data list
 /datum/cult_status_ui/proc/cultist_removed(mob/L)
 	if(!cultists_keys)
 		return
@@ -92,14 +103,20 @@
 /datum/cult_status_ui/proc/get_cultist_info()
 	var/list/cultists = list()
 
-	for(var/mob/living/L in assoc_cult.members)
-		var/xeno_name = L.name
+	for(var/mob/L as anything in assoc_cult.members - assoc_cult.eminence)
 		cultists["[L.real_name]"] = list(
-			"name" = xeno_name,
+			"name" = L.real_name,
 			"assigned_job" = L.mind.assigned_job ? L.mind.assigned_job.title : "Unemployed",
 			"ref" = "\ref[L]"
 		)
-
+	//Eminence. Special case
+	if(assoc_cult.eminence)
+		cultists["[assoc_cult.eminence.real_name]"] = list(
+			"name" = assoc_cult.eminence.real_name,
+			"assigned_job" = "Mentor",
+			"ref" = "\ref[assoc_cult.eminence.real_name]",
+			"health" = "Immortal",
+		)
 	return cultists
 
 // Updates vital information about cultists such as health and location. Only info that should be updated regularly
@@ -110,16 +127,26 @@
 /datum/cult_status_ui/proc/get_cultist_vitals()
 	var/list/cultists = list()
 
-	for(var/mob/living/L in assoc_cult.members)
+	for(var/mob/living/L as anything in assoc_cult.members - assoc_cult.eminence)
 		var/area/A = get_area(L)
 		var/area_name = "Unknown"
 		if(A)
 			area_name = A.name
-
 		cultists["[L.real_name]"] = list(
-			"health" = round((L.health / L.maxHealth) * 100, 1),
+			"health" = "[round((L.health / L.maxHealth) * 100, 1)]%",
 			"area" = area_name,
 			"is_ssd" = (!L.client)
+		)
+
+	//Eminence. Special case
+	if(assoc_cult.eminence)
+		var/area/A = get_area(assoc_cult.eminence)
+		var/area_name = "Unknown"
+		if(A)
+			area_name = A.name
+		cultists["[assoc_cult.eminence.real_name]"] = list(
+			"area" = area_name,
+			"is_ssd" = (!assoc_cult.eminence.client)
 		)
 
 	return cultists
@@ -151,6 +178,7 @@
 /datum/cult_status_ui/tgui_data(mob/user)
 	. = list()
 	.["total_cultists"] = total_cultists
+	.["cultists_alive"] = cultists_alive
 	.["cultists_keys"] = cultists_keys
 	.["cultist_info"] = cultist_info
 	.["cultist_vitals"] = cultist_vitals
@@ -191,7 +219,7 @@
 
 	switch(action)
 		if("overwatch")
-			var/mob/living/Target = locate(params["target_ref"]) in assoc_cult.members
+			var/mob/Target = locate(params["target_ref"]) in assoc_cult.members
 
 			if(QDELETED(Target))
 				return
