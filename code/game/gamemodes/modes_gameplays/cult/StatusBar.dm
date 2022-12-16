@@ -64,7 +64,8 @@
 		// Insert without doing list merging
 		cultists[index++] = list(
 			"real_name" = L.real_name,
-			"assigned_job" = L.mind.assigned_job
+			"assigned_job" = L.mind.assigned_job,
+			"ref" = "\ref[L]"
 		)
 
 	//Eminence. Special case
@@ -74,6 +75,7 @@
 			"assigned_job" = "Mentor",
 			"health" = "Immortal",
 			"is_eminence" = TRUE,
+			"ref" = "\ref[assoc_cult.eminence]"
 		)
 	return cultists
 
@@ -83,13 +85,15 @@
 		return
 
 	cultists_keys.Remove(null)
-	for(var/index in 1 to length(cultists_keys))
+	/*for(var/index in 1 to length(cultists_keys))
 		var/list/info = cultists_keys[index]
 		if(info["real_name"] == L.real_name)
 			cultists_keys[index] = null
 			cultists_keys -= null
 			return
-
+*/
+	cultists_keys["\ref[L]"] = null
+	cultists_keys -= null
 	SStgui.update_uis(src)
 
 // Updates the list of xeno names, assigned_job and references
@@ -104,15 +108,15 @@
 	var/list/cultists = list()
 
 	for(var/mob/L as anything in assoc_cult.members - assoc_cult.eminence)
-		cultists["[L.real_name]"] = list(
-			//"real_name" = L.real_name,
+		cultists["\ref[L]"] = list(
+			"real_name" = L.real_name,
 			"assigned_job" = L.mind.assigned_job ? L.mind.assigned_job.title : "Unemployed",
-			"ref" = "\ref[L]"
+			"ref" = "\ref[L]" //We need it
 		)
 	//Eminence. Special case
 	if(assoc_cult.eminence)
-		cultists["[assoc_cult.eminence.real_name]"] = list(
-			//"real_name" = assoc_cult.eminence.real_name,
+		cultists["\ref[assoc_cult.eminence]"] = list(
+			"real_name" = assoc_cult.eminence.real_name,
 			"assigned_job" = "Mentor",
 			"ref" = "\ref[assoc_cult.eminence]"
 		)
@@ -131,7 +135,7 @@
 		var/area_name = "Unknown"
 		if(A)
 			area_name = A.name
-		cultists["[L.real_name]"] = list(
+		cultists["\ref[L]"] = list(
 			"health" = "[round((L.health / L.maxHealth) * 100, 1)]%",
 			"area" = area_name,
 			"is_ssd" = (!L.client)
@@ -143,7 +147,7 @@
 		var/area_name = "Unknown"
 		if(A)
 			area_name = A.name
-		cultists["[assoc_cult.eminence.real_name]"] = list(
+		cultists["\ref[assoc_cult.eminence]"] = list(
 			"area" = area_name,
 			"is_ssd" = (!assoc_cult.eminence.client),
 			"health" = "Immortal",
