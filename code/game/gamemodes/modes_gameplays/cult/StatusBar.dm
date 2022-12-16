@@ -69,7 +69,7 @@
 
 	//Eminence. Special case
 	if(assoc_cult.eminence)
-		cultists["[assoc_cult.eminence.real_name]"] = list(
+		cultists[index++] = list(
 			"real_name" = assoc_cult.eminence.real_name,
 			"assigned_job" = "Mentor",
 			"health" = "Immortal",
@@ -105,17 +105,16 @@
 
 	for(var/mob/L as anything in assoc_cult.members - assoc_cult.eminence)
 		cultists["[L.real_name]"] = list(
-			"name" = L.real_name,
+			//"real_name" = L.real_name,
 			"assigned_job" = L.mind.assigned_job ? L.mind.assigned_job.title : "Unemployed",
 			"ref" = "\ref[L]"
 		)
 	//Eminence. Special case
 	if(assoc_cult.eminence)
 		cultists["[assoc_cult.eminence.real_name]"] = list(
-			"name" = assoc_cult.eminence.real_name,
+			//"real_name" = assoc_cult.eminence.real_name,
 			"assigned_job" = "Mentor",
-			"ref" = "\ref[assoc_cult.eminence.real_name]",
-			"health" = "Immortal",
+			"ref" = "\ref[assoc_cult.eminence]"
 		)
 	return cultists
 
@@ -146,7 +145,8 @@
 			area_name = A.name
 		cultists["[assoc_cult.eminence.real_name]"] = list(
 			"area" = area_name,
-			"is_ssd" = (!assoc_cult.eminence.client)
+			"is_ssd" = (!assoc_cult.eminence.client),
+			"health" = "Immortal",
 		)
 
 	return cultists

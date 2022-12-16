@@ -24,7 +24,6 @@ const filterCultists = data => {
     const real_name = key.real_name.toString();
     let entry = {
       real_name: real_name,
-      name: cultist_info[real_name].name,
       assigned_job: cultist_info[real_name].assigned_job,
       location: cultist_vitals[real_name].area,
       health: cultist_vitals[real_name].health,
@@ -140,7 +139,7 @@ const GeneralInformation = (props, context) => {
 const CultList = (props, context) => {
   const { act, data } = useBackend(context);
   const [searchKey, setSearchKey] = useLocalState(context, 'searchKey', '');
-  const [searchFilters, setSearchFilters] = useLocalState(context, 'searchFilters', { name: true, assigned_job: true, location: true });
+  const [searchFilters, setSearchFilters] = useLocalState(context, 'searchFilters', { real_name: true, assigned_job: true, location: true });
   const [maxHealth, setMaxHealth] = useLocalState(context, 'maxHealth', 100);
   const {
     cultists_keys, cultist_vitals,
@@ -172,11 +171,11 @@ const CultList = (props, context) => {
             <Button.Checkbox
               inline
               content="Name"
-              checked={searchFilters.name}
-              backgroundColor={searchFilters.name && cult_color}
+              checked={searchFilters.real_name}
+              backgroundColor={searchFilters.real_name && cult_color}
               onClick={() => setSearchFilters({
                 ...searchFilters,
-                name: !searchFilters.name,
+                real_name: !searchFilters.real_name,
               })}
             />
             <Button.Checkbox
@@ -252,7 +251,7 @@ const CultList = (props, context) => {
             <Table.Cell className="noPadCell">
               <StatusIcon entry={entry} />
             </Table.Cell>
-            <Table.Cell>{entry.name}</Table.Cell>
+            <Table.Cell>{entry.real_name}</Table.Cell>
             <Table.Cell>{entry.assigned_job}</Table.Cell>
             <Table.Cell>{entry.location}</Table.Cell>
             <Table.Cell>
