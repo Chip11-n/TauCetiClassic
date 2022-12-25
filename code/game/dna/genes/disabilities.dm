@@ -126,7 +126,7 @@
 	M.setBlurriness(0)
 	M.eye_blind = 0 //##Z2
 */
-/datum/dna/gene/disability/blindness/activate(mob/M, connected, flags)
+/datum/dna/gene/disability/blindness/activate(mob/living/M, connected, flags)
 	. = ..()
 	M.become_blind(QUIRK_TRAIT)
 

@@ -1021,7 +1021,7 @@
 		var/obj/item/clothing/glasses/welding/O = glasses
 		if(!O.up && tinted_weldhelh)
 			impaired = max(impaired, 2)
-
+/*
 	if(eye_blurry)
 		update_eye_blur()
 	else
@@ -1035,7 +1035,7 @@
 		overlay_fullscreen("impaired", /atom/movable/screen/fullscreen/impaired, impaired)
 	else
 		clear_fullscreen("impaired")
-
+*/
 	if(!machine)
 		var/isRemoteObserve = 0
 		if((REMOTE_VIEW in mutations) && remoteview_target)

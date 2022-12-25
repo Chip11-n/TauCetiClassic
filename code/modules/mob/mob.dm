@@ -1086,7 +1086,7 @@ note dizziness decrements automatically in the mob's Life() proc.
 	switch(stat)
 		if(CONSCIOUS)
 			if(HAS_TRAIT(src, TRAIT_BLIND) || eye_blind)
-				throw_alert(ALERT_BLIND, /atom/movable/screen/alert/blind)
+				throw_alert("blind", /atom/movable/screen/alert/blind)
 				do_set_blindness(TRUE)
 			else
 				do_set_blindness(FALSE)
@@ -1102,7 +1102,7 @@ note dizziness decrements automatically in the mob's Life() proc.
 		// You are blind why should you be able to make out details like color, only shapes near you
 		//H.sightglassesmod = "greyscale"//add_client_colour(/datum/client_colour/monochrome/blind)
 	else
-		clear_alert(ALERT_BLIND)
+		clear_alert("blind")
 		clear_fullscreen("blind")
 		//remove_client_colour(/datum/client_colour/monochrome/blind)
 
@@ -1131,6 +1131,34 @@ note dizziness decrements automatically in the mob's Life() proc.
 	if(!HAS_TRAIT(src, TRAIT_NEARSIGHT))
 		overlay_fullscreen("nearsighted", /atom/movable/screen/fullscreen/impaired, 1)
 	ADD_TRAIT(src, TRAIT_NEARSIGHT, source)
+
+//to recalculate and update the mob's total tint from tinted equipment it's wearing.
+/mob/living/carbon/proc/update_tint()
+	if(!GLOB.tinted_weldhelh)
+		return
+	tinttotal = get_total_tint()
+	if(tinttotal >= TINT_BLIND)
+		become_blind(EYES_COVERED)
+	else if(tinttotal >= TINT_DARKENED)
+		cure_blind(EYES_COVERED)
+		overlay_fullscreen("tint", /atom/movable/screen/fullscreen/impaired, 2)
+	else
+		cure_blind(EYES_COVERED)
+		clear_fullscreen("tint", 0)
+
+/mob/living/carbon/proc/get_total_tint()
+	. = 0
+	if(isclothing(head))
+		. += head.tint
+	if(isclothing(wear_mask))
+		. += wear_mask.tint
+
+	var/obj/item/organ/internal/eyes/E = getorganslot(ORGAN_SLOT_EYES)
+	if(E)
+		. += E.tint
+
+	else
+		. += INFINITY
 
 //You can buckle on mobs if you're next to them since most are dense
 /mob/buckle_mob(mob/living/M)

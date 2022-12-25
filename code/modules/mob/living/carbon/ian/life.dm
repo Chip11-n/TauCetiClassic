@@ -371,14 +371,14 @@
 			stat = CONSCIOUS
 			if(halloss > 0)
 				adjustHalLoss(-1)
-
+/*
 		//Eyes
 		if(sdisabilities & BLIND)	//disabled-blind, doesn't get better on its own
 			blinded = TRUE
 		else if(eye_blind)			//blindness, heals slowly over time
 			eye_blind = max(eye_blind - 1,0)
-			blinded = TRUE
-		else if(eye_blurry)			//blurry eyes heal slowly
+			blinded = TRUEelse */
+		if(eye_blurry)			//blurry eyes heal slowly
 			adjustBlurriness(-1)
 
 		//Ears
