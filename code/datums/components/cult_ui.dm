@@ -13,8 +13,13 @@
 		status = global.cult_religion.cult_ui
 	if (!ismob(target))
 		return ELEMENT_INCOMPATIBLE
+
+	var/mob/M = target
+	var/datum/action/cult_status/A = new(M)
+	A.Grant(M)
+
 	// Register signals for mob dust and gibs
-	RegisterSignal(target, COMSIG_MOB_DIED, .proc/remove_cultist_ui)
+	RegisterSignal(M, COMSIG_MOB_DIED, .proc/remove_cultist_ui)
 
 /**
  * What happens if cultist is being gibbed or dusted
@@ -31,7 +36,19 @@
  * Removes the ui, it is unsafe to let it be without control
  */
 /datum/element/cult_ui/Detach(mob/target, ...)
-	status.update_all_cultist_data()
 	status.cultist_removed(target)
+	status.update_all_cultist_data()
 	UnregisterSignal(target, COMSIG_MOB_DIED)
 	return ..()
+
+/datum/action/cult_status
+	name = "Cult Status"
+	button_icon = 'icons/hud/actions.dmi'
+	button_icon_state = "status"
+	action_type = AB_INNATE
+
+/datum/action/cult_status/Activate()
+	if(!owner || !ismob(owner))
+		return
+	if(global.cult_religion)
+		global.cult_religion.cult_ui.open_cult_status(owner)

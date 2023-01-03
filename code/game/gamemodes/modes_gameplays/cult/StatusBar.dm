@@ -1,12 +1,3 @@
-
-/mob/verb/cult_status()
-	set name = "cult Status"
-	set desc = "Check the status of the cult."
-	set category = "Ghost"
-
-	if(cult_religion)
-		cult_religion.cult_ui.open_cult_status(src)
-
 /datum/cult_status_ui
 	var/name = "Cult Status"
 
@@ -28,15 +19,8 @@
 
 /datum/cult_status_ui/process()
 	update_cultist_vitals()
-	update_cultist_info(FALSE)
 	SStgui.update_uis(src)
-/*
-  .leaderIcon {
-    width: 16px;
-    height: 16px;
-    background-image: url('../../assets/xenoLeaderBg.png');
-  }
-*/
+
 // Updates how many cultists alive and in total
 /datum/cult_status_ui/proc/update_cultist_counts(send_update = TRUE)
 	total_cultists = assoc_cult.members.len
@@ -72,7 +56,6 @@
 		cultists[index++] = list(
 			"real_name" = assoc_cult.eminence.real_name,
 			"assigned_job" = "Mentor",
-			"health" = "Immortal",
 			"is_eminence" = TRUE,
 		)
 	return cultists
@@ -105,14 +88,12 @@
 
 	for(var/mob/L as anything in assoc_cult.members - assoc_cult.eminence)
 		cultists["[L.real_name]"] = list(
-			//"real_name" = L.real_name,
 			"assigned_job" = L.mind.assigned_job ? L.mind.assigned_job.title : "Unemployed",
 			"ref" = "\ref[L]"
 		)
 	//Eminence. Special case
 	if(assoc_cult.eminence)
 		cultists["[assoc_cult.eminence.real_name]"] = list(
-			//"real_name" = assoc_cult.eminence.real_name,
 			"assigned_job" = "Mentor",
 			"ref" = "\ref[assoc_cult.eminence]"
 		)
@@ -132,8 +113,8 @@
 		if(A)
 			area_name = A.name
 		cultists["[L.real_name]"] = list(
-			"health" = "[round((L.health / L.maxHealth) * 100, 1)]%",
 			"area" = area_name,
+			"health" = "[round((L.health / L.maxHealth) * 100, 1)]%",
 			"is_ssd" = (!L.client)
 		)
 
@@ -145,8 +126,8 @@
 			area_name = A.name
 		cultists["[assoc_cult.eminence.real_name]"] = list(
 			"area" = area_name,
-			"is_ssd" = (!assoc_cult.eminence.client),
 			"health" = "Immortal",
+			"is_ssd" = (!assoc_cult.eminence.client),
 		)
 
 	return cultists
@@ -166,14 +147,9 @@
 	data_initialized = TRUE
 	update_all_cultist_data(FALSE)
 	SStgui.update_uis(src)
-/*
-/datum/cult_status_ui/tgui_state(mob/user)
-	return "Blood"
-*/
+
 /datum/cult_status_ui/tgui_status(mob/user, datum/tgui_state/state)
 	return UI_INTERACTIVE
-	//if(isobserver(user))
-	//	return UI_INTERACTIVE
 
 /datum/cult_status_ui/tgui_data(mob/user)
 	. = list()
@@ -228,43 +204,7 @@
 				var/mob/camera/eminence/O = ui.user
 				O.eminence_track(Target)
 			return
-/*
-			if(!src.check_state(TRUE))
-				return
 
-			var/isQueen = (src.assigned_job == XENO_CASTE_QUEEN)
-			if (isQueen)
-				src.overwatch(Target)
-			else
-				src.overwatch(Target)
-				/*
-		if("give_plasma")
-			var/mob/living/Target = locate(params["target_ref"]) in GLOB.living_xeno_list
-			var/mob/living/Src = ui.user
-
-			if(QDELETED(Target) || Target.stat == DEAD || is_admin_level(Target.z))
-				return
-
-			if(src.stat == DEAD)
-				return
-
-			var/datum/action/xeno_action/A = get_xeno_action_by_type(src, /datum/action/xeno_action/activable/queen_give_plasma)
-			A?.use_ability_wrapper(Target)
-*/
-		if("heal")
-			var/mob/living/Target = locate(params["target_ref"]) in GLOB.living_xeno_list
-			var/mob/living/Src = ui.user
-
-			if(QDELETED(Target) || Target.stat == DEAD || is_admin_level(Target.z))
-				return
-
-			if(src.stat == DEAD)
-				return
-
-			var/datum/action/xeno_action/A = get_xeno_action_by_type(src, /datum/action/xeno_action/activable/queen_heal)
-			A?.use_ability_wrapper(Target, TRUE)
-
-*/
 /*
 const EminenceButtons = (props, context) => {
   const { act, data } = useBackend(context);
