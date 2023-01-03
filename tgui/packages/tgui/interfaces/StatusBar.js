@@ -21,14 +21,14 @@ const filterCultists = data => {
   const cultist_entries = [];
 
   cultists_keys.map((key, i) => {
-    const ref = key.ref.toString();
+    const real_name = key.real_name.toString();
     let entry = {
-      real_name: cultist_info[ref].real_name,
-      assigned_job: cultist_info[ref].assigned_job,
-      location: cultist_vitals[ref].area,
-      health: cultist_vitals[ref].health,
-      ref: cultist_info[ref].ref,
-      is_ssd: cultist_vitals[ref].is_ssd,
+      real_name: real_name,
+      assigned_job: cultist_info[real_name].assigned_job,
+      location: cultist_vitals[real_name].area,
+      health: cultist_vitals[real_name].health,
+      ref: cultist_info[real_name].ref,
+      is_ssd: cultist_vitals[real_name].is_ssd,
       is_leader: key.is_leader,
       is_eminence: key.is_eminence,
     };
@@ -120,7 +120,7 @@ const GeneralInformation = (props, context) => {
         textAlign="center"
       >
         <h3 className="whiteTitle">The Eminence at:</h3>
-        <h1 className="whiteTitle">{eminence_location ? {eminence_location} : "No Eminence"}</h1>
+        <h1 className="whiteTitle">{eminence_location}</h1>
       </Flex.Item>
       <Flex.Item
         mt={1}
