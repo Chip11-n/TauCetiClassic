@@ -89,8 +89,6 @@
 	var/mob/camera/eminence/eminence
 	var/research_forbidden = FALSE //If Eminence forbade research for fellow cultist
 
-	var/datum/cult_status_ui/cult_ui
-
 /datum/religion/cult/New()
 	..()
 	// Init anomalys

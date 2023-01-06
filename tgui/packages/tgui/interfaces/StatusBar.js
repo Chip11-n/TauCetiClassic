@@ -120,7 +120,7 @@ const GeneralInformation = (props, context) => {
         textAlign="center"
       >
         <h3 className="whiteTitle">The Eminence at:</h3>
-        <h1 className="whiteTitle">{eminence_location ? {eminence_location} : "No Eminence"}</h1>
+        <h1 className="whiteTitle">{eminence_location ? eminence_location : "No Eminence"}</h1>
       </Flex.Item>
       <Flex.Item
         mt={1}

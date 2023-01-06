@@ -45,6 +45,7 @@
 	name = "Cult Status"
 	button_icon = 'icons/hud/actions.dmi'
 	button_icon_state = "status"
+	background_icon_state = "bg_cult"
 	action_type = AB_INNATE
 
 /datum/action/cult_status/Activate()

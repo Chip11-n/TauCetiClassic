@@ -62,6 +62,9 @@
 		var/datum/action/A = V
 		A.Remove(src)
 
+	var/datum/action/cult_status/A = new(src)
+	A.Grant(src)
+
 	var/datum/action/innate/eminence/E
 	for(var/V in subtypesof(/datum/action/innate/eminence))
 		E = new V (src)

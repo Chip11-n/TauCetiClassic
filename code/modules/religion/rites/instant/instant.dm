@@ -327,7 +327,7 @@
 			"<span class='[religion.style_text]'>Вы чувствуете наслаждение от очередного вашего воскрешения.</span>", \
 			"<span class='userdanger'>Вы слышите, как течет жидкость.</span>")
 
-		H.real_name = "homunculus of [pick(religion.deity_names)] [num2roman(rand(1, 20))]"
+		H.real_name = "homunculus of [pick(religion.deity_names)] [num2roman(rand(1, 1000))]"
 		H.universal_speak = TRUE
 		H.key = M.key
 

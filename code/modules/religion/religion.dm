@@ -149,6 +149,8 @@
 	// A dict of holy turfs of format holy_turf = timer_id.
 	var/list/holy_turfs = list()
 
+	var/datum/cult_status_ui/cult_ui
+
 /datum/religion/New()
 	all_religions += src
 	reset_religion()
