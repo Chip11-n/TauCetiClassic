@@ -63,8 +63,8 @@
 	host_brain = new/mob/living/captive_brain(src)
 	if(request_ghosts)
 		for(var/mob/dead/observer/O in observer_list)
-			try_request_n_transfer(O, "A new Cortical Borer was born. Do you want to be him?", ROLE_ALIEN, IGNORE_BORER)
 	all_upgrades = sortAtom(init_named_subtypes(/obj/effect/proc_holder/borer, list(null, src)))
+			try_request_n_transfer(O, "A new Cortical Borer was born. Do you want to be him?", ROLE_BORER, IGNORE_BORER)
 	for(var/obj/effect/proc_holder/borer/U in all_upgrades)
 		if(U.cost == 0)
 			gain_upgrade(U)
@@ -151,6 +151,8 @@
 			host.adjustBrainLoss(rand(1,2))
 		if(prob(host.getBrainLoss() * 0.05))
 			host.emote("[pick(list("blink", "choke", "aflap", "drool", "twitch", "gasp"))]")
+	if(host)
+		stat_abilities(host)
 
 /mob/living/simple_animal/borer/say(message)
 

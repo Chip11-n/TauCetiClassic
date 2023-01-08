@@ -10,6 +10,7 @@
 #define ROLE_MALF              "Malf AI"
 #define ROLE_REV               "Revolutionary"
 #define ROLE_ALIEN             "Xenomorph"
+#define ROLE_BORER             "Borer"
 #define ROLE_CULTIST           "Cultist"
 #define ROLE_BLOB              "Blob"
 #define ROLE_NINJA             "Ninja"
@@ -33,6 +34,7 @@
 #define IGNORE_LAVRA        "Lavra"
 #define IGNORE_EVENT_BLOB   "Event blob"
 #define IGNORE_EMINENCE     "Eminence"
+#define IGNORE_BORER        "Borer"
 
 var/global/list/special_roles_ignore_question = list(
 	ROLE_TRAITOR    = null,
@@ -48,7 +50,7 @@ var/global/list/special_roles_ignore_question = list(
 	ROLE_SHADOWLING = null,
 	ROLE_ABDUCTOR   = null,
 	ROLE_FAMILIES   = null,
-	ROLE_GHOSTLY    = list(IGNORE_PAI, IGNORE_TSTAFF, IGNORE_SURVIVOR, IGNORE_POSBRAIN, IGNORE_DRONE),
+	ROLE_GHOSTLY    = list(IGNORE_PAI, IGNORE_TSTAFF, IGNORE_SURVIVOR, IGNORE_POSBRAIN, IGNORE_DRONE, IGNORE_BORER),
 )
 
 var/global/list/special_roles
