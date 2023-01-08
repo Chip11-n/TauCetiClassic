@@ -11,6 +11,9 @@
 
 	logo_state = "shadowling-logo"
 
+	skillset_type = /datum/skillset/shadowling
+	change_to_maximum_skills = TRUE
+
 /datum/role/shadowling/Greet(greeting, custom)
 	. = ..()
 	to_chat(antag.current, "<b>Currently, you are disguised as an employee aboard [station_name()].</b>")
@@ -39,11 +42,14 @@
 
 	logo_state = "thrall-logo"
 
+	skillset_type = /datum/skillset/thrall
+	change_to_maximum_skills = TRUE
+
 /datum/role/thrall/OnPreSetup(greeting, custom)
 	. = ..()
 	antag.current.AddSpell(new /obj/effect/proc_holder/spell/targeted/shadowling_hivemind)
 	SEND_SIGNAL(antag.current, COMSIG_ADD_MOOD_EVENT, "thralled", /datum/mood_event/thrall)
 
 /datum/role/thrall/RemoveFromRole(datum/mind/M, msg_admins)
-	..()
 	SEND_SIGNAL(antag.current, COMSIG_CLEAR_MOOD_EVENT, "thralled")
+	..()
