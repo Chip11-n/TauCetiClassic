@@ -90,6 +90,7 @@
 	var/research_forbidden = FALSE //If Eminence forbade research for fellow cultist
 
 /datum/religion/cult/New()
+	cult_ui = new /datum/status_ui/cult(src)
 	..()
 	// Init anomalys
 	strange_anomalies = subtypesof(/obj/structure/cult/anomaly)
@@ -109,9 +110,6 @@
 	RegisterSignal(area, list(COMSIG_AREA_EXITED), .proc/area_exited)
 
 	START_PROCESSING(SSreligion, src)
-
-	cult_ui = new(src)
-	cult_ui.update_all_cultist_data()
 
 /datum/religion/cult/setup_religions()
 	global.cult_religion = src
@@ -248,8 +246,6 @@
 	handle_appearence(M)
 	ADD_TRAIT(M, TRAIT_HEALS_FROM_PYLONS, RELIGION_TRAIT)
 	M.update_alt_apperance_by(/datum/atom_hud/alternate_appearance/basic/my_religion)
-	M.AddElement(/datum/element/cult_ui)
-	cult_ui.update_all_cultist_data()
 	return TRUE
 
 /datum/religion/cult/proc/handle_appearence(mob/M)
@@ -321,5 +317,5 @@
 		L.RemoveElement(/datum/element/cult_eyes)
 	if(HAS_TRAIT(L, TRAIT_CULT_HALO))
 		L.RemoveElement(/datum/element/cult_halo)
-	L.RemoveElement(/datum/element/cult_ui)
+	L.RemoveElement(/datum/element/status_ui)
 	M.update_alt_apperance_by(/datum/atom_hud/alternate_appearance/basic/my_religion)

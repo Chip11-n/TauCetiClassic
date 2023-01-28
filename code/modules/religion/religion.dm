@@ -149,7 +149,7 @@
 	// A dict of holy turfs of format holy_turf = timer_id.
 	var/list/holy_turfs = list()
 
-	var/datum/cult_status_ui/cult_ui
+	var/datum/status_ui/cult_ui
 
 /datum/religion/New()
 	all_religions += src
@@ -160,6 +160,9 @@
 	religify_area(null, null, null, TRUE)
 
 	encyclopedia.init_encyclopedia(src)
+	if(!cult_ui)
+		cult_ui = new(src)
+		cult_ui.update_all_cultist_data()
 
 /datum/religion/process()
 	if(passive_favor_gain == 0.0)
@@ -590,6 +593,8 @@
 	sect?.on_conversion(M)
 	if(symbol_icon_state)
 		give_hud(M)
+	M.AddElement(/datum/element/status_ui)
+	cult_ui.update_all_data()
 	on_entry(M)
 	return TRUE
 

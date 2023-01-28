@@ -19,7 +19,7 @@ var/global/list/bicon_cache = list()
 /proc/icon2base64(icon/icon, iconKey = "misc")
 	if (!isicon(icon)) return 0
 
-	iconCache[iconKey] << icon
+	//iconCache[iconKey] << icon
 	var/iconData = iconCache.ExportText(iconKey)
 	var/list/partial = splittext(iconData, "{")
 	var/list/almost_partial = splittext(partial[2], "}")

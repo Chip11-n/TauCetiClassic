@@ -3,14 +3,11 @@
  *
  * Removes from cult_ui in case of "gib and dust". Otherwise cult ui will die
  */
-/datum/element/cult_ui
+/datum/element/status_ui
 	element_flags = ELEMENT_DETACH
-	var/datum/cult_status_ui/status
 
-/datum/element/cult_ui/Attach(datum/target)
+/datum/element/status_ui/Attach(datum/target)
 	. = ..()
-	if(!status)
-		status = global.cult_religion.cult_ui
 	if (!ismob(target))
 		return ELEMENT_INCOMPATIBLE
 
@@ -24,20 +21,20 @@
 /**
  * What happens if cultist is being gibbed or dusted
  */
-/datum/element/cult_ui/proc/remove_cultist_ui(mob/target, gibbed)
+/datum/element/status_ui/proc/remove_cultist_ui(mob/target, gibbed)
 	SIGNAL_HANDLER
 	if(gibbed)
-		status.cultist_removed(target)
-	status.update_cultist_counts()
+		target.my_religion.cult_ui.cultist_removed(target)
+	target.my_religion.cult_ui.update_cultist_counts()
 
 /**
  * Detach proc
  *
  * Removes the ui, it is unsafe to let it be without control
  */
-/datum/element/cult_ui/Detach(mob/target, ...)
-	status.cultist_removed(target)
-	status.update_all_cultist_data()
+/datum/element/status_ui/Detach(mob/target, ...)
+	target.my_religion.cult_ui.cultist_removed(target)
+	target.my_religion.cult_ui.update_all_cultist_data()
 	UnregisterSignal(target, COMSIG_MOB_DIED)
 	return ..()
 
@@ -51,5 +48,5 @@
 /datum/action/cult_status/Activate()
 	if(!owner || !ismob(owner))
 		return
-	if(global.cult_religion)
-		global.cult_religion.cult_ui.open_cult_status(owner)
+	if(owner.my_religion)
+		owner.my_religion.cult_ui.open_cult_status(owner)
