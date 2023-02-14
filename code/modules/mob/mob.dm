@@ -316,32 +316,31 @@
 	A.examine(src)
 	SEND_SIGNAL(A, COMSIG_PARENT_POST_EXAMINE, src)
 	SEND_SIGNAL(src, COMSIG_PARENT_POST_EXAMINATE, A)
+	if(isobserver(src))
+		return
+	var/mob/living/carbon/human/H = src
+	if(ishuman(src))
+		if(H.head && H.head.flags_inv && HIDEEYES)
+			return
+		if(H.wear_mask && H.wear_mask.flags_inv && HIDEEYES)
+			return
+	if(!A.z) //no message if we examine something in a backpack
+		return
+	visible_message("<span class='small'><b>[src]</b> looks at <b>[A]</b>.</span>")
 
-/mob/verb/pointed(atom/A as mob|obj|turf in oview())
+/mob/verb/pointed(atom/A as mob|obj|turf in view())
 	set name = "Point To"
 	set category = "Object"
 
-	if (next_point_to > world.time)
-		return
-
-	if (incapacitated() || (status_flags & FAKEDEATH))
-		return
-
-	if (istype(A, /obj/effect/decal/point))
-		return
+	if(istype(A, /obj/effect/decal/point))
+		return FALSE
 
 	// Removes an ability to point to the object which is out of our sight.
 	// Mostly for cases when we have mesons, thermals etc. equipped.
-	if (!(A in oview(usr.loc)))
-		return
-
-	var/tile = get_turf(A)
-	if (!tile)
-		return
+	if(client && !(A in view(client.view, src)))
+		return FALSE
 
 	point_at(A)
-
-	usr.visible_message("<span class='notice'><b>[usr]</b> points to [A].</span>")
 
 	// TODO: replace with a "COMSIG_MOB_POINTED" signal
 	if (isliving(A))
@@ -349,7 +348,7 @@
 			if (usr in S.Friends)
 				S.last_pointed = A
 
-	next_point_to = world.time + 1.5 SECONDS
+	return TRUE
 
 /mob/verb/abandon_mob()
 	set name = "Respawn"
@@ -551,8 +550,6 @@
 			if(H.pull_damage())
 				to_chat(src, "<span class='danger'>Pulling \the [H] in their current condition would probably be a bad idea.</span>")
 
-		count_pull_debuff()
-
 /mob/verb/stop_pulling()
 	set name = "Stop Pulling"
 	set category = "IC"
@@ -567,16 +564,15 @@
 			pulling = null
 		if(pullin)
 			pullin.update_icon(src)
-		count_pull_debuff()
 
 /mob/proc/count_pull_debuff()
-	return
+	return 0
 
 /mob/proc/can_use_hands()
 	return
 
 /mob/proc/is_active()
-	return (usr.stat <= 0)
+	return (usr.stat <= CONSCIOUS)
 
 /mob/proc/is_dead()
 	return stat == DEAD
@@ -733,7 +729,7 @@ note dizziness decrements automatically in the mob's Life() proc.
 	if(!canmove)						return 0
 	if(client.moving)					return 0
 	if(world.time < client.move_delay)	return 0
-	if(stat==2)							return 0
+	if(stat==DEAD)						return 0
 	if(anchored)						return 0
 	if(notransform)						return 0
 	if(restrained())					return 0
@@ -747,7 +743,7 @@ note dizziness decrements automatically in the mob's Life() proc.
 
 	anchored = HAS_TRAIT(src, TRAIT_ANCHORED)
 	lying = (ko || weakened || crawling) && !anchored
-	canmove = !(ko || stunned || anchored)
+	canmove = !(ko || anchored || HAS_TRAIT(src, TRAIT_IMMOBILIZED))
 
 	if(buckled)
 		if(buckled.buckle_lying != -1)
@@ -831,11 +827,11 @@ note dizziness decrements automatically in the mob's Life() proc.
 // ======STATUS_FLAGS=======
 /mob/proc/remove_status_flags(remove_flags)
 	if(remove_flags & CANSTUN)
-		stunned = 0
+		SetStunned(0, TRUE)
 	if(remove_flags & CANWEAKEN)
-		weakened = 0
+		SetWeakened(0, TRUE)
 	if(remove_flags & CANPARALYSE)
-		paralysis = 0
+		SetParalysis(0, TRUE)
 	if(remove_flags & (CANSTUN|CANPARALYSE|CANWEAKEN))
 		update_canmove()
 	status_flags &= ~remove_flags
@@ -844,96 +840,6 @@ note dizziness decrements automatically in the mob's Life() proc.
 	if(add_flags & GODMODE)
 		stuttering = 0
 	status_flags |= add_flags
-
-// ========== STUN ==========
-/mob/proc/Stun(amount, updating = 1, ignore_canstun = 0, lock = null)
-	if(!isnull(lock))
-		if(lock)
-			status_flags |= LOCKSTUN
-		else
-			status_flags &= ~LOCKSTUN
-	else if(status_flags & LOCKSTUN)
-		return
-
-	if(status_flags & CANSTUN || ignore_canstun)
-		stunned = max(max(stunned, amount), 0) //can't go below 0, getting a low amount of stun doesn't lower your current stun
-		if(updating)
-			update_canmove()
-	else
-		stunned = 0
-
-/mob/proc/SetStunned(amount, updating = 1, ignore_canstun = 0, lock = null) //if you REALLY need to set stun to a set amount without the whole "can't go below current stunned"
-	if(!isnull(lock))
-		if(lock)
-			status_flags |= LOCKSTUN
-		else
-			status_flags &= ~LOCKSTUN
-	else if(status_flags & LOCKSTUN)
-		return
-
-	if(status_flags & CANSTUN || ignore_canstun)
-		stunned = max(amount, 0)
-		if(updating)
-			update_canmove()
-	else
-		stunned = 0
-
-/mob/proc/AdjustStunned(amount, updating = 1, ignore_canstun = 0, lock = null)
-	if(!isnull(lock))
-		if(lock)
-			status_flags |= LOCKSTUN
-		else
-			status_flags &= ~LOCKSTUN
-	else if(status_flags & LOCKSTUN)
-		return
-
-	if(status_flags & CANSTUN || ignore_canstun)
-		stunned = max(stunned + amount, 0)
-		if(updating)
-			update_canmove()
-	else
-		stunned = 0
-
-// ========== WEAKEN ==========
-/mob/proc/Weaken(amount)
-	if(status_flags & CANWEAKEN)
-		weakened = max(max(weakened, amount), 0)
-		update_canmove() // updates lying, canmove and icons
-	else
-		weakened = 0
-
-/mob/proc/SetWeakened(amount)
-	if(status_flags & CANWEAKEN)
-		weakened = max(amount, 0)
-		update_canmove()
-	else
-		weakened = 0
-
-/mob/proc/AdjustWeakened(amount)
-	if(status_flags & CANWEAKEN)
-		weakened = max(weakened + amount, 0)
-		update_canmove()
-	else
-		weakened = 0
-
-// ========== PARALYSE ==========
-/mob/proc/Paralyse(amount)
-	if(status_flags & CANPARALYSE)
-		paralysis = max(max(paralysis, amount), 0)
-	else
-		paralysis = 0
-
-/mob/proc/SetParalysis(amount)
-	if(status_flags & CANPARALYSE)
-		paralysis = max(amount, 0)
-	else
-		paralysis = 0
-
-/mob/proc/AdjustParalysis(amount)
-	if(status_flags & CANPARALYSE)
-		paralysis = max(paralysis + amount, 0)
-	else
-		paralysis = 0
 
 // ========== CRAWLING ==========
 /mob/proc/SetCrawling(value)
@@ -1223,7 +1129,7 @@ note dizziness decrements automatically in the mob's Life() proc.
 			if(HUD_LIST_LIST)
 				hud_list[hud] = list()
 			else
-				var/image/I = image('icons/mob/hud.dmi', src, "")
+				var/image/I = image('icons/hud/hud.dmi', src, "")
 				I.appearance_flags = RESET_COLOR|RESET_TRANSFORM
 				hud_list[hud] = I
 

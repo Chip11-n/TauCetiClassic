@@ -119,9 +119,14 @@
 		: FALSE)
 #define HAS_TRAIT_NOT_FROM(target, trait, source) (target.status_traits ? (target.status_traits[trait] ? (length(target.status_traits[trait] - source) > 0) : FALSE) : FALSE)
 
+
 //mob traits
 /// Forces user to be unmovable
 #define TRAIT_ANCHORED "anchored"
+/// Prevents voluntary movement.
+#define TRAIT_IMMOBILIZED "immobilized"
+/// Prevents hands and legs usage
+#define TRAIT_INCAPACITATED "incapacitated"
 
 #define TRAIT_ALCOHOL_TOLERANCE   "alcohol_tolerance"
 #define TRAIT_BLIND               "blind"
@@ -159,6 +164,9 @@
 #define TRAIT_GREASY_FINGERS      "greasy_fingers"
 #define TRAIT_ANATOMIST           "anatomist"
 #define TRAIT_SOULSTONE_IMMUNE    "soulstone_immune"
+#define TRAIT_CULT_EYES           "cult_eyes"
+#define TRAIT_CULT_HALO           "cult_halo"
+#define TRAIT_HEALS_FROM_PYLONS   "heals_from_pylons"
 
 /*
  * Used for movables that need to be updated, via COMSIG_ENTER_AREA and COMSIG_EXIT_AREA, when transitioning areas.

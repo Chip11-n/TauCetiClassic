@@ -21,8 +21,8 @@
 
 
 /datum/action/innate/mecha
-	check_flags = AB_CHECK_RESTRAINED | AB_CHECK_STUNNED | AB_CHECK_ALIVE
-	button_icon = 'icons/mob/actions_mecha.dmi'
+	check_flags = AB_CHECK_INCAPACITATED
+	button_icon = 'icons/hud/actions_mecha.dmi'
 	action_type = AB_INNATE
 	var/obj/mecha/chassis
 
