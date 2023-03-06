@@ -9,6 +9,8 @@
 	var/datum/action/innate/teleport_out/O = new
 	var/datum/action/innate/teleport_self/S = new
 	var/datum/action/innate/vest_mode_swap/M = new
+	var/datum/action/innate/eye2agent/E = new
+	var/datum/action/innate/activate_vest/A = new
 	var/datum/action/innate/vest_disguise_swap/D = new
 	var/datum/action/innate/set_droppoint/P = new
 
@@ -23,6 +25,8 @@
 	actions += S
 	actions += M
 	actions += D
+	actions += E
+	actions += A
 	actions += P
 	networks += "Abductor[team]"
 
@@ -123,6 +127,29 @@
 	var/obj/machinery/abductor/console/console = C.console
 	console.FlipVest()
 
+/datum/action/innate/eye2agent
+	name = "Camera to Agent"
+	button_icon = 'icons/hud/actions.dmi'
+	button_icon_state = "eye2agent"
+
+/datum/action/innate/eye2agent/Activate()
+	if(!target || !iscarbon(owner))
+		return
+	var/obj/machinery/computer/camera_advanced/abductor/C = target
+	var/obj/machinery/abductor/console/console = C.console
+	C.eyeobj.abstract_move(get_turf(console.vest))
+
+/datum/action/innate/activate_vest
+	name = "Activate Vest"
+	button_icon = 'icons/hud/actions.dmi'
+	button_icon_state = "vest_activate"
+
+/datum/action/innate/activate_vest/Activate()
+	if(!target || !iscarbon(owner))
+		return
+	var/obj/machinery/computer/camera_advanced/abductor/C = target
+	var/obj/machinery/abductor/console/console = C.console
+	console.ActivateVest()
 
 /datum/action/innate/vest_disguise_swap
 	name = "Switch Vest Disguise"

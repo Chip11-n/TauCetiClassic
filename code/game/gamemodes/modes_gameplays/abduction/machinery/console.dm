@@ -129,6 +129,10 @@
 		dat += "<br>"
 		dat += "<a href='?src=\ref[src];select_disguise=1'>Select Agent Vest Disguise</a><br>"
 		dat += "<span class='gray bold'>Selected: </span>[vest.disguise ? "[vest.disguise.name]" : "Nobody"]"
+
+		dat += "<br>"
+		dat += "<a href='?src=\ref[src];activate_vest=1'>Activate Agent Vest Option</a><br>"
+
 	else
 		dat += "<span class='bad'>NO AGENT VEST DETECTED</span>"
 
@@ -149,6 +153,8 @@
 			TeleporterRetrieve()
 	else if(href_list["flip_vest"])
 		FlipVest()
+	else if(href_list["activate_vest"])
+		ActivateVest()
 	else if(href_list["select_disguise"])
 		SelectDisguise()
 	else if(href_list["dispense"])
@@ -170,7 +176,10 @@
 					if(C.team == team)
 						camera = new(get_turf(C))
 						camera.console = src
+						camera.team = C.team
+						camera.networks += "Abductor[team]"
 						qdel(C)
+						break
 			if("baton")
 				Dispense(/obj/item/weapon/abductor_baton, 2)
 			if("helmet")
@@ -229,6 +238,16 @@
 /obj/machinery/abductor/console/proc/FlipVest()
 	if(vest)
 		vest.flip_mode()
+
+/obj/machinery/abductor/console/proc/ActivateVest()
+	if(vest)
+		if(vest.mode == VEST_COMBAT)
+			vest.Adrenaline()
+		else
+			if(vest.stealth_active)
+				vest.DeactivateStealth()
+			else
+				vest.ActivateStealth()
 
 /obj/machinery/abductor/console/proc/SelectDisguise()
 	var/list/entries = list()
