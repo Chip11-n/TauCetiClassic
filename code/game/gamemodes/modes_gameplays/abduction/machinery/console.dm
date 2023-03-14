@@ -293,19 +293,26 @@
 	disguises.Add(entry)
 	return
 
-/obj/machinery/abductor/console/attackby(O, user, params)
+/obj/machinery/abductor/console/attackby(O, mob/user, params)
 	if(istype(O, /obj/item/device/abductor/gizmo))
 		var/obj/item/device/abductor/gizmo/G = O
 		to_chat(user, "<span class='notice'>You link the tool to the console.</span>")
 		gizmo = G
 		G.console = src
 		return FALSE
-	if(istype(O, /obj/item/clothing/suit/armor/abductor/vest))
+	else if(istype(O, /obj/item/clothing/head/helmet/abductor))
+		var/obj/item/clothing/head/helmet/abductor/H = O
+		to_chat(user, "<span class='notice'>You link the helmet to the console.</span>")
+		H.team = team
+		H.helm_cam.c_tag = "[user.real_name] Cam"
+		H.helm_cam.replace_networks(list("Abductor[team]"))
+		return FALSE
+	else if(istype(O, /obj/item/clothing/suit/armor/abductor/vest))
 		var/obj/item/clothing/suit/armor/abductor/vest/V = O
 		to_chat(user, "<span class='notice'>You link the vest to the console.</span>")
 		vest = V
 		return FALSE
-	if(istype(O, /obj/item/weapon/abductor_baton))
+	else if(istype(O, /obj/item/weapon/abductor_baton))
 		var/obj/item/weapon/abductor_baton/B = O
 		to_chat(user, "<span class='notice'>You link the advanced baton to the console.</span>")
 		B.console = src
