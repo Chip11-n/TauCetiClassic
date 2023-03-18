@@ -337,7 +337,7 @@
 		return 1
 	else if(M.stat == UNCONSCIOUS)
 		return 0.5
-	else if(M.getBruteLoss() + M.getFireLoss() >= 70 && !active_coma)
+	else if(M.getBruteLoss() + M.getFireLoss() >= 120 && !active_coma)
 		to_chat(M, "<span class='warning'>You feel yourself slip into a regenerative coma...</span>")
 		active_coma = TRUE
 		addtimer(CALLBACK(src, .proc/coma, M), 60)
@@ -345,7 +345,6 @@
 /datum/disease2/effect/heal/coma/proc/coma(mob/living/carbon/human/M)
 	//M.emote("deathgasp")
 	M.add_status_flags(FAKEDEATH)
-	M.SetSleeping(999 SECONDS) //Well, I hope its good enough
 	addtimer(CALLBACK(src, .proc/uncoma, M), 300)
 
 /datum/disease2/effect/heal/coma/proc/uncoma(mob/living/carbon/human/M)
@@ -353,7 +352,6 @@
 		return
 	active_coma = FALSE
 	M.remove_status_flags(FAKEDEATH)
-	M.SetSleeping(0)
 
 /datum/disease2/effect/heal/coma/heal(mob/living/carbon/human/M,datum/disease2/disease/disease, actual_power)
 	var/heal_amt = 4 * actual_power
@@ -522,9 +520,9 @@
 			to_chat(mob, "<span class='notice'>[pick("You feel warmth.", "You feel weak.")]</span>")
 		if(2)
 			to_chat(mob, "<span class='warning'>[pick("Your skin is flaking.", "You have a headache.")]</span>")
-			mob.apply_effect(5, IRRADIATE, 0)
+			irradiate_one_mob(mob, 5)
 		if(3)
-			mob.apply_effect(20, IRRADIATE, 0)
+			irradiate_one_mob(mob, 20)
 
 /*/datum/disease2/effect/deaf
 	name = "Dead Ear Syndrome"

@@ -74,7 +74,7 @@
 				var/obj/machinery/computer/C = M
 				C.set_light(0)
 
-		for(var/obj/effect/glowshroom/G in T.contents)
+		for(var/obj/structure/glowshroom/G in T.contents)
 			if(get_dist(center, G) <= 2) //Very small radius
 				G.visible_message("<span class='warning'>\The [G] withers away!</span>")
 				qdel(G)

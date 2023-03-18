@@ -88,10 +88,14 @@
 /// from base of client/Move(): (atom/NewLoc, direction)
 #define COMSIG_CLIENTMOB_MOVE "client_move"
 	#define COMPONENT_CLIENTMOB_BLOCK_MOVE 1
+/// from base of client/Move(): (atom/NewLoc, direction), can not be blocked like the above one can.
+#define COMSIG_CLIENTMOB_MOVING "client_moving"
 /// from base of client/Move, after all movement is finished(): (atom/NewLoc, direction)
 #define COMSIG_CLIENTMOB_POSTMOVE "client_postmove"
 /// from base of mob/set_a_intent(): (new_intent)
 #define COMSIG_MOB_SET_A_INTENT "mob_set_a_intent"
+/// from base of mob/living/set_m_intent(): (new_intent)
+#define COMSIG_MOB_SET_M_INTENT "mob_set_m_intent"
 
 // /area signals
 ///from base of area/Entered(): (area/entered, atom/OldLoc)
@@ -111,7 +115,7 @@
 #define COMSIG_ATOM_ENTERED "atom_entered"
 /// from base of atom/Exited(): (atom/movable/exiting, /atom/NewLoc)
 #define COMSIG_ATOM_EXITED "atom_exited"
-/// from base of atom/movable/CanPass() & mob/CanPass(): (atom/movable/mover, atom/target, height, air_group)
+/// from base of atom/movable/CanPass() & mob/CanPass(): (atom/movable/mover, atom/target, height)
 #define COMSIG_ATOM_CANPASS "movable_canpass"
 	#define COMPONENT_CANPASS  1
 	#define COMPONENT_CANTPASS 2
@@ -263,6 +267,8 @@
 
 /// from  base of mob/ClickOn(): (atom/target, params)
 #define COMSIG_MOB_CLICK "mob_click"
+// from base of mob/RegularClickOn(): (atom/target, params)
+#define COMSIG_MOB_REGULAR_CLICK "regular_click"
 	#define COMPONENT_CANCEL_CLICK 1
 /// from mob/proc/slip(): (weaken_duration, obj/slipped_on, lube)
 #define COMSIG_MOB_SLIP "movable_slip"
@@ -272,6 +278,9 @@
 #define COMSIG_MOB_HUD_CREATED "mob_hud_created"
 ///from base of item/equipped(): (obj/item/I, slot)
 #define COMSIG_MOB_EQUIPPED "mob_equipped"
+///from base of obj/allowed(mob/M): (/obj) returns ACCESS_ALLOWED if mob has id access to the obj
+#define COMSIG_MOB_TRIED_ACCESS "tried_access"
+	#define COMSIG_ACCESS_ALLOWED 1
 
 // living signals
 ///from base of mob/living/rejuvenate(): ()
@@ -315,6 +324,8 @@
 ///from base of mob/living/carbon/swap_hand(): (obj/item)
 #define COMSIG_MOB_SWAP_HANDS "mob_swap_hands"
 	#define COMPONENT_BLOCK_SWAP 1
+///from mob/living/vomit(): (/mob)
+#define COMSIG_LIVING_VOMITED "living_vomited"
 
 /// from /datum/action/changeling/transform/sting_action(): (mob/living/carbon/human/user)
 #define COMSIG_CHANGELING_TRANSFORM "changeling_transform"

@@ -72,8 +72,19 @@ What is the naming convention for planes or layers?
   #define SPACE_PARALLAX_3_LAYER 3
   #define SPACE_PARALLAX_PLANET_LAYER 10
 
-#define GRAVITY_PULSE_PLANE -11
-  #define GRAVITY_PULSE_RENDER_TARGET "*GRAVPULSE_RENDER_TARGET"
+//SINGULARITY EFFECT
+#define SINGULARITY_EFFECT_PLANE_0 -25
+#define SINGULARITY_EFFECT_PLANE_1 -24
+#define SINGULARITY_EFFECT_PLANE_2 -23
+#define SINGULARITY_EFFECT_PLANE_3 -22
+#define SINGULO_RENDER_TARGET_0 "*SINGULOEFFECT_RENDER_TARGET_0"
+#define SINGULO_RENDER_TARGET_1 "*SINGULOEFFECT_RENDER_TARGET_1"
+#define SINGULO_RENDER_TARGET_2 "*SINGULOEFFECT_RENDER_TARGET_2"
+#define SINGULO_RENDER_TARGET_3 "*SINGULOEFFECT_RENDER_TARGET_3"
+
+//ANOMALIES EFFECT
+#define ANOMALY_PLANE -21
+#define ANOMALY_RENDER_TARGET "*ANOM_RENDER_TARGET"
 
 #define FLOOR_PLANE -7
 
@@ -107,6 +118,7 @@ What is the naming convention for planes or layers?
   #define BELL_LAYER                      4.20
   #define INFRONT_MOB_LAYER               4.25
   //efine FLY_LAYER                       5     // For easy recordkeeping; this is a byond define
+  #define MOB_ELECTROCUTION_LAYER         5.01
   #define INDICATOR_LAYER                 5.01  // Emotes should be above this as they are shown only temporary.
   #define EMOTE_LAYER                     5.02
   #define ABOVE_FLY_LAYER                 5.1

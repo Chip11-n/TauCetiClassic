@@ -28,6 +28,16 @@
 			mind.set_current(null)
 		if(mind.original == src)
 			mind.original = null
+
+	for(var/datum/action/action as anything in actions)
+		action.Remove(src)
+
+	if(buckled) // simpler version of /unbuckle_mob
+		buckled.buckled_mob = null
+		SEND_SIGNAL(buckled, COMSIG_MOVABLE_UNBUCKLE, src)
+		buckled.post_buckle_mob(src)
+		buckled = null
+
 	return ..()
 
 
@@ -316,7 +326,7 @@
 	A.examine(src)
 	SEND_SIGNAL(A, COMSIG_PARENT_POST_EXAMINE, src)
 	SEND_SIGNAL(src, COMSIG_PARENT_POST_EXAMINATE, A)
-	if(isobserver(src))
+	if(!show_examine_log)
 		return
 	var/mob/living/carbon/human/H = src
 	if(ishuman(src))
@@ -326,6 +336,8 @@
 			return
 	if(!A.z) //no message if we examine something in a backpack
 		return
+	if(stat == CONSCIOUS)
+		last_examined = A.name
 	visible_message("<span class='small'><b>[src]</b> looks at <b>[A]</b>.</span>")
 
 /mob/verb/pointed(atom/A as mob|obj|turf in view())
@@ -335,6 +347,8 @@
 	if(istype(A, /obj/effect/decal/point))
 		return FALSE
 
+	if(!can_point)
+		return FALSE
 	// Removes an ability to point to the object which is out of our sight.
 	// Mostly for cases when we have mesons, thermals etc. equipped.
 	if(client && !(A in view(client.view, src)))
@@ -697,7 +711,8 @@ note dizziness decrements automatically in the mob's Life() proc.
 					if(Master)
 						stat(null)
 						for(var/datum/controller/subsystem/SS in Master.subsystems)
-							SS.stat_entry()
+							if(SS.flags & SS_SHOW_IN_MC_TAB)
+								SS.stat_entry()
 					cameranet.stat_entry()
 
 	if(listed_turf && client)
@@ -1236,3 +1251,13 @@ note dizziness decrements automatically in the mob's Life() proc.
 /mob/proc/set_lastattacker_info(mob/M)
 	lastattacker_name = M.real_name
 	lastattacker_key = M.key
+
+/mob/proc/m_intent_delay()
+	. = 0
+	switch(m_intent)
+		if("run")
+			if(drowsyness > 0)
+				. += 6
+			. += 1 + config.run_speed
+		if("walk")
+			. += 2.5 + config.walk_speed

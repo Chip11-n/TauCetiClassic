@@ -114,11 +114,8 @@
 		if(ishuman(AM))
 			if(isturf(src.loc))
 				var/mob/living/carbon/H = AM
-				if(H.m_intent == "run" && !H.buckled)
+				if(H.m_intent == "run" && !H.buckled && H.equip_to_slot_if_possible(src, SLOT_LEGCUFFED, disable_warning = TRUE))
 					armed = 0
-					H.legcuffed = src
-					src.loc = H
-					H.update_inv_legcuffed()
 					H.visible_message("<span class='danger'>[H] steps on \the [src].</span>", "<span class='danger'>You step on \the [src]!</span>")
 					feedback_add_details("handcuffs","B") //Yes, I know they're legcuffs. Don't change this, no need for an extra variable. The "B" is used to tell them apart.
 		if(isanimal(AM) && !istype(AM, /mob/living/simple_animal/parrot) && !isconstruct(AM) && !isshade(AM) && !istype(AM, /mob/living/simple_animal/hostile/viscerator))
@@ -127,6 +124,10 @@
 			SA.health -= 20
 
 		icon_state = "beartrap[armed]"
+
+/obj/item/weapon/legcuffs/beartrap/armed
+	icon_state = "beartrap1"
+	armed = TRUE
 
 /obj/item/weapon/legcuffs/bola
 	name = "bola"
@@ -145,11 +146,8 @@
 	if(!iscarbon(hit_atom))//if it gets caught or the target can't be cuffed,
 		return
 	var/mob/living/carbon/C = hit_atom
-	if(!C.legcuffed)
+	if(C.equip_to_slot_if_possible(src, SLOT_LEGCUFFED, disable_warning = TRUE))
 		visible_message("<span class='danger'>\The [src] ensnares [C]!</span>")
-		C.legcuffed = src
-		src.loc = C
-		C.update_inv_legcuffed()
 		feedback_add_details("handcuffs","B")
 		to_chat(C,"<span class='userdanger'>\The [src] ensnares you!</span>")
 		C.Weaken(weaken)
@@ -369,6 +367,16 @@
 	table_type = /obj/structure/table/reinforced
 	debris = list(/obj/item/stack/sheet/metal, /obj/item/stack/rods)
 
+/obj/item/weapon/table_parts/stall
+	name = "stall table parts"
+	desc = "Stall table parts."
+	icon = 'icons/obj/items.dmi'
+	icon_state = "stall_tableparts"
+	m_amt = 15000
+	flags = CONDUCT
+	table_type = /obj/structure/table/reinforced/stall
+	debris = list(/obj/item/stack/sheet/metal, /obj/item/stack/rods)
+
 /obj/item/weapon/table_parts/wood
 	name = "wooden table parts"
 	desc = "Keep away from fire."
@@ -523,8 +531,8 @@
 
 /obj/item/weapon/scythe/afterattack(atom/target, mob/user, proximity, params)
 	if(!proximity) return
-	if(istype(target, /obj/effect/spacevine))
-		for(var/obj/effect/spacevine/B in orange(target, 1))
+	if(istype(target, /obj/structure/spacevine))
+		for(var/obj/structure/spacevine/B in orange(target, 1))
 			if(prob(80))
 				qdel(B)
 		qdel(target)
@@ -711,7 +719,7 @@
 
 //Rating 3
 
-/obj/item/weapon/stock_parts/capacitor/super
+/obj/item/weapon/stock_parts/capacitor/adv/super
 	name = "super capacitor"
 	desc = "A super-high capacity capacitor used in the construction of a variety of devices."
 	icon_state = "super_capacitor"
@@ -720,7 +728,7 @@
 	m_amt = 50
 	g_amt = 50
 
-/obj/item/weapon/stock_parts/scanning_module/phasic
+/obj/item/weapon/stock_parts/scanning_module/adv/phasic
 	name = "phasic scanning module"
 	desc = "A compact, high resolution phasic scanning module used in the construction of certain devices."
 	icon_state = "super_scan_module"
@@ -729,7 +737,7 @@
 	m_amt = 50
 	g_amt = 20
 
-/obj/item/weapon/stock_parts/manipulator/pico
+/obj/item/weapon/stock_parts/manipulator/nano/pico
 	name = "pico-manipulator"
 	desc = "A tiny little manipulator used in the construction of certain devices."
 	icon_state = "pico_mani"
@@ -737,7 +745,7 @@
 	rating = 3
 	m_amt = 30
 
-/obj/item/weapon/stock_parts/micro_laser/ultra
+/obj/item/weapon/stock_parts/micro_laser/high/ultra
 	name = "ultra-high-power micro-laser"
 	icon_state = "ultra_high_micro_laser"
 	desc = "A tiny laser used in certain devices."
@@ -746,7 +754,7 @@
 	m_amt = 10
 	g_amt = 20
 
-/obj/item/weapon/stock_parts/matter_bin/super
+/obj/item/weapon/stock_parts/matter_bin/adv/super
 	name = "super matter bin"
 	desc = "A container for hold compressed matter awaiting re-construction."
 	icon_state = "super_matter_bin"
@@ -756,7 +764,7 @@
 
 //Rating 4
 
-/obj/item/weapon/stock_parts/capacitor/quadratic
+/obj/item/weapon/stock_parts/capacitor/adv/super/quadratic
 	name = "quadratic capacitor"
 	desc = "An capacity capacitor used in the construction of a variety of devices."
 	icon_state = "quadratic_capacitor"
@@ -765,7 +773,7 @@
 	m_amt = 50
 	g_amt = 50
 
-/obj/item/weapon/stock_parts/scanning_module/triphasic
+/obj/item/weapon/stock_parts/scanning_module/adv/phasic/triphasic
 	name = "triphasic scanning module"
 	desc = "A compact, ultra resolution triphasic scanning module used in the construction of certain devices."
 	icon_state = "triphasic_scan_module"
@@ -774,7 +782,7 @@
 	m_amt = 50
 	g_amt = 20
 
-/obj/item/weapon/stock_parts/manipulator/femto
+/obj/item/weapon/stock_parts/manipulator/nano/pico/femto
 	name = "femto-manipulator"
 	desc = "A tiny little manipulator used in the construction of certain devices."
 	icon_state = "femto_mani"
@@ -782,7 +790,7 @@
 	rating = 4
 	m_amt = 30
 
-/obj/item/weapon/stock_parts/micro_laser/quadultra
+/obj/item/weapon/stock_parts/micro_laser/high/ultra/quadultra
 	name = "quad-ultra micro-laser"
 	icon_state = "quadultra_micro_laser"
 	desc = "A tiny laser used in certain devices."
@@ -791,7 +799,7 @@
 	m_amt = 10
 	g_amt = 20
 
-/obj/item/weapon/stock_parts/matter_bin/bluespace
+/obj/item/weapon/stock_parts/matter_bin/adv/super/bluespace
 	name = "bluespace matter bin"
 	desc = "A container for hold compressed matter awaiting re-construction."
 	icon_state = "bluespace_matter_bin"
