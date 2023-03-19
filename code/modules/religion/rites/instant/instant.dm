@@ -30,18 +30,17 @@
 /datum/religion_rites/instant/cult/sacrifice/invoke_effect(mob/user, obj/AOG)
 	..()
 	var/datum/religion/cult/R = religion
-	var/datum/mind/sacrifice_target = R.mode.sacrifice_target
 
 	var/mob/living/silicon/S = locate() in get_turf(AOG)
 	if(S)
 		R.mode.sacrificed += S.mind
-		if(sacrifice_target && sacrifice_target == S.mind)
+		if(S.mind in R.mode.sacrifice_targets)
 			R.send_message_to_members("<span class='[religion.style_text]'>[pick("Я̔̓̀͝͠͝ п͒̓͋̚̚͝р̀̒̾̒͑̀ѝ̈́͆́͌͝н̐͆͛̿͌͝и̒́͌̀̈́̿м͆͛̈́́͠͝а̽͐͋̽̚ю́̈́͆̕̕ т̒̿͛͑̿͑в̈́͆͊̿̕̕о́́̾͋͒̔ю͊͛̔̚̕͝ ж̓͋̈́̐͑͘е̓͋͘͠͝͝р͆̀̓̚̕͝т͋͛͋͊͝͠в͆͌͊̐̓̚у̾͋̒̈́̔͝", "Я͆̐͛ п͑̐̔р̒͆͘и͐͒̕н͑͘͝ӥ́͋͝м̀͌͌а͛͑̚ю̐͝ ж̓͆͝е̿̿р͊̓̿т̓́͘в̈́̚̚у͌̿͑ о̀̽̔б̈́̓͠р̀̽͊е͛̚͝ч͋̀̕е̾͘͝н̈́̓͠н͑͆о̐͑͝г͋̒͠о͛̚̕", "Ж͆͘͝е͋͑̽р̚͝т̽̓̈́в̿̓͠а̔͑̕ п̈́͒́р̐̈́̚и̚͠н̈́͆̾я̀̈́͘т͐́̽а͆͑͛")]</span>", null, 6, user)
 			R.adjust_favor(300 * divine_power)
 		S.dust()
 	else if(ishuman(AOG.buckled_mob))
 		R.mode.sacrificed += AOG.buckled_mob.mind
-		if(sacrifice_target && sacrifice_target == AOG.buckled_mob.mind)
+		if(AOG.buckled_mob.mind in R.mode.sacrifice_targets)
 			R.send_message_to_members("<span class='[religion.style_text]'>[pick("Я̔̓̀͝͠͝ п͒̓͋̚̚͝р̀̒̾̒͑̀ѝ̈́͆́͌͝н̐͆͛̿͌͝и̒́͌̀̈́̿м͆͛̈́́͠͝а̽͐͋̽̚ю́̈́͆̕̕ т̒̿͛͑̿͑в̈́͆͊̿̕̕о́́̾͋͒̔ю͊͛̔̚̕͝ ж̓͋̈́̐͑͘е̓͋͘͠͝͝р͆̀̓̚̕͝т͋͛͋͊͝͠в͆͌͊̐̓̚у̾͋̒̈́̔͝", "Я͆̐͛ п͑̐̔р̒͆͘и͐͒̕н͑͘͝ӥ́͋͝м̀͌͌а͛͑̚ю̐͝ ж̓͆͝е̿̿р͊̓̿т̓́͘в̈́̚̚у͌̿͑ о̀̽̔б̈́̓͠р̀̽͊е͛̚͝ч͋̀̕е̾͘͝н̈́̓͠н͑͆о̐͑͝г͋̒͠о͛̚̕", "Ж͆͘͝е͋͑̽р̚͝т̽̓̈́в̿̓͠а̔͑̕ п̈́͒́р̐̈́̚и̚͠н̈́͆̾я̀̈́͘т͐́̽а͆͑͛")]</span>", null, 6, user)
 			R.adjust_favor(300 * divine_power)
 		AOG.buckled_mob.gib()
@@ -229,7 +228,7 @@
 	var/list/mob/living/carbon/human/targets_on_tables = list()
 
 	var/datum/religion/cult/C = religion
-	if(C.mode.sacrifice_target && C.mode.sacrifice_target == AOG.buckled_mob.mind)
+	if(AOG.buckled_mob.mind in C.mode.sacrifice_targets)
 		to_chat(user, "<span class='[religion.style_text]'>Я̿̀͝ ӟ́͌͝а̓͌́п̒͛̈́р͌͌̕е̾̈́̀щ̈́̚а̓͊ю̔͌͋ е̽̕г͆͛ӧ́̕̕ в̈́͝о͆̽̈́с̾͐̐к̽͒͌р̔̔̕е͋͑̈́ш̀̕͝а́͒̕т̈́̽̒ь͊̓̕!</span>")
 		return FALSE
 	if(AOG.buckled_mob.mind)
@@ -265,8 +264,8 @@
 		if(M.mind)
 			C.mode.sacrificed += M.mind
 
-		if(C.mode.sacrifice_target && C.mode.sacrifice_target == M.mind)
-			to_chat(user, "<span class='[religion.style_text]'>Я принимаю жертву, ваша цель теперь может считаться выполненной.</span>")
+		if(M.mind in C.mode.sacrifice_targets)
+			to_chat(user, "<span class='[religion.style_text]'>Я̔̓̀͝͠͝ п͒̓͋̚̚͝р̀̒̾̒͑̀ѝ̈́͆́͌͝н̐͆͛̿͌͝и̒́͌̀̈́̿м͆͛̈́́͠͝а̽͐͋̽̚ю́̈́͆̕̕ т̒̿͛͑̿͑в̈́͆͊̿̕̕о́́̾͋͒̔ю͊͛̔̚̕͝ ж̓͋̈́̐͑͘е̓͋͘͠͝͝р͆̀̓̚̕͝т͋͛͋͊͝͠в͆͌͊̐̓̚у̾͋̒̈́̔͝</span>")
 			C.adjust_favor(300 * divine_power)
 
 		M.gib()

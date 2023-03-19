@@ -123,6 +123,16 @@
 			if(points > max_points)
 				max_points = points
 
+		if(istype(religion, /datum/religion/cult))
+			var/datum/religion/cult/C = religion
+			for(var/mob/living/carbon/brain/B in I.contents)
+				C.mode.sacrificed += B.mind
+				if(B.mind in C.mode.sacrifice_targets)
+					C.send_message_to_members("<span class='[C.style_text]'>[pick("Я̔̓̀͝͠͝ п͒̓͋̚̚͝р̀̒̾̒͑̀ѝ̈́͆́͌͝н̐͆͛̿͌͝и̒́͌̀̈́̿м͆͛̈́́͠͝а̽͐͋̽̚ю́̈́͆̕̕ т̒̿͛͑̿͑в̈́͆͊̿̕̕о́́̾͋͒̔ю͊͛̔̚̕͝ ж̓͋̈́̐͑͘е̓͋͘͠͝͝р͆̀̓̚̕͝т͋͛͋͊͝͠в͆͌͊̐̓̚у̾͋̒̈́̔͝", "Я͆̐͛ п͑̐̔р̒͆͘и͐͒̕н͑͘͝ӥ́͋͝м̀͌͌а͛͑̚ю̐͝ ж̓͆͝е̿̿р͊̓̿т̓́͘в̈́̚̚у͌̿͑ о̀̽̔б̈́̓͠р̀̽͊е͛̚͝ч͋̀̕е̾͘͝н̈́̓͠н͑͆о̐͑͝г͋̒͠о͛̚̕", "Ж͆͘͝е͋͑̽р̚͝т̽̓̈́в̿̓͠а̔͑̕ п̈́͒́р̐̈́̚и̚͠н̈́͆̾я̀̈́͘т͐́̽а͆͑͛")]</span>", null, 6, user)
+					C.adjust_favor(300)
+				B.gib() //Just in case
+				qdel(I) //For MMI, heads and such
+
 		if(max_points > MIN_FAVOUR_GAIN)
 			religion.adjust_favor(max_points, user)
 			INVOKE_ASYNC(src, .proc/sacrifice_item, I)

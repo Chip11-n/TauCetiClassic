@@ -12,7 +12,7 @@
 	stat_type = /datum/stat/faction/cult
 
 	// For objectives
-	var/datum/mind/sacrifice_target = null
+	var/list/sacrifice_targets = null
 	var/list/sacrificed = list()
 
 	var/datum/religion/cult/religion
@@ -151,12 +151,21 @@
 /datum/faction/cult/proc/get_unconvertables()
 	var/list/ucs = list()
 	for(var/mob/living/carbon/human/player in player_list)
-		if(!religion?.can_convert(player) && !religion?.is_member(player))
+		if(!religion?.can_convert(player) && !religion?.is_member(player) && !(player.mind in sacrifice_targets))
 			ucs += player.mind
+
+	if(ucs.len == 0)
+		message_admins("Cult Sacrifice: Could not find unconvertible target, checking for convertable one.")
+		for(var/mob/living/carbon/human/player in player_list)
+			if(!religion?.is_member(player) && !(player.mind in sacrifice_targets))
+				ucs += player.mind
+
 	return ucs
 
 /datum/faction/cult/proc/find_sacrifice_target()
 	var/list/possible_targets = get_unconvertables()
 
 	if(possible_targets.len)
-		sacrifice_target = pick(possible_targets)
+		var/datum/mind/target = pick(possible_targets)
+		sacrifice_targets += target
+		return target
