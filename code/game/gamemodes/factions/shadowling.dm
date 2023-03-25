@@ -26,3 +26,7 @@
 	R.OnPostSetup() // for huds
 
 	return R
+
+/datum/faction/shadowlings/proc/thrall2master(mob/M, datum/role/thrall/T)
+	T.Drop()
+	add_faction_member(src, M, FALSE, TRUE)

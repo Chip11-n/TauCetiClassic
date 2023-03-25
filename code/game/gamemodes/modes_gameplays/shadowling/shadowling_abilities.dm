@@ -78,13 +78,13 @@
 			if(get_dist(center, G) <= 2) //Very small radius
 				G.visible_message("<span class='warning'>\The [G] withers away!</span>")
 				qdel(G)
-		
+
 		if(T.is_light_floor())
 			var/turf/simulated/floor/F = T
 			F.set_lightfloor_on(FALSE)
 			F.visible_message("<span class='danger'>\The [T] suddenly turns off!</span>")
 			F.update_icon()
-				
+
 /obj/effect/proc_holder/spell/aoe_turf/flashfreeze
 	name = "Flash Freeze"
 	desc = "Instantly freezes the blood of nearby people, stunning them and causing burn damage."
@@ -122,9 +122,9 @@
 	panel = "Shadowling Abilities"
 	action_icon_state = "enthrall"
 	charge_max = 450
-	clothes_req = 0
+	clothes_req = FALSE
 	range = 1 //Adjacent to user
-	var/enthralling = 0
+	var/enthralling = FALSE
 
 /obj/effect/proc_holder/spell/targeted/enthrall/cast(list/targets)
 	var/thrallsPresent = 0
@@ -137,41 +137,20 @@
 		charge_counter = charge_max
 		return
 	for(var/mob/living/carbon/human/target in targets)
-		if(!in_range(usr, target))
-			to_chat(usr, "<span class='warning'>You need to be closer to enthrall [target].</span>")
-			charge_counter = charge_max
-			return
-		if(!target.key)
-			to_chat(usr, "<span class='warning'>The target has no mind.</span>")
-			charge_counter = charge_max
-			return
-		if(target.stat != CONSCIOUS)
-			to_chat(usr, "<span class='warning'>The target must be conscious.</span>")
-			charge_counter = charge_max
-			return
-		if(isshadowling(target) || isshadowthrall(target))
-			to_chat(usr, "<span class='warning'>You can not enthrall allies.</span>")
-			charge_counter = charge_max
-			return
-		var/datum/species/S = all_species[target.get_species()]
-		if(!ishuman(target) || (S && S.flags[NO_EMOTION]))
-			to_chat(usr, "<span class='warning'>You can only enthrall humans.</span>")
-			charge_counter = charge_max
-			return
-		if(target.ismindprotect())
-			to_chat(usr, "<span class='notice'>Their mind seems to be protected!</span>")
-			charge_counter = charge_max
-			return
-		if(enthralling)
-			to_chat(usr, "<span class='warning'>You are already enthralling!</span>")
-			charge_counter = charge_max
+		if(!checks(target, "entrall"))
 			return
 		if(!target.client)
 			to_chat(usr, "<span class='warning'>[target]'s mind is vacant of activity. Still, you may rearrange their memories in the case of their return.</span>")
-		enthralling = 1
+
+		enthralling = TRUE
 		to_chat(usr, "<span class='danger'>This target is valid. You begin the enthralling.</span>")
 		to_chat(target, "<span class='userdanger'>[usr] stares at you. You feel your head begin to pulse.</span>")
 
+		var/datum/status_effect/thrall_mark/M = target.has_status_effect(/datum/status_effect/thrall_mark)
+		var/time = 250
+		if(M)
+			time = 75
+			to_chat(usr, "<span class='warning'>One's mind has been weakened by thrall's mark! Brainwashing will be way faster!</span>")
 		for(var/progress = 0, progress <= 3, progress++)
 			switch(progress)
 				if(1)
@@ -188,13 +167,13 @@
 					to_chat(usr, "<span class='notice'>You begin rearranging [target]'s memories.</span>")
 					usr.visible_message("<span class='danger'>[usr]'s eyes flare brightly, their unflinching gaze staring constantly at [target].</span>")
 					to_chat(target, "<span class='boldannounce'>Your head cries out. The veil of reality begins to crumple and something evil bleeds through.</span>")//Ow the edge
-			if(!do_mob(usr, target, 100)) //around 30 seconds total for enthralling
+			if(!do_mob(usr, target, time)) //around 90 seconds total for enthralling, minus one minute with mark
 				to_chat(usr, "<span class='warning'>The enthralling has been interrupted - your target's mind returns to its previous state.</span>")
 				to_chat(target, "<span class='userdanger'>A spike of pain drives into your head. You aren't sure what's happened, but you feel a faint sense of revulsion.</span>")
-				enthralling = 0
+				enthralling = FALSE
 				return
 
-		enthralling = 0
+		enthralling = FALSE
 		to_chat(usr, "<span class='shadowling'>You have enthralled <b>[target]</b>!</span>")
 		target.visible_message("<span class='big'>[target]'s expression appears as if they have experienced a revelation!</span>", \
 		"<span class='shadowling'><b>You see the Truth. Reality has been torn away and you realize what a fool you've been.</b></span>")
@@ -203,7 +182,77 @@
 		to_chat(target, "<span class='shadowling'>You can communicate with the other enlightened ones by using the Hivemind Commune ability.</span>")
 		target.setOxyLoss(0) //In case the shadowling was choking them out
 		add_faction_member(faction, target)
+		if(M && M.role)
+			var/datum/role/thrall/thrall = M.role
+			thrall.get_mark()
+			target.remove_status_effect(M)
 
+/obj/effect/proc_holder/spell/targeted/enthrall/proc/checks(mob/living/carbon/human/target, noun as text, )
+	if(!in_range(usr, target))
+		to_chat(usr, "<span class='warning'>You need to be closer to [noun] [target].</span>")
+		charge_counter = charge_max
+		return FALSE
+	if(!target.key)
+		to_chat(usr, "<span class='warning'>The target has no mind.</span>")
+		charge_counter = charge_max
+		return FALSE
+	if(target.stat != CONSCIOUS)
+		to_chat(usr, "<span class='warning'>The target must be conscious.</span>")
+		charge_counter = charge_max
+		return FALSE
+	if(isshadowling(target) || isshadowthrall(target))
+		to_chat(usr, "<span class='warning'>You can not [noun] allies.</span>")
+		charge_counter = charge_max
+		return FALSE
+	var/datum/species/S = all_species[target.get_species()]
+	if(!ishuman(target) || (S && S.flags[NO_EMOTION]))
+		to_chat(usr, "<span class='warning'>You can only [noun] humans.</span>")
+		charge_counter = charge_max
+		return FALSE
+	if(target.ismindprotect())
+		to_chat(usr, "<span class='notice'>Their mind seems to be protected!</span>")
+		charge_counter = charge_max
+		return FALSE
+	if(enthralling)
+		to_chat(usr, "<span class='warning'>You are already [noun == "entrall" ? noun + "l" : noun]ing!</span>")
+		charge_counter = charge_max
+		return FALSE
+	return TRUE
+
+//Enthrall is the spell that can grant to thrall spells and help shadowling
+/obj/effect/proc_holder/spell/targeted/enthrall/thrall_mark
+	name = "Threll's mark"
+	desc = "Allows you to mark a conscious, non-braindead, non-catatonic human to helping them in enslaving one's soul. In addition, you get a shard of their memories and soul, granting you some of your master's power if your master entralls them. This takes some time to cast."
+	var/datum/role/thrall/role
+
+/obj/effect/proc_holder/spell/targeted/enthrall/thrall_mark/atom_init(role_thrall)
+	. = ..()
+	if(istype(role_thrall, /datum/role/thrall))
+		role = role_thrall
+
+/obj/effect/proc_holder/spell/targeted/enthrall/thrall_mark/cast(list/targets)
+	for(var/mob/living/carbon/human/target in targets)
+		if(!checks(target, "mark"))
+			return
+		var/datum/status_effect/thrall_mark/M = target.has_status_effect(/datum/status_effect/thrall_mark)
+		if(M)
+			to_chat(usr, "<span class='warning'>This one's mind already marked!</span>")
+			charge_counter = charge_max
+			return
+		enthralling = TRUE
+		to_chat(usr, "<span class='danger'>This target is valid. You begin the marking of mind.</span>")
+		to_chat(target, "<span class='userdanger'>[usr] stares at you. You feel your soul begins to weaken.</span>")
+
+		if(!do_mob(usr, target, 100)) //around 30 seconds total for marking
+			to_chat(usr, "<span class='warning'>The enthralling has been interrupted - your target's mind returns to its previous state.</span>")
+			to_chat(target, "<span class='userdanger'>A spike of pain drives into your head. You aren't sure what's happened, but you feel a faint sense of revulsion.</span>")
+			enthralling = FALSE
+			return
+
+		enthralling = FALSE
+		to_chat(usr, "<span class='shadowling'>You marked <b>[target]</b>!</span>")
+		target.visible_message("<span class='large'>[target]'s expression appears slightly apatic!</span>", "<span class='shadowling'>Thinking...It is too hard, too complicated, maybe, there is no need to do so?</b></span>")
+		target.apply_status_effect(/datum/status_effect/thrall_mark, role)
 
 /obj/effect/proc_holder/spell/targeted/shadowling_hivemind
 	name = "Hivemind Commune"
@@ -316,6 +365,11 @@
 			with no bodily defects.</i></span>")
 			user.AddSpell(new /obj/effect/proc_holder/spell/targeted/reviveThrall)
 
+		if(thralls >= 12 && !reviveThrallAcquired)
+			reviveThrallAcquired = 1
+			to_chat(user, "<span class='shadowling'><i>The power of your thralls has granted you the <b>Glare</b> ability. This ability will bring mind of target to shock, paralyzing them</i></span>")
+			user.AddSpell(new /obj/effect/proc_holder/spell/targeted/glare)
+
 		if(thralls < victory_threshold)
 			to_chat(user, "<span class='shadowling'>You do not have the power to ascend. You require [victory_threshold] thralls, but only [thralls] living thralls are present.</span>")
 
@@ -403,7 +457,7 @@
 			if(iscarbon(target))
 				var/mob/living/carbon/M = target
 				to_chat(M, "<span class='danger'><b>A spike of pain drives into your head and scrambles your thoughts!</b></span>")
-				M.Weaken(2)
+				M.Paralyse(2)
 				M.AdjustConfused(10)
 				//M.setEarDamage(M.ear_damage + 3)
 				M.ear_damage += 3

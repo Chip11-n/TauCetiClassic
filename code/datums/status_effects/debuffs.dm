@@ -226,3 +226,35 @@
 	desc = "Некоторое время вы гораздо быстрее залечиваете свои раны, более живучи и у вас куда больше плазмы."
 	icon_state = "alien_help"
 	alerttooltipstyle = "alien"
+
+//Thrall's mark
+/datum/status_effect/thrall_mark
+	id = "mark"
+	alert_type = /atom/movable/screen/alert/status_effect/thrall_mark
+	duration = 5 MINUTES
+	var/datum/role/thrall/role
+
+/datum/status_effect/thrall_mark/on_creation(mob/living/new_owner, datum/role/thrall/R)
+	. = ..()
+	if(istype(R))
+		role = R
+
+/datum/status_effect/thrall_mark/Destroy()
+	owner = null
+	return ..()
+
+/datum/status_effect/thrall_mark/tick()
+	if(owner && !owner.client)
+		duration = max(duration, world.time + 1 SECOND)
+
+	if(prob(2))
+		owner.Weaken(1)
+		to_chat(owner, "Ow...")
+	else if(prob(2))
+		owner.Paralyse(1)
+		to_chat(owner, "I forgot...Something...")
+
+/atom/movable/screen/alert/status_effect/thrall_mark
+	name = "Mark"
+	desc = "Your will, and with it your soul, have been weakened! Well, does it really matter? Maybe you should just accept your fate?"
+	icon_state = "asleep"
