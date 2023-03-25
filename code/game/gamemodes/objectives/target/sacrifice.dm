@@ -2,7 +2,7 @@
 	var/datum/faction/cult/C = faction
 	if(istype(C) && target)
 		return "Принесите в жертву [target.current?.name], [target.assigned_role]."
-	return "Свободная задача"
+	return "Жертва не требуется"
 
 /datum/objective/target/sacrifice/find_target()
 	var/datum/faction/cult/C = faction
@@ -39,4 +39,5 @@
 /datum/objective/target/sacrifice/Destroy()
 	. = ..()
 	var/datum/faction/cult/C = faction
-	C.sacrifice_targets -= target
+	if(target)
+		C.sacrifice_targets -= target
