@@ -37,7 +37,7 @@
 	C.religion.send_message_to_members("<span class='[C.religion.style_text]'>М͋͝н̽͌̔е͑͐͝ н́̈́̓у͒̽̓ж̐̈́̿н͐̚͝а̒̚ н͑̐͑о̽̽в̿̐͝а͒̈́͝я̓͝ ж͑͒̕е͑͝р͑͒͆т͌͘͠в͆̈́́а͊̾̚</span>", null, 6)
 
 /datum/objective/target/sacrifice/Destroy()
-	. = ..()
 	var/datum/faction/cult/C = faction
 	if(target)
 		C.sacrifice_targets -= target
+	return ..()

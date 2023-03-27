@@ -12,7 +12,7 @@
 	stat_type = /datum/stat/faction/cult
 
 	// For objectives
-	var/list/sacrifice_targets = null
+	var/list/sacrifice_targets = list()
 	var/list/sacrificed = list()
 
 	var/datum/religion/cult/religion
