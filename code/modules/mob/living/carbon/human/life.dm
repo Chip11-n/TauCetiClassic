@@ -897,7 +897,7 @@ var/global/list/tourette_bad_words= list(
 	if((species && species.flags[NO_PAIN] && !species.flags[IS_SYNTHETIC])
 		healths.icon_state = "health0"
 	else
-		healths.icon_state = "health[CEIL(traumatic_shock / 20)]"
+		healths.icon_state = "health[clamp(CEIL(traumatic_shock / 20), 0, 6)]"
 
 /mob/living/carbon/human/handle_regular_hud_updates()
 	if(!client)
@@ -905,13 +905,13 @@ var/global/list/tourette_bad_words= list(
 
 	if(stat == UNCONSCIOUS && health <= 0)
 		//Critical damage passage overlay
-		var/severity = CEIL(-(health + 10) / 10)
+		var/severity = clamp(CEIL(-(health + 10) / 10), 0, 10)
 		overlay_fullscreen("crit", /atom/movable/screen/fullscreen/crit, severity)
 	else
 		clear_fullscreen("crit")
 		//Oxygen damage overlay
 		if(oxyloss)
-			var/severity = CEIL((oxyloss - 10) / 10)
+			var/severity = clamp(CEIL((oxyloss - 10) / 10), 0, 7)
 			overlay_fullscreen("oxy", /atom/movable/screen/fullscreen/oxy, severity)
 		else
 			clear_fullscreen("oxy")
@@ -920,7 +920,7 @@ var/global/list/tourette_bad_words= list(
 		var/hurtdamage = getBruteLoss() + getFireLoss() + damageoverlaytemp
 		damageoverlaytemp = 0 // We do this so we can detect if someone hits us or not.
 		if(hurtdamage)
-			var/severity = CEIL((hurtdamage - 10) / 15)
+			var/severity = clamp(CEIL((hurtdamage - 10) / 15), 0, 6)
 			overlay_fullscreen("brute", /atom/movable/screen/fullscreen/brute, severity)
 		else
 			clear_fullscreen("brute")
