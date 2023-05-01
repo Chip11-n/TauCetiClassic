@@ -881,22 +881,7 @@ var/global/list/tourette_bad_words= list(
 				continue
 
 			var/damage = BP.burn_dam + BP.brute_dam
-			var/icon_num
-
-			if(damage <= 0)
-				icon_num = 0
-			else switch(damage / BP.max_damage)
-				if(0 to 0.2)
-					icon_num = 1
-				if(0.2 to 0.4)
-					icon_num = 2
-				if(0.4 to 0.6)
-					icon_num = 3
-				if(0.6 to 0.8)
-					icon_num = 4
-				else
-					icon_num = 5
-
+			var/icon_num = CEIL(damage / BP.max_damage)*5
 			healthdoll.add_overlay(image('icons/hud/screen_gen.dmi',"[BP.body_zone][icon_num]"))
 
 	if(!healths)
@@ -909,22 +894,10 @@ var/global/list/tourette_bad_words= list(
 		if(2)
 			healths.icon_state = "health7"
 			return
-
-	switch(100 - ((species && species.flags[NO_PAIN] && !species.flags[IS_SYNTHETIC]) ? 0 : traumatic_shock))
-		if(100 to INFINITY)
-			healths.icon_state = "health0"
-		if(80 to 100)
-			healths.icon_state = "health1"
-		if(60 to 80)
-			healths.icon_state = "health2"
-		if(40 to 60)
-			healths.icon_state = "health3"
-		if(20 to 40)
-			healths.icon_state = "health4"
-		if(0 to 20)
-			healths.icon_state = "health5"
-		else
-			healths.icon_state = "health6"
+	if((species && species.flags[NO_PAIN] && !species.flags[IS_SYNTHETIC])
+		healths.icon_state = "health0"
+	else
+		healths.icon_state = "health[CEIL(traumatic_shock / 20)]"
 
 /mob/living/carbon/human/handle_regular_hud_updates()
 	if(!client)
@@ -932,32 +905,13 @@ var/global/list/tourette_bad_words= list(
 
 	if(stat == UNCONSCIOUS && health <= 0)
 		//Critical damage passage overlay
-		var/severity = 0
-		switch(health)
-			if(-20 to -10)			severity = 1
-			if(-30 to -20)			severity = 2
-			if(-40 to -30)			severity = 3
-			if(-50 to -40)			severity = 4
-			if(-60 to -50)			severity = 5
-			if(-70 to -60)			severity = 6
-			if(-80 to -70)			severity = 7
-			if(-90 to -80)			severity = 8
-			if(-95 to -90)			severity = 9
-			if(-INFINITY to -95)	severity = 10
+		var/severity = CEIL(-(health + 10) / 10)
 		overlay_fullscreen("crit", /atom/movable/screen/fullscreen/crit, severity)
 	else
 		clear_fullscreen("crit")
 		//Oxygen damage overlay
 		if(oxyloss)
-			var/severity = 0
-			switch(oxyloss)
-				if(10 to 20)		severity = 1
-				if(20 to 25)		severity = 2
-				if(25 to 30)		severity = 3
-				if(30 to 35)		severity = 4
-				if(35 to 40)		severity = 5
-				if(40 to 45)		severity = 6
-				if(45 to INFINITY)	severity = 7
+			var/severity = CEIL((oxyloss - 10) / 10)
 			overlay_fullscreen("oxy", /atom/movable/screen/fullscreen/oxy, severity)
 		else
 			clear_fullscreen("oxy")
@@ -966,14 +920,7 @@ var/global/list/tourette_bad_words= list(
 		var/hurtdamage = getBruteLoss() + getFireLoss() + damageoverlaytemp
 		damageoverlaytemp = 0 // We do this so we can detect if someone hits us or not.
 		if(hurtdamage)
-			var/severity = 0
-			switch(hurtdamage)
-				if(10 to 25)		severity = 1
-				if(25 to 40)		severity = 2
-				if(40 to 55)		severity = 3
-				if(55 to 70)		severity = 4
-				if(70 to 85)		severity = 5
-				if(85 to INFINITY)	severity = 6
+			var/severity = CEIL((hurtdamage - 10) / 15)
 			overlay_fullscreen("brute", /atom/movable/screen/fullscreen/brute, severity)
 		else
 			clear_fullscreen("brute")
