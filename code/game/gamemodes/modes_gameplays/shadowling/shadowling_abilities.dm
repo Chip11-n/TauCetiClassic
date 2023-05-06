@@ -49,11 +49,10 @@
 		for(var/obj/item/F in T.contents)
 			F.set_light(0)
 
-
-		for(var/mob/living/carbon/human/H in T.contents)
-			for(var/obj/item/F in H)
+		for(var/mob/living/carbon/C in T.contents)
+			for(var/obj/item/F in C)
 				F.set_light(0)
-			H.set_light(0) //This is required with the object-based lighting
+			C.set_light(0) //This is required with the object-based lighting
 
 		for(var/obj/machinery/M in T.contents)
 			if(istype(M,/obj/machinery/light))
@@ -187,7 +186,7 @@
 			thrall.get_mark()
 			target.remove_status_effect(M)
 
-/obj/effect/proc_holder/spell/targeted/enthrall/proc/checks(mob/living/carbon/human/target, noun as text, )
+/obj/effect/proc_holder/spell/targeted/enthrall/proc/checks(mob/living/carbon/human/target, noun as text)
 	if(!in_range(usr, target))
 		to_chat(usr, "<span class='warning'>You need to be closer to [noun] [target].</span>")
 		charge_counter = charge_max
@@ -458,8 +457,7 @@
 				var/mob/living/carbon/M = target
 				to_chat(M, "<span class='danger'><b>A spike of pain drives into your head and scrambles your thoughts!</b></span>")
 				M.Paralyse(2)
-				M.AdjustConfused(10)
-				//M.setEarDamage(M.ear_damage + 3)
+				M.AdjustConfused(4)
 				M.ear_damage += 3
 			else if(issilicon(target))
 				var/mob/living/silicon/S = target
