@@ -32,6 +32,34 @@
 	S.verbs += /mob/living/carbon/human/proc/shadowling_hatch
 	S.AddSpell(new /obj/effect/proc_holder/spell/targeted/enthrall)
 	S.AddSpell(new /obj/effect/proc_holder/spell/targeted/shadowling_hivemind)
+	RegisterSignal(S, COMSIG_MOB_DIED, .proc/shadowling_death_signal)
+
+/datum/role/shadowling/proc/shadowling_death_signal()
+	SIGNAL_HANDLER
+	var/shadowling_alive = FALSE
+	for(var/datum/role/shadowling/S in faction.members)
+		if(S.antag.current.stat != DEAD && S.antag.current != antag.current) //We have at least one S-ling alive
+			shadowling_alive = TRUE
+
+	for(var/datum/role/thrall/T in faction.members)
+		if(!T.antag.current)
+			continue
+
+		to_chat(T.antag.current, "<span class='shadowling'><font size=3>Sudden realization strikes you like a truck! ONE OF OUR MASTERS HAS DIED!!!</span></font>")
+
+		if(shadowling_alive)
+			return
+
+		SEND_SIGNAL(T.antag.current, COMSIG_CLEAR_MOOD_EVENT, "thralled")
+		SEND_SIGNAL(T.antag.current, COMSIG_ADD_MOOD_EVENT, "master_died", /datum/mood_event/master_died)
+		T.antag.current.AddSpell(new /obj/effect/proc_holder/spell/no_target/shadow_ascension)
+
+/datum/role/thrall/RemoveFromRole(datum/mind/M, msg_admins)
+	for(var/I in list(/obj/effect/proc_holder/spell/targeted/enthrall,
+		/obj/effect/proc_holder/spell/targeted/shadowling_hivemind))
+		var/obj/effect/proc_holder/spell/S = antag.current.GetSpell(I)
+		if(S)
+			antag.current.RemoveSpell(S)
 
 /datum/role/thrall
 	name = SHADOW_THRALL
@@ -57,25 +85,25 @@
 
 /datum/role/thrall/RemoveFromRole(datum/mind/M, msg_admins)
 	SEND_SIGNAL(antag.current, COMSIG_CLEAR_MOOD_EVENT, "thralled")
+
+	for(var/I in list(/obj/effect/proc_holder/spell/targeted/enthrall/thrall_mark,
+		/obj/effect/proc_holder/spell/no_target/shadow_ascension,
+		/obj/effect/proc_holder/spell/targeted/shadowling_hivemind))
+		var/obj/effect/proc_holder/spell/S = antag.current.GetSpell(I)
+		if(S)
+			antag.current.RemoveSpell(S)
+
 	..()
-/mob/verb/get_mark()
-	set name = "/get_mark()"
-	set desc = "/get_mark()"
-	set category = "Ghost"
-	var/mob/M = usr
-	for(var/R in M.mind.antag_roles)
-		var/datum/role/thrall/T = antag_roles[R]
-		T.get_mark()
 
 /datum/role/thrall/proc/get_mark()
 	to_chat(antag.current, "<span class='shadowling'>Мастер принял подношение, и великодушно даровал тебе частицу духа Его нового раба!</span>")
 	marks++
-	if(marks > 3 && stage < 1)
+	if(marks > 2 && stage < 1)
 		to_chat(antag.current, "<span class='shadowling'><i>Тьма сгущается в твоей душе, и ты получил <b>Дарование Тьмы</b>. Теперь Тьма будет лечить и помогать тебе, пускай и не столь сильно.</i></span>")
 		antag.current.AddComponent(/datum/component/darkness_healing)
 		stage++
 
-	if(marks > 5 && stage < 2)
+	if(marks > 4 && stage < 2)
 		to_chat(antag.current, "<span class='shadowling'><i>Тьма сгущается в твоей душе, и ты получил <b>Озарение во тьме</b>. Твои глаза теперь источник ужаса для непрозревших, а ты можешь видеть во тьме отныне!.</i></span>")
 
 		var/datum/component/darkness_healing/C = antag.current.GetComponent(/datum/component/darkness_healing)
@@ -89,21 +117,12 @@
 			H.equip_to_slot_or_del(new /obj/item/clothing/glasses/night/shadowling, SLOT_GLASSES)
 			stage++
 
-	if(marks > 8 && stage < 3)
+	if(marks > 6 && stage < 3)
 		to_chat(antag.current, "<span class='shadowling'><i>Тьма сгущается в твоей душе, и ты получил <b>Вуаль тьмы</b>. Позволяет тебе погружать окружающее пространство во тьму, как это делает Мастер.</i></span>")
 		antag.current.AddSpell(new /obj/effect/proc_holder/spell/aoe_turf/veil)
 		stage++
 
-	if(marks > 12  && stage < 4)
+	if(marks > 8  && stage < 4)
 		to_chat(antag.current, "<span class='shadowling'><i>Тьма сгущается в твоей душе, заполоняя её... И внезапно, ты понял... <b>Ты - Мастер!</b></i></span>")
 		var/datum/faction/shadowlings/F = faction
 		F.thrall2master(antag.current, src)
-
-/datum/role/thrall/Drop()
-	var/obj/effect/proc_holder/spell/M = antag.current.GetSpell(/obj/effect/proc_holder/spell/targeted/enthrall/thrall_mark)
-	if(M)
-		antag.current.RemoveSpell(M)
-	/*for(var/obj/effect/proc_holder/spell/S in antag.current.spell_list)
-		if(is_type_in_list(S, list(/obj/effect/proc_holder/spell/targeted/shadowling_hivemind, /obj/effect/proc_holder/spell/targeted/enthrall/thrall_mark)))
-			antag.current.RemoveSpell(S)*/
-	..()

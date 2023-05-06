@@ -553,6 +553,76 @@
 		thrallToRevive.emote("gasp")
 		playsound(thrallToRevive, pick(SOUNDIN_BODYFALL), VOL_EFFECTS_MASTER)
 
+/obj/effect/proc_holder/spell/no_target/shadow_ascension
+	name = "Shadow ascension"
+	desc = "Brings a new master to this world. But it has it's own cost."
+	panel = "Shadowling Abilities"
+	action_icon_state = "revive_thrall"
+	charge_max = 600
+	clothes_req = 0
+
+/obj/effect/proc_holder/spell/no_target/shadow_ascension/cast(list/targets, mob/user)
+	. = ..()
+	if(!do_after(user, 5 SECONDS, FALSE, user))
+		return
+	user.playsound_local(null, 'sound/effects/singlebeat.ogg', VOL_EFFECTS_MASTER, 50)
+	var/list/mobs_around = list()
+	for(var/mob/living/L in range(1, user)) //Not exactly thralls
+		if(L.stat != DEAD && !isshadowling(L) && L.client)
+			if(!do_after(user, 5 SECONDS, FALSE, user))
+				continue
+			to_chat(L, "<span class='shadowling'><b><i>Твоя душа будет участвовать в тёмном ритуале</b></i></span>")
+			mobs_around += L
+			L.add_filter("shadow_ascension", 2, outline_filter(1, "#000000"))
+			user.playsound_local(null, 'sound/effects/singlebeat.ogg', VOL_EFFECTS_MASTER, 50)
+
+	if(length(mobs_around) > 3)
+		make_new_shadowling(mobs_around, user)
+	else
+		to_chat(user, "<span class='shadowling'><i>Для ритуала вознесения нужно четверо!</i></span>")
+		interrupt(mobs_around)
+
+/obj/effect/proc_holder/spell/no_target/shadow_ascension/proc/interrupt(list/targets)
+	for(var/mob/living/L in targets)
+		L.remove_filter("shadow_ascension")
+
+/obj/effect/proc_holder/spell/no_target/shadow_ascension/proc/make_new_shadowling(list/targets, mob/user)
+	interrupt(targets)
+	var/list/mob/thralls = list()
+	for(var/mob/living/L in targets)
+		if(get_dist(L.loc, user.loc) > 1)
+			targets -= L
+			to_chat(L, "<span class='shadowling'><i>Вы отказались от участия в ритуале</i></span>")
+			continue
+		if(isshadowthrall(L))
+			thralls += L
+			targets -= L
+
+	if(targets.len + thralls.len < 4)
+		to_chat(user, "<span class='shadowling'><b><i>Для ритуала вознесения нужно четверо!</b></i></span>")
+		interrupt(list(thralls, targets))
+		return
+
+	for(var/i in 1 to 4)
+		var/mob/living/L = pick_n_take(targets)
+		if(!L || i == 4)
+			L = pick_n_take(thralls)
+		switch(i)
+			if(1)
+				to_chat(L, "<span class='shadowling'><i>Твоя <b>плоть</b> будет основой для Мастера</i></span>")
+				L.gib()
+			if(2)
+				to_chat(L, "<span class='shadowling'><i>Твоя <b>кровь</b> станет продолжением для Мастера</i></span>")
+				L.burn_skin(400)
+			if(3)
+				to_chat(L, "<span class='shadowling'><i>Твой <b>дух</b> послужит искрой жизни для Мастера</i></span>")
+				L.death() //Lucky one
+			if(4)
+				to_chat(L, "<span class='shadowling'><i>Твоя <b>душа</b> навсегда увязнет во тьме</i></span>")
+				var/datum/faction/shadowlings/F = find_faction_by_type(/datum/faction/shadowlings)
+				F.thrall2master(L, L.mind.GetRole(SHADOW_THRALL))
+
+
 // ASCENDANT ABILITIES BEYOND THIS POINT //
 
 /obj/effect/proc_holder/spell/targeted/annihilate
