@@ -150,15 +150,6 @@
 
 		if(!GetSpell(spell))
 			AddSpell(new spell)
-	/*AddSpell(new /obj/effect/proc_holder/spell/targeted/shadowling_hivemind)
-	AddSpell(new /obj/effect/proc_holder/spell/targeted/enthrall)
-	//AddSpell(new /obj/effect/proc_holder/spell/targeted/glare)
-	AddSpell(new /obj/effect/proc_holder/spell/aoe_turf/veil)
-	AddSpell(new /obj/effect/proc_holder/spell/targeted/ethereal_jaunt/shadow_walk)
-	AddSpell(new /obj/effect/proc_holder/spell/aoe_turf/flashfreeze)
-	AddSpell(new /obj/effect/proc_holder/spell/targeted/collective_mind)
-	AddSpell(new /obj/effect/proc_holder/spell/targeted/shadowling_regenarmor)
-*/
 
 
 /mob/living/carbon/human/slime/atom_init(mapload)

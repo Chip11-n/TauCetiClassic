@@ -231,7 +231,7 @@
 /datum/status_effect/thrall_mark
 	id = "mark"
 	alert_type = /atom/movable/screen/alert/status_effect/thrall_mark
-	duration = 5 MINUTES
+	duration = 2 MINUTES
 	var/datum/role/thrall/role
 
 /datum/status_effect/thrall_mark/on_creation(mob/living/new_owner, datum/role/thrall/R)

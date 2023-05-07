@@ -49,29 +49,21 @@
 		for(var/obj/item/F in T.contents)
 			F.set_light(0)
 
-		for(var/mob/living/carbon/C in T.contents)
-			for(var/obj/item/F in C)
-				F.set_light(0)
-			C.set_light(0) //This is required with the object-based lighting
+		for(var/obj/machinery/light/L in T.contents)
+			L.on = 0
+			L.visible_message("<span class='danger'>[L] flickers and falls dark.</span>")
+			L.update(0)
 
-		for(var/obj/machinery/M in T.contents)
-			if(istype(M,/obj/machinery/light))
-				var/obj/machinery/light/L = M
-				L.on = 0
-				L.visible_message("<span class='danger'>[L] flickers and falls dark.</span>")
-				L.update(0)
-			else if(istype(M,/obj/machinery/door/airlock))
-				var/obj/machinery/door/airlock/A = M
-				if(get_dist(center, A) <= 4)
-					if(A.lights && A.hasPower())
-						A.lights = 0
-						A.update_icon()
-			else if(istype(M,/obj/machinery/vending))
-				var/obj/machinery/vending/V = M
-				V.set_light(0)
-			else if(istype(M,/obj/machinery/computer))
-				var/obj/machinery/computer/C = M
-				C.set_light(0)
+		for(var/mob/living/carbon/human/H in T.contents)
+			for(var/obj/item/F in H)
+				F.set_light(0)
+			H.set_light(0) //This is required with the object-based lighting
+
+		for(var/obj/machinery/door/airlock/A in T.contents)
+			if(get_dist(center, A) <= 4)
+				if(A.lights && A.hasPower())
+					A.lights = 0
+					A.update_icon()
 
 		for(var/obj/structure/glowshroom/G in T.contents)
 			if(get_dist(center, G) <= 2) //Very small radius
@@ -136,7 +128,7 @@
 		charge_counter = charge_max
 		return
 	for(var/mob/living/carbon/human/target in targets)
-		if(!checks(target, "entrall"))
+		if(!checks(target, "enthrall"))
 			return
 		if(!target.client)
 			to_chat(usr, "<span class='warning'>[target]'s mind is vacant of activity. Still, you may rearrange their memories in the case of their return.</span>")
@@ -213,7 +205,7 @@
 		charge_counter = charge_max
 		return FALSE
 	if(enthralling)
-		to_chat(usr, "<span class='warning'>You are already [noun == "entrall" ? noun + "l" : noun]ing!</span>")
+		to_chat(usr, "<span class='warning'>You are already [noun]ing!</span>")
 		charge_counter = charge_max
 		return FALSE
 	return TRUE
@@ -223,11 +215,6 @@
 	name = "Threll's mark"
 	desc = "Allows you to mark a conscious, non-braindead, non-catatonic human to helping them in enslaving one's soul. In addition, you get a shard of their memories and soul, granting you some of your master's power if your master entralls them. This takes some time to cast."
 	var/datum/role/thrall/role
-
-/obj/effect/proc_holder/spell/targeted/enthrall/thrall_mark/atom_init(role_thrall)
-	. = ..()
-	if(istype(role_thrall, /datum/role/thrall))
-		role = role_thrall
 
 /obj/effect/proc_holder/spell/targeted/enthrall/thrall_mark/cast(list/targets)
 	for(var/mob/living/carbon/human/target in targets)
@@ -242,7 +229,7 @@
 		to_chat(usr, "<span class='danger'>This target is valid. You begin the marking of mind.</span>")
 		to_chat(target, "<span class='userdanger'>[usr] stares at you. You feel your soul begins to weaken.</span>")
 
-		if(!do_mob(usr, target, 100)) //around 30 seconds total for marking
+		if(!do_mob(usr, target, 100)) //around 10 seconds total for marking
 			to_chat(usr, "<span class='warning'>The enthralling has been interrupted - your target's mind returns to its previous state.</span>")
 			to_chat(target, "<span class='userdanger'>A spike of pain drives into your head. You aren't sure what's happened, but you feel a faint sense of revulsion.</span>")
 			enthralling = FALSE
@@ -320,17 +307,14 @@
 	clothes_req = 0
 	range = -1
 	include_user = 1
-	var/blind_smoke_acquired
-	var/screech_acquired
-	var/drainLifeAcquired
-	var/reviveThrallAcquired
+	var/stage = 0
 
 /obj/effect/proc_holder/spell/targeted/collective_mind/cast(list/targets)
 	for(var/mob/living/user in targets)
 		var/thralls = 0
 		var/datum/faction/shadowlings/faction = find_faction_by_type(/datum/faction/shadowlings)
 		var/crew = faction.check_crew()
-		var/victory_threshold = max(15, round(crew/2))	
+		var/victory_threshold = max(15, round(crew/2))
 		var/mob/M
 
 		to_chat(user, "<span class='shadowling'><b>You focus your telepathic energies abound, harnessing and drawing together the strength of your thralls.</b></span>")
@@ -344,30 +328,30 @@
 			to_chat(user, "<span class='warning'>Your concentration has been broken. The mental hooks you have sent out now retract into your mind.</span>")
 			return
 
-		if(thralls >= 3 && !blind_smoke_acquired)
-			blind_smoke_acquired = 1
+		if(thralls >= 3 && stage < 1)
+			stage++
 			to_chat(user, "<span class='shadowling'><i>The power of your thralls has granted you the <b>Blinding Smoke</b> ability. It will create a choking cloud that will blind any non-thralls who enter. \
 			</i></span>")
 			user.AddSpell(new /obj/effect/proc_holder/spell/targeted/blindness_smoke)
 
-		if(thralls >= 5 && !drainLifeAcquired)
-			drainLifeAcquired = 1
+		if(thralls >= 5 && stage < 2)
+			stage++
 			to_chat(user, "<span class='shadowling'><i>The power of your thralls has granted you the <b>Drain Life</b> ability. You can now drain the health of nearby humans to heal yourself.</i></span>")
 			user.AddSpell(new /obj/effect/proc_holder/spell/aoe_turf/drainLife)
 
-		if(thralls >= 7 && !screech_acquired)
-			screech_acquired = 1
+		if(thralls >= 7 && stage < 3)
+			stage++
 			to_chat(user, "<span class='shadowling'><i>The power of your thralls has granted you the <b>Sonic Screech</b> ability. This ability will shatter nearby windows and deafen enemies, plus stunning silicon lifeforms.</i></span>")
 			user.AddSpell(new /obj/effect/proc_holder/spell/aoe_turf/unearthly_screech)
 
-		if(thralls >= 9 && !reviveThrallAcquired)
-			reviveThrallAcquired = 1
+		if(thralls >= 9 && stage < 4)
+			stage++
 			to_chat(user, "<span class='shadowling'><i>The power of your thralls has granted you the <b>Black Recuperation</b> ability. This will, after a short time, bring a dead thrall completely back to life \
 			with no bodily defects.</i></span>")
 			user.AddSpell(new /obj/effect/proc_holder/spell/targeted/reviveThrall)
 
-		if(thralls >= 12 && !reviveThrallAcquired)
-			reviveThrallAcquired = 1
+		if(thralls >= 12 && stage < 5)
+			stage++
 			to_chat(user, "<span class='shadowling'><i>The power of your thralls has granted you the <b>Glare</b> ability. This ability will bring mind of target to shock, paralyzing them</i></span>")
 			user.AddSpell(new /obj/effect/proc_holder/spell/targeted/glare)
 
@@ -458,8 +442,9 @@
 			if(iscarbon(target))
 				var/mob/living/carbon/M = target
 				to_chat(M, "<span class='danger'><b>A spike of pain drives into your head and scrambles your thoughts!</b></span>")
-				M.Paralyse(2)
-				M.AdjustConfused(4)
+				M.Paralyse(2, TRUE)
+				M.AdjustWeakened(4)
+				M.AdjustConfused(8)
 				M.ear_damage += 3
 			else if(issilicon(target))
 				var/mob/living/silicon/S = target
@@ -557,7 +542,7 @@
 	name = "Shadow ascension"
 	desc = "Brings a new master to this world. But it has it's own cost."
 	panel = "Shadowling Abilities"
-	action_icon_state = "revive_thrall"
+	action_icon_state = "regen_armor"
 	charge_max = 600
 	clothes_req = 0
 
