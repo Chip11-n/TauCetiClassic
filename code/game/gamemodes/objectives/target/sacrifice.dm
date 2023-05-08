@@ -11,10 +11,11 @@
 		if(sacrifice)
 			target = sacrifice
 			explanation_text = format_explanation(sacrifice)
-			/*if(organs_by_name[O_BRAIN])
-				var/obj/item/organ/internal/IO = organs_by_name[O_BRAIN]
-				if(istype(IO))*/
-			RegisterSignal(sacrifice, COMSIG_PARENT_QDELETING, .proc/target_del)
+			var/mob/living/carbon/human/H = sacrifice.current
+			if(H.organs_by_name[O_BRAIN])
+				var/obj/item/organ/internal/IO = H.organs_by_name[O_BRAIN]
+				if(istype(IO))
+					RegisterSignal(IO, COMSIG_PARENT_QDELETING, .proc/target_del)
 		else
 			target = null
 			explanation_text = format_explanation()
