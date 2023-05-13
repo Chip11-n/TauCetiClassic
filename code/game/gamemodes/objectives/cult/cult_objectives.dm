@@ -88,6 +88,9 @@
 		var/datum/job/J = SSjob.GetJob(I)
 		if(J.current_positions > 1)
 			possible_jobs += I
+	for(var/datum/objective/cult/job_convert/O in faction.objective_holder.objectives)
+		if(O.job in possible_jobs)
+			possible_jobs -= O.job
 	if(!possible_jobs.len)
 		explanation_text = "Свободная задача"
 		convertees_needed = 0

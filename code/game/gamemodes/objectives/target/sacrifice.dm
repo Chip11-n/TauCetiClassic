@@ -11,10 +11,11 @@
 		if(sacrifice)
 			target = sacrifice
 			explanation_text = format_explanation(sacrifice)
-			/*if(organs_by_name[O_BRAIN])
-				var/obj/item/organ/internal/IO = organs_by_name[O_BRAIN]
-				if(istype(IO))*/
-			RegisterSignal(sacrifice, COMSIG_PARENT_QDELETING, .proc/target_del)
+			var/mob/living/carbon/human/H = sacrifice.current
+			if(H.organs_by_name[O_BRAIN])
+				var/obj/item/organ/internal/IO = H.organs_by_name[O_BRAIN]
+				if(istype(IO))
+					RegisterSignal(IO, COMSIG_PARENT_QDELETING, .proc/target_del, sacrifice)
 		else
 			target = null
 			explanation_text = format_explanation()
@@ -30,10 +31,12 @@
 			return OBJECTIVE_WIN
 	return OBJECTIVE_LOSS
 
-/datum/objective/target/sacrifice/proc/target_del() //We need a new target
+/datum/objective/target/sacrifice/proc/target_del(datum/mind/M) //We need a new target
 	SIGNAL_HANDLER
-	find_target()
 	var/datum/faction/cult/C = faction
+	if(M in C.sacrificed) //false alert
+		return
+	find_target()
 	C.religion.send_message_to_members("<span class='[C.religion.style_text]'>М͋͝н̽͌̔е͑͐͝ н́̈́̓у͒̽̓ж̐̈́̿н͐̚͝а̒̚ н͑̐͑о̽̽в̿̐͝а͒̈́͝я̓͝ ж͑͒̕е͑͝р͑͒͆т͌͘͠в͆̈́́а͊̾̚</span>", null, 6)
 
 /datum/objective/target/sacrifice/Destroy()
