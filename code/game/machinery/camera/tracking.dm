@@ -125,25 +125,15 @@
 			continue
 		if(M.invisibility)//cloaked
 			continue
-		if(M.digitalcamo)
+		if(SEND_SIGNAL(M, COMSIG_LIVING_CAN_TRACK) & COMPONENT_CANT_TRACK)
 			continue
-
-		// Human check
-		var/human = 0
-		if(ishuman(M))
-			human = 1
-			var/mob/living/carbon/human/H = M
-			//Cameras can't track people wearing an agent card or hat with blockTracking.
-			if(H.wear_id && istype(H.wear_id.GetID(), /obj/item/weapon/card/id/syndicate))
-				continue
-			if(istype(H.head, /obj/item/clothing/head))
-				var/obj/item/clothing/head/hat = H.head
-				if(hat.blockTracking)
-					continue
 
 		 // Now, are they viewable by a camera? (This is last because it's the most intensive check)
 		if(!near_camera(M))
 			continue
+
+		// Human check
+		var/human = ishuman(M) ? TRUE : FALSE
 
 		var/name = M.name
 		if (name in TB.names)
@@ -166,7 +156,7 @@
 /mob/living/silicon/ai/proc/ai_camera_track(target_name in trackable_mobs())
 
 	if(src.stat == DEAD)
-		to_chat(src, "You can't track with camera because you are dead!")
+		to_chat(src, "<span class='warning'>You can't track with camera because you are dead!</span>")
 		return
 	if(target_name == "Cancel")
 		return 0
@@ -182,7 +172,7 @@
 	if(!cameraFollow)
 		return
 
-	to_chat(src, "Follow camera mode [forced ? "terminated" : "ended"].")
+	to_chat(src, "<span class='warning'>Follow camera mode [forced ? "terminated" : "ended"].</span>")
 	cameraFollow.tracking_cancelled()
 	cameraFollow = null
 
@@ -191,46 +181,33 @@
 	var/mob/living/silicon/ai/U = usr
 
 	U.cameraFollow = target
-	to_chat(U, "Now tracking [target.name] on camera.")
+	to_chat(U, "<span class='notice'>Now tracking [target.name] on camera.</span>")
 	target.tracking_initiated()
 
-	spawn (0)
-		while (U.cameraFollow == target)
-			if (U.cameraFollow == null)
-				return
-			if (ishuman(target))
-				var/mob/living/carbon/human/H = target
-				if(H.wear_id && istype(H.wear_id.GetID(), /obj/item/weapon/card/id/syndicate))
-					to_chat(U, "Follow camera mode terminated.")
-					U.cameraFollow = null
-					return
-				if(istype(H.head, /obj/item/clothing/head))
-					var/obj/item/clothing/head/hat = H.head
-					if(hat.blockTracking)
-						to_chat(U, "Follow camera mode terminated.")
-						U.cameraFollow = null
-						return
-				if(H.digitalcamo)
-					to_chat(U, "Follow camera mode terminated.")
-					U.cameraFollow = null
-					return
+	INVOKE_ASYNC(src, .proc/do_track, target, U)
 
-			if(istype(target.loc,/obj/effect/dummy))
-				to_chat(U, "Follow camera mode ended.")
-				U.cameraFollow = null
-				return
-
-			if (!near_camera(target))
-				to_chat(U, "Target is not near any active cameras.")
-				sleep(100)
-				continue
-
-			if(U.eyeobj)
-				U.eyeobj.setLoc(get_turf(target))
-			else
-				view_core()
-				return
-			sleep(10)
+/mob/living/silicon/ai/proc/do_track(mob/living/target)
+	var/mob/living/silicon/ai/U = src
+	new /datum/orbit (U.eyeobj, target, FALSE)
+	if (!U.eyeobj.orbiting) //something failed, and our orbit datum deleted itself
+		return
+	var/matrix/initial_transform = matrix(transform)
+	cached_transform = initial_transform
+	while (U.eyeobj.orbiting)
+		if(SEND_SIGNAL(target, COMSIG_LIVING_CAN_TRACK) & COMPONENT_CANT_TRACK)
+			to_chat(U, "<span class='warning'>Follow camera mode terminated.</span>")
+			U.eyeobj.stop_orbit()
+			return
+		if(istype(target.loc,/obj/effect/dummy))
+			to_chat(U, "<span class='warning'>Follow camera mode ended.</span>")
+			U.eyeobj.stop_orbit()
+			return
+		if (!near_camera(target))
+			to_chat(U, "<span class='warning'>Target is not near any active cameras.</span>")
+			U.eyeobj.stop_orbit()
+			sleep(100)
+			continue
+		sleep(10)
 
 /proc/near_camera(mob/living/M)
 	if (!isturf(M.loc))
@@ -279,7 +256,7 @@
 
 /mob/living/proc/tracking_cancelled()
 
-/mob/living/silicon/robot/tracking_initiated()
+/mob/living/silicon/robot/tracking_cancelled()
 	tracking_entities--
 	if(!tracking_entities && has_zeroth_law())
 		to_chat(src, "<span class='notice'>Internal camera is no longer being accessed.</span>")
