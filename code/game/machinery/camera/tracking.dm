@@ -183,8 +183,8 @@
 	U.cameraFollow = target
 	to_chat(U, "<span class='notice'>Now tracking [target.name] on camera.</span>")
 	target.tracking_initiated()
-
 	INVOKE_ASYNC(src, .proc/do_track, target, U)
+
 
 /mob/living/silicon/ai/proc/do_track(mob/living/target)
 	var/mob/living/silicon/ai/U = src
