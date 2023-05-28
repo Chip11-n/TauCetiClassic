@@ -183,8 +183,7 @@
 	U.cameraFollow = target
 	to_chat(U, "<span class='notice'>Now tracking [target.name] on camera.</span>")
 	target.tracking_initiated()
-	INVOKE_ASYNC(src, .proc/do_track, target, U)
-
+	INVOKE_ASYNC(src, .proc/do_track, target)
 
 /mob/living/silicon/ai/proc/do_track(mob/living/target)
 	var/mob/living/silicon/ai/U = src
@@ -205,7 +204,6 @@
 		if (!near_camera(target))
 			to_chat(U, "<span class='warning'>Target is not near any active cameras.</span>")
 			U.eyeobj.stop_orbit()
-			sleep(100)
 			continue
 		sleep(10)
 
