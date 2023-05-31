@@ -28,7 +28,7 @@
 		target.add_status_flags(GODMODE) //Protection from any kind of damage, caused you in astral world
 
 		var/remove_xray = FALSE
-		if(!(XRAY in target.mutations))
+		if(!HAS_TRAIT(TRAIT_XRAY_VISION))
 			target.mutations += XRAY
 			target.update_sight()
 			remove_xray = TRUE
@@ -137,7 +137,7 @@
 		return
 
 	last_move = world.time
-	
+
 	var/turf/newLoc = get_step(src,direction)
 
 	if(SEND_SIGNAL(newLoc, COMSIG_ATOM_INTERCEPT_TELEPORT))

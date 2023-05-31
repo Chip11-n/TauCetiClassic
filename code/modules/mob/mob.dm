@@ -1096,7 +1096,7 @@ note dizziness decrements automatically in the mob's Life() proc.
 			client.eye = client.mob
 			client.perspective = MOB_PERSPECTIVE
 		if(1)
-			if(XRAY in mutations)
+			if(HAS_TRAIT(TRAIT_XRAY_VISION))
 				return
 			else
 				overlay_fullscreen("blind", /atom/movable/screen/fullscreen/blind)

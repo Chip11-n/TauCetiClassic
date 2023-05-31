@@ -1167,7 +1167,7 @@
 		see_in_dark = 8
 		lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
 
-	if(XRAY in mutations)
+	if(HAS_TRAIT(TRAIT_XRAY_VISION))
 		sight |= SEE_TURFS|SEE_MOBS|SEE_OBJS
 		see_in_dark = 8
 		if(!druggy)

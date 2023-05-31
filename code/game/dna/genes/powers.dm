@@ -277,6 +277,16 @@
 /datum/dna/gene/basic/xray/New()
 	block=XRAYBLOCK
 
+/datum/dna/gene/basic/xray/activate(mob/M)
+	..(M)
+	ADD_TRAIT(M, TRAIT_XRAY_VISION, GENETIC_MUTATION)
+	M.update_sight()
+
+/datum/dna/gene/basic/xray/deactivate(mob/M)
+	..(M)
+	REMOVE_TRAIT(M, TRAIT_XRAY_VISION, GENETIC_MUTATION)
+	M.update_sight()
+
 /datum/dna/gene/basic/tk
 	name="Telekenesis"
 	activation_messages=list("You feel smarter.")
