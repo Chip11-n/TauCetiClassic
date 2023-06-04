@@ -797,11 +797,6 @@ ADD_TO_GLOBAL_LIST(/mob/living/simple_animal/parrot/Poly, chief_animal_list)
 	if(stat || !message)
 		return
 
-	var/verb = "says"
-	if(speak_emote.len)
-		verb = pick(speak_emote)
-
-
 	var/message_mode=""
 	if(message[1] == ";")
 		message_mode = "headset"
@@ -820,7 +815,7 @@ ADD_TO_GLOBAL_LIST(/mob/living/simple_animal/parrot/Poly, chief_animal_list)
 	if(message_mode)
 		if(message_mode in radiochannels)
 			if(ears && istype(ears,/obj/item/device/radio))
-				ears.talk_into(src,message, message_mode, verb, null)
+				ears.talk_into(src,message, message_mode, pick(speak_emote), null)
 
 
 	..(message)

@@ -93,7 +93,7 @@ var/global/list/department_radio_keys = list(
 		if(dongle.translate_binary)
 			return 1
 
-/mob/living/say(message, datum/language/speaking = null, verb="says", alt_name="", italics=FALSE, message_range = world.view, list/used_radios = list(), sound/speech_sound, sound_vol, sanitize = TRUE, message_mode = FALSE)
+/mob/living/say(message, datum/language/speaking = null, verb, alt_name="", italics=FALSE, message_range = world.view, list/used_radios = list(), sound/speech_sound, sound_vol, sanitize = TRUE, message_mode = FALSE)
 	if (src.client)
 		if(client.prefs.muted & MUTE_IC)
 			to_chat(src, "You cannot send IC messages (muted).")
@@ -199,6 +199,8 @@ var/global/list/department_radio_keys = list(
 	I.appearance_flags = APPEARANCE_UI_IGNORE_ALPHA|KEEP_APART
 	I.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	INVOKE_ASYNC(GLOBAL_PROC, .proc/flick_overlay, I, speech_bubble_recipients, 30)
+	if(!verb)
+		verb = speak_emote.len ? pick(speak_emote) : "says"
 	for(var/mob/M in listening)
 		M.hear_say(message, verb, speaking, alt_name, italics, src, used_radios.len, speech_sound, sound_vol)
 

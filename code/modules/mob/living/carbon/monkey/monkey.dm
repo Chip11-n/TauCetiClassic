@@ -213,9 +213,6 @@
 	if(message[1] == "*")
 		return emote(copytext(message, 2))
 
-	if(speak_emote.len)
-		verb = pick(speak_emote)
-
 	message = capitalize(trim_left(message))
 
 	..(message, speaking, verb, alt_name, italics, message_range, used_radios)

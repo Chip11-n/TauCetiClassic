@@ -3,8 +3,8 @@
 	icon = 'icons/mob/slimes.dmi'
 	icon_state = "grey baby slime"
 	pass_flags = PASSTABLE
-	speak_emote = list("hums")
 
+	speak_emote = list("hums", "blorbles")
 	layer = 5
 
 	maxHealth = 150
@@ -21,7 +21,7 @@
 	attack_disarm_vis_effect = ATTACK_EFFECT_SLIME
 
 	ventcrawler = 2
-
+	typing_indicator_type = "slime"
 	moveset_type = /datum/combat_moveset/slime
 
 	// canstun and canweaken don't affect slimes because they ignore stun and weakened variables

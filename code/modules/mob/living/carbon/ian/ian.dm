@@ -469,14 +469,9 @@ ADD_TO_GLOBAL_LIST(/mob/living/carbon/ian, chief_animal_list)
 	if(message[1] == "*")
 		return emote(copytext(message, 2))
 
-	var/verb = "says"
-
-	if(speak_emote.len)
-		verb = pick(speak_emote)
-
 	message = capitalize(trim_left(message))
 
-	..(message, null, verb, sanitize = 0)
+	..(message, null, sanitize = 0)
 
 /mob/living/carbon/ian/get_scrambled_message(message, datum/language/speaking = null)
 	if(!speak.len)
