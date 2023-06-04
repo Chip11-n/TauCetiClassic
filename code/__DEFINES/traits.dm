@@ -221,6 +221,7 @@
 #define EYE_DAMAGE_TRAIT "eye_damage"
 #define EYE_DAMAGE_TEMPORARY_TRAIT "eye_damage_temporary"
 #define GENETIC_MUTATION_TRAIT "genetic"
+#define MAGIC_TRAIT "magic"
 #define QUIRK_TRAIT "quirk"
 #define VIRUS_TRAIT "virus"
 #define STATUS_EFFECT_TRAIT "status_effect"

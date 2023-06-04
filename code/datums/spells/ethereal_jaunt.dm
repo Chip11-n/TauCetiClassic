@@ -27,11 +27,9 @@
 		target.ExtinguishMob()			//This spell can extinguish mob
 		target.add_status_flags(GODMODE) //Protection from any kind of damage, caused you in astral world
 
-		var/remove_xray = FALSE
 		if(!HAS_TRAIT(TRAIT_XRAY_VISION))
-			target.mutations += XRAY
+			ADD_TRAIT(target, TRAIT_XRAY_VISION, MAGIC_TRAIT)
 			target.update_sight()
-			remove_xray = TRUE
 
 		holder.master = target
 		var/list/companions = handle_teleport_grab(holder, target)
@@ -65,9 +63,8 @@
 			target.client.images -= I
 			target.client.eye = target
 		target.remove_status_flags(GODMODE)	//Turn off this cheat
-		if(remove_xray)
-			target.mutations -= XRAY
-			target.update_sight()
+		REMOVE_TRAIT(target, TRAIT_XRAY_VISION, MAGIC_TRAIT)
+		target.update_sight()
 		if(companions)
 			for(var/M in companions)
 				var/mob/living/L = M
