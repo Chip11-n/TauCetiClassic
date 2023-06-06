@@ -1094,6 +1094,11 @@ Owl & Griffin toys
 	user.visible_message("<span class='notice'>[user] draws a card from the deck.</span>", "<span class='notice'>You draw a card from the deck.</span>")
 	update_icon()
 
+/obj/item/toy/cards/examine(mob/user)
+	. = ..()
+	if(HAS_TRAIT(user, TRAIT_XRAY_VISION) && cards.len)
+		to_chat(user, "<span class='notice'>You scan the deck with your x-ray vision and the top card reads: [cards[1]].</span>")
+
 /obj/item/toy/cards/proc/remove_card()
 	var/obj/item/toy/singlecard/H = new/obj/item/toy/singlecard(loc)
 	var/choice = cards[1]
@@ -1168,6 +1173,11 @@ Owl & Griffin toys
 	popup.set_content(dat)
 	popup.open()
 
+/obj/item/toy/cardhand/examine(mob/user)
+	. = ..()
+	if(HAS_TRAIT(user, TRAIT_XRAY_VISION))
+		for(var/card in currenthand)
+			to_chat(user, "<span class='notice'>You scan the cardhand with your x-ray vision and there is a: [get_english_list(currenthand)]</span>")
 
 /obj/item/toy/cardhand/Topic(href, href_list)
 	if(..())
@@ -1241,13 +1251,13 @@ Owl & Griffin toys
 
 /obj/item/toy/singlecard/examine(mob/user)
 	..()
-	if(src in user && ishuman(user))
-		var/mob/living/carbon/human/cardUser = user
-		if(cardUser.get_item_by_slot(SLOT_L_HAND) == src || cardUser.get_item_by_slot(SLOT_R_HAND) == src)
-			cardUser.visible_message("<span class='notice'>[cardUser] checks \his card.</span>", "<span class='notice'>The card reads: [src.cardname]</span>")
+	if(ishuman(user))
+		if(src in user && user.get_item_by_slot(SLOT_L_HAND) == src || user.get_item_by_slot(SLOT_R_HAND) == src)
+			user.visible_message("<span class='notice'>[user] checks \his card.</span>", "<span class='notice'>The card reads: [src.cardname]</span>")
+		else if(HAS_TRAIT(user, TRAIT_XRAY_VISION))
+			to_chat(user, "<span class='notice'>You scan the card with your x-ray vision and it reads: [cardname].</span>")
 		else
-			to_chat(cardUser, "<span class='notice'>You need to have the card in your hand to check it.</span>")
-
+			to_chat(user, "<span class='notice'>You need to have the card in your hand to check it.</span>")
 
 /obj/item/toy/singlecard/verb/Flip()
 	set name = "Flip Card"

@@ -27,7 +27,7 @@
 		target.ExtinguishMob()			//This spell can extinguish mob
 		target.add_status_flags(GODMODE) //Protection from any kind of damage, caused you in astral world
 
-		if(!HAS_TRAIT(TRAIT_XRAY_VISION))
+		if(!HAS_TRAIT(src, TRAIT_XRAY_VISION))
 			ADD_TRAIT(target, TRAIT_XRAY_VISION, MAGIC_TRAIT)
 			target.update_sight()
 

@@ -279,12 +279,12 @@
 
 /datum/dna/gene/basic/xray/activate(mob/M)
 	..(M)
-	ADD_TRAIT(M, TRAIT_XRAY_VISION, GENETIC_MUTATION)
+	ADD_TRAIT(M, TRAIT_XRAY_VISION, GENETIC_MUTATION_TRAIT)
 	M.update_sight()
 
 /datum/dna/gene/basic/xray/deactivate(mob/M)
 	..(M)
-	REMOVE_TRAIT(M, TRAIT_XRAY_VISION, GENETIC_MUTATION)
+	REMOVE_TRAIT(M, TRAIT_XRAY_VISION, GENETIC_MUTATION_TRAIT)
 	M.update_sight()
 
 /datum/dna/gene/basic/tk

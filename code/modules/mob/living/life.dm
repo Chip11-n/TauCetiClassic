@@ -93,7 +93,7 @@
 		if(blinded)
 			throw_alert("blind", /atom/movable/screen/alert/blind)
 			overlay_fullscreen("blind", /atom/movable/screen/fullscreen/blind)
-		else if(is_vision_obstructed() && !HAS_TRAIT(TRAIT_XRAY_VISION))
+		else if(is_vision_obstructed() && !HAS_TRAIT(src, TRAIT_XRAY_VISION))
 			overlay_fullscreen("blind", /atom/movable/screen/fullscreen/blind)
 		else
 			clear_alert("blind")

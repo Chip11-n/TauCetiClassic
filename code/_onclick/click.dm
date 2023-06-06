@@ -141,7 +141,7 @@
 		return
 
 	if(!isturf(loc)) // (This is going to stop you from telekinesing from inside a closet, but I don't shed many tears for that.) Not anymore
-		if((TK in mutations) && HAS_TRAIT(TRAIT_XRAY_VISION))//Now telekinesing from inside a closet is possible
+		if((TK in mutations) && HAS_TRAIT(src, TRAIT_XRAY_VISION))//Now telekinesing from inside a closet is possible
 			ranged_attack_tk(A)
 		return
 

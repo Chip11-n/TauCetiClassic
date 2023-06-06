@@ -55,7 +55,7 @@
 				if (!(COLD_RESISTANCE in user.mutations))
 					user.mutations.Add(COLD_RESISTANCE)
 					to_chat(user, "<span class='notice'>Your body feels warm.</span>")
-				if (!HAS_TRAIT(TRAIT_XRAY_VISION))
+				if (!HAS_TRAIT(src, TRAIT_XRAY_VISION))
 					user.mutations.Add(XRAY)
 					user.update_sight()
 					to_chat(user, "<span class='notice'>The walls suddenly disappear.</span>")

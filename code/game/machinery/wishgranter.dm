@@ -46,7 +46,7 @@
 		if (!(LASEREYES in user.mutations))
 			user.mutations.Add(LASEREYES)
 
-		if (!HAS_TRAIT(TRAIT_XRAY_VISION))
+		if (!HAS_TRAIT(src, TRAIT_XRAY_VISION))
 			user.mutations.Add(XRAY)
 			user.update_sight()
 
