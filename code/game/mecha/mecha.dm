@@ -549,10 +549,10 @@
 		if(internal_tank)
 			WR.salvage["crowbar"] += internal_tank.type
 			qdel(internal_tank)
+		if(prob(60))
+			explosion(T, 0, 0, 1, 3)
 	for(var/obj/item/mecha_parts/mecha_equipment/E in equipment)
 		qdel(E)
-	if(prob(60))
-		explosion(T, 0, 0, 1, 3)
 	qdel(src)
 
 /obj/mecha/ex_act(severity)

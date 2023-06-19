@@ -74,6 +74,9 @@
 	// Which department stocks this job has on arrival.
 	var/list/department_stocks
 
+	///What types of bounty tasks can this job recieve past the default?
+	var/bounty_types = CIV_JOB_BASIC
+
 /datum/job/proc/post_equip(mob/living/carbon/human/H, visualsOnly = FALSE)
 	return
 

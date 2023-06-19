@@ -113,6 +113,7 @@
 		"Biomechanical Engineer" = /datum/skillset/roboticist/bio,
 		"Mechatronic Engineer" = /datum/skillset/roboticist/mecha
 	)
+	bounty_types = CIV_JOB_ROBO
 
 
 /datum/job/research_assistant

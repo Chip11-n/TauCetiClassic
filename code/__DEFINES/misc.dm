@@ -375,3 +375,24 @@
 #define SMOOTH_ADAPTERS_WALLS_FOR_WALLS list( \
 		/obj/machinery/door/airlock = "wall", \
 )
+
+//Defines that set what kind of civilian bounties should be applied mid-round.
+#define CIV_JOB_BASIC 1
+#define CIV_JOB_ROBO 2
+#define CIV_JOB_CHEF 3
+#define CIV_JOB_SEC 4
+#define CIV_JOB_DRINK 5
+#define CIV_JOB_CHEM 6
+#define CIV_JOB_VIRO 7
+#define CIV_JOB_SCI 8
+#define CIV_JOB_ENG 9
+#define CIV_JOB_MINE 10
+#define CIV_JOB_MED 11
+#define CIV_JOB_GROW 12
+#define CIV_JOB_ATMOS 13
+#define CIV_JOB_RANDOM 14
+
+///Percentage of a civilian bounty the civilian will make.
+#define CIV_BOUNTY_SPLIT 50
+
+#define CARGO_CRATE_VALUE 30

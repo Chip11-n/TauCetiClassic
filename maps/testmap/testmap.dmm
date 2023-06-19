@@ -251,6 +251,18 @@
 	},
 /turf/unsimulated/floor,
 /area/centcom)
+"aJ" = (
+/obj/machinery/computer/bounty_control,
+/turf/unsimulated/floor{
+	icon_state = "floor"
+	},
+/area/centcom)
+"aK" = (
+/obj/machinery/bounty_pad,
+/turf/unsimulated/floor{
+	icon_state = "floor"
+	},
+/area/centcom)
 "aL" = (
 /obj/effect/landmark/start{
 	name = "Fallback-Start"
@@ -4513,7 +4525,7 @@ ac
 aW
 aC
 az
-ay
+aJ
 ay
 ay
 aY
@@ -4665,7 +4677,7 @@ as
 az
 az
 az
-ay
+aK
 ay
 ay
 ay

@@ -42,6 +42,7 @@
 	minimal_player_ingame_minutes = 480
 	outfit = /datum/outfit/job/cargo_tech
 	skillsets = list("Cargo Technician" = /datum/skillset/cargotech)
+	bounty_types = CIV_JOB_RANDOM
 
 	department_stocks = list("Cargo" = 20)
 
@@ -109,6 +110,7 @@
 	minimal_player_ingame_minutes = 240
 	outfit = /datum/outfit/job/bartender
 	skillsets = list("Bartender" = /datum/skillset/bartender)
+	bounty_types = CIV_JOB_DRINK
 	/*
 		HEY YOU!
 		ANY TIME YOU TOUCH THIS, PLEASE CONSIDER GOING TO preferences_savefile.dm
