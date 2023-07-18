@@ -113,6 +113,7 @@
 	minimal_player_ingame_minutes = 960
 	outfit = /datum/outfit/job/chemist
 	skillsets = list("Chemist" = /datum/skillset/chemist)
+	bounty_types = CIV_JOB_CHEM
 
 	department_stocks = list("Medical" = 10)
 
@@ -132,6 +133,7 @@
 	minimal_player_ingame_minutes = 960
 	outfit = /datum/outfit/job/geneticist
 	skillsets = list("Geneticist" = /datum/skillset/geneticist)
+	bounty_types = CIV_JOB_SCI
 
 	department_stocks = list("Medical" = 10)
 

@@ -34,28 +34,28 @@
 /datum/bounty/item/assistant/donut
 	name = "Donuts"
 	description = "CentCom's security forces are facing heavy losses against the Syndicate. Ship donuts to raise morale."
-	reward = CARGO_CRATE_VALUE * 6
+	reward = CARGO_CRATE_VALUE * 5
 	required_count = 6
 	wanted_types = list(/obj/item/weapon/reagent_containers/food/snacks/donut = TRUE)
 
 /datum/bounty/item/assistant/donkpocket
 	name = "Donk-Pockets"
 	description = "Consumer safety recall: Warning. Donk-Pockets manufactured in the past year contain hazardous lizard biomatter. Return units to CentCom immediately."
-	reward = CARGO_CRATE_VALUE * 6
+	reward = CARGO_CRATE_VALUE * 4
 	required_count = 8
 	wanted_types = list(/obj/item/weapon/reagent_containers/food/snacks/donkpocket = TRUE)
 
 /datum/bounty/item/assistant/dead_mice
 	name = "Dead Mice"
 	description = "Station 14 ran out of freeze-dried mice. Ship some fresh ones so their janitor doesn't go on strike."
-	reward = CARGO_CRATE_VALUE * 10
+	reward = CARGO_CRATE_VALUE * 5
 	required_count = 3
 	wanted_types = list(/mob/living/simple_animal/mouse = TRUE)
 
 /datum/bounty/item/assistant/comfy_chair
 	name = "Comfy Chairs"
 	description = "Commander Pat is unhappy with his chair. He claims it hurts his back. Ship some alternatives out to humor him."
-	reward = CARGO_CRATE_VALUE * 3
+	reward = CARGO_CRATE_VALUE * 2
 	required_count = 5
 	wanted_types = list(/obj/structure/stool = TRUE)
 
@@ -138,3 +138,10 @@
 	description = "We have a moth infestation, send a flamethrower to help deal with the situation."
 	reward = CARGO_CRATE_VALUE * 4
 	wanted_types = list(/obj/item/weapon/flamethrower = TRUE)
+
+/datum/bounty/item/trash
+	name = "Trash"
+	description = "Recently a group of janitors have run out of trash to clean up, and CentCom wants to fire them to cut costs. Send a shipment of trash to keep them employed, and they'll give you a small compensation."
+	reward = CARGO_CRATE_VALUE * 2
+	required_count = 10
+	wanted_types = list(/obj/item/trash = TRUE)

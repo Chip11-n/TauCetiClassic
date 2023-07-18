@@ -10,12 +10,12 @@
 		M.wreckage = null // So the mech doesn't explode.
 	..()
 
-/datum/bounty/item/mech/ripleymk2
+/datum/bounty/item/mech/ripley
 	name = "APLU \"Ripley\""
 	reward = CARGO_CRATE_VALUE * 26
 	wanted_types = list(/obj/mecha/working/ripley = TRUE)
 
-/datum/bounty/item/mech/clarke
+/datum/bounty/item/mech/firefighter
 	name = "APLU \"Firefighter\""
 	reward = CARGO_CRATE_VALUE * 32
 	wanted_types = list(/obj/mecha/working/ripley/firefighter = TRUE)
@@ -30,7 +30,7 @@
 	reward = CARGO_CRATE_VALUE * 56
 	wanted_types = list(/obj/mecha/combat/gygax = TRUE)
 
-/datum/bounty/item/mech/gygax
+/datum/bounty/item/mech/gygax_ultra
 	name = "Gygax Ultra"
 	reward = CARGO_CRATE_VALUE * 76
 	wanted_types = list(/obj/mecha/combat/gygax/ultra = TRUE)
@@ -40,7 +40,7 @@
 	reward = CARGO_CRATE_VALUE * 40
 	wanted_types = list(/obj/mecha/combat/durand = TRUE)
 
-/datum/bounty/item/mech/durand
+/datum/bounty/item/mech/vindicator
 	name = "Vindicator"
 	reward = CARGO_CRATE_VALUE * 60
 	wanted_types = list(/obj/mecha/combat/durand/vindicator = TRUE)

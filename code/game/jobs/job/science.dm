@@ -29,6 +29,7 @@
 		~Luduk
 	*/
 	restricted_species = list(UNATHI, TAJARAN, VOX, DIONA)
+	bounty_types = CIV_JOB_SCI
 
 
 /datum/job/scientist
@@ -50,6 +51,7 @@
 		"Scientist" = /datum/skillset/scientist,
 		"Phoron Researcher" = /datum/skillset/scientist/phoron
 		)
+	bounty_types = CIV_JOB_SCI
 
 
 /datum/job/xenoarchaeologist
@@ -74,6 +76,7 @@
 		~Luduk
 	*/
 	restricted_species = list(IPC)
+	bounty_types = CIV_JOB_SCI
 
 
 /datum/job/xenobiologist
@@ -91,6 +94,7 @@
 	minimal_player_ingame_minutes = 1560
 	outfit = /datum/outfit/job/xenobiologist
 	skillsets = list("Xenobiologist" = /datum/skillset/xenobiologist)
+	bounty_types = CIV_JOB_SCI
 
 
 /datum/job/roboticist
@@ -130,4 +134,4 @@
 	salary = 50
 	outfit = /datum/outfit/job/research_assistant
 	skillsets = list("Research Assistant" = /datum/skillset/research_assistant)
-
+	bounty_types = CIV_JOB_SCI

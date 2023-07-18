@@ -21,6 +21,7 @@
 	minimal_player_ingame_minutes = 2400
 	outfit = /datum/outfit/job/chief_engineer
 	skillsets = list("Chief Engineer" = /datum/skillset/ce)
+	bounty_types = CIV_JOB_ENG
 	/*
 		HEY YOU!
 		ANY TIME YOU TOUCH THIS, PLEASE CONSIDER GOING TO preferences_savefile.dm
@@ -47,6 +48,7 @@
 	salary = 160
 	minimal_player_age = 3
 	minimal_player_ingame_minutes = 540
+	bounty_types = CIV_JOB_ENG
 
 
 /datum/job/atmos
@@ -65,7 +67,7 @@
 	minimal_player_ingame_minutes = 600
 	outfit = /datum/outfit/job/atmos
 	skillsets = list("Atmospheric Technician" = /datum/skillset/atmostech)
-
+	bounty_types = CIV_JOB_ENG
 
 /datum/job/technical_assistant
 	title = "Technical Assistant"
@@ -81,7 +83,7 @@
 	salary = 50
 	outfit = /datum/outfit/job/technical_assistant
 	skillsets = list("Technical Assistant" = /datum/skillset/technicassistant)
-
+	bounty_types = CIV_JOB_ENG
 
 /proc/get_airlock_wires_identification()
 	var/list/wire_list = same_wires[/obj/machinery/door/airlock]

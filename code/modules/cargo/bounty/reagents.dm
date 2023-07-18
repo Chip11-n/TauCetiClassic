@@ -9,22 +9,22 @@
 /datum/bounty/reagent/applies_to(obj/O)
 	if(!istype(O, /obj/item/weapon/reagent_containers))
 		return FALSE
-	if(!O.reagents || !O.reagents.has_reagent(wanted_reagent.type))
+	if(!O.reagents || !O.reagents.has_reagent(wanted_reagent.id))
 		return FALSE
 	if(O.flags_2 & HOLOGRAM_2)
 		return FALSE
-	return shipped_volume < required_volume
+	return TRUE
 
 /datum/bounty/reagent/ship(obj/O)
 	if(!applies_to(O))
 		return
-	shipped_volume += O.reagents.get_reagent_amount(wanted_reagent.type)
+	shipped_volume += O.reagents.get_reagent_amount(wanted_reagent.id)
 	if(shipped_volume > required_volume)
 		shipped_volume = required_volume
 
 /datum/bounty/reagent/simple_drink
 	name = "Simple Drink"
-	reward = CARGO_CRATE_VALUE * 2
+	reward = CARGO_CRATE_VALUE * 2.5
 	required_volume = 120
 
 /datum/bounty/reagent/simple_drink/New()
@@ -103,12 +103,12 @@
 	name = wanted_reagent.name
 	description = "CentCom is thirsty! Send a shipment of [name] to CentCom to quench the company's thirst."
 	required_volume = rand(15, 120)
-	reward = round(CARGO_CRATE_VALUE * required_volume / 17)
+	reward = round(CARGO_CRATE_VALUE * required_volume / 15)
 
 /datum/bounty/reagent/complex_drink
 	name = "Complex Drink"
 	required_volume = 5
-	reward = CARGO_CRATE_VALUE * 8
+	reward = CARGO_CRATE_VALUE * 4
 
 /datum/bounty/reagent/complex_drink/New()
 	var/static/list/possible_reagents = list(
@@ -182,11 +182,11 @@
 	name = wanted_reagent.name
 	description = "CentCom is offering a reward for talented mixologists. Ship a container of [name] to claim the prize."
 	required_volume = rand(10, 30)
-	reward = round(CARGO_CRATE_VALUE * required_volume / 2.5)
+	reward = round(CARGO_CRATE_VALUE * required_volume / 3)
 
 /datum/bounty/reagent/chemical_simple
 	name = "Simple Chemical"
-	reward = CARGO_CRATE_VALUE * 8
+	reward = CARGO_CRATE_VALUE * 4
 	required_volume = 30
 
 /datum/bounty/reagent/chemical_simple/New()
@@ -226,11 +226,11 @@
 	name = wanted_reagent.name
 	description = "CentCom is in desperate need of the chemical [name]. Ship a container of it to be rewarded."
 	required_volume = rand(15, 120)
-	reward = round(CARGO_CRATE_VALUE * required_volume / 17)
+	reward = round(CARGO_CRATE_VALUE * required_volume / 15)
 
 /datum/bounty/reagent/chemical_complex
 	name = "Rare Chemical"
-	reward = CARGO_CRATE_VALUE * 12
+	reward = CARGO_CRATE_VALUE * 8
 	required_volume = 20
 
 /datum/bounty/reagent/chemical_complex/New()
@@ -245,5 +245,5 @@
 	wanted_reagent = new reagent_type
 	name = wanted_reagent.name
 	description = "CentCom is paying premium for the chemical [name]. Ship a container of it to be rewarded."
-	required_volume = rand(3, 10)
-	reward = round(CARGO_CRATE_VALUE * required_volume * 2)
+	required_volume = rand(3, 5)
+	reward = round(CARGO_CRATE_VALUE * required_volume * 3)

@@ -72,6 +72,28 @@ var/global/list/string_assoc_lists = list()
 		if (isnull(.[cached_path]))
 			. -= cached_path
 
+/// If the user can actually get this bounty as a selection.
+/datum/bounty/proc/can_get()
+	return TRUE
+
+/datum/bounty
+	var/name
+	var/description
+	var/reward = 1000 // In credits.
+	var/claimed = FALSE
+	var/high_priority = FALSE
+
+/datum/bounty/proc/can_claim()
+	return !claimed
+
+/// If an item sent in the cargo shuttle can satisfy the bounty.
+/datum/bounty/proc/applies_to(obj/O)
+	return FALSE
+
+/// Called when an object is shipped on the cargo shuttle.
+/datum/bounty/proc/ship(obj/O)
+	return
+
 /datum/bounty/item
 	///How many items have to be shipped to complete the bounty
 	var/required_count = 1
@@ -105,30 +127,8 @@ var/global/list/string_assoc_lists = list()
 	else
 		shipped_count += 1
 
-/// If the user can actually get this bounty as a selection.
-/datum/bounty/proc/can_get()
-	return TRUE
-
-/datum/bounty
-	var/name
-	var/description
-	var/reward = 1000 // In credits.
-	var/claimed = FALSE
-	var/high_priority = FALSE
-
-/datum/bounty/proc/can_claim()
-	return !claimed
-
-/// If an item sent in the cargo shuttle can satisfy the bounty.
-/datum/bounty/proc/applies_to(obj/O)
-	return FALSE
-
-/// Called when an object is shipped on the cargo shuttle.
-/datum/bounty/proc/ship(obj/O)
-	return
-
 /// How many jobs have bounties, minus the random civ bounties. PLEASE INCREASE THIS NUMBER AS MORE DEPTS ARE ADDED TO BOUNTIES.
-#define MAXIMUM_BOUNTY_JOBS 3
+#define MAXIMUM_BOUNTY_JOBS 8
 
 /** Returns a new bounty of random type, but does not add it to GLOB.bounties_list.
  *
@@ -161,12 +161,8 @@ var/global/list/string_assoc_lists = list()
 					chosen_type = /datum/bounty/reagent/simple_drink
 				else
 					chosen_type = /datum/bounty/reagent/complex_drink
-			/*if(CIV_JOB_CHEF)
-				chosen_type = pick(subtypesof(/datum/bounty/item/chef) + subtypesof(/datum/bounty/reagent/chef))
-
-
-			if(CIV_JOB_VIRO)
-				chosen_type = pick(subtypesof(/datum/bounty/virus))
+			if(CIV_JOB_CHEF)
+				chosen_type = pick(subtypesof(/datum/bounty/item/chef))
 			if(CIV_JOB_SCI)
 				if(prob(50))
 					chosen_type = pick(subtypesof(/datum/bounty/item/science))
@@ -174,12 +170,14 @@ var/global/list/string_assoc_lists = list()
 					chosen_type = pick(subtypesof(/datum/bounty/item/slime))
 			if(CIV_JOB_ENG)
 				chosen_type = pick(subtypesof(/datum/bounty/item/engineering))
+			/*if(CIV_JOB_VIRO)
+				chosen_type = pick(subtypesof(/datum/bounty/virus))
+			if(CIV_JOB_GROW)
+				chosen_type = pick(subtypesof(/datum/bounty/item/botany))
 			if(CIV_JOB_MINE)
 				chosen_type = pick(subtypesof(/datum/bounty/item/mining))
 			if(CIV_JOB_MED)
 				chosen_type = pick(subtypesof(/datum/bounty/item/medical))
-			if(CIV_JOB_GROW)
-				chosen_type = pick(subtypesof(/datum/bounty/item/botany))
 			if(CIV_JOB_ATMOS)
 				chosen_type = pick(subtypesof(/datum/bounty/item/atmospherics))*/
 		bounty_ref = new chosen_type

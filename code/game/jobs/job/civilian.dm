@@ -136,6 +136,7 @@
 	minimal_player_ingame_minutes = 240
 	outfit = /datum/outfit/job/chef
 	skillsets = list("Chef" = /datum/skillset/chef)
+	bounty_types = CIV_JOB_CHEF
 	/*
 		HEY YOU!
 		ANY TIME YOU TOUCH THIS, PLEASE CONSIDER GOING TO preferences_savefile.dm
@@ -161,7 +162,6 @@
 	minimal_player_ingame_minutes = 120
 	outfit = /datum/outfit/job/hydro
 	skillsets = list("Botanist" = /datum/skillset/botanist)
-
 
 /datum/job/janitor
 	title = "Janitor"

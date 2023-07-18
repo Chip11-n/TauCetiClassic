@@ -1,37 +1,6 @@
 //Pad & Pad Terminal
 
-///Computer for assigning new civilian bounties, and sending bounties for collection.
-/obj/machinery/computer/bounty_control
-	name = "civilian bounty control terminal"
-	desc = "A console for assigning civilian bounties to inserted ID cards, and for controlling the bounty pad for export."
-	icon_state = "bounty"
-	///Message to display on the TGUI window.
-	var/status_report = "Ready for delivery."
-	///Reference to the specific pad that the control computer is linked up to.
-	var/obj/machinery/bounty_pad/pad
-	///How long does it take to warmup the pad to teleport?
-	var/warmup_time = 3 SECONDS
-	///Is the teleport pad/computer sending something right now? TRUE/FALSE
-	var/sending = FALSE
-	///For the purposes of space pirates, how many points does the control pad have collected.
-	var/points = 0
-	///Reference to the export report totaling all sent objects and mobs.
-	var/datum/export_report/total_report
-	///Callback holding the sending timer for sending the goods after a delay.
-	var/sending_timer
-	///This is the cargo hold ID used by the piratepad machine. Match these two to link them together.
-	var/cargo_hold_id
-	//icon_keyboard = "id_key"
-	//circuit = /obj/item/circuitboard/computer/bountypad
-	//interface_type = "BountyPad"
-	///Typecast of an inserted, scanned ID card inside the console, as bounties are held within the ID card.
-	var/obj/item/weapon/card/id/inserted_scan_id
-	var/datum/money_account/account
-	var/list/reagents_toxin = list()
-	var/list/reagents_drink = list()
-	var/list/reagents_food = list()
-
-
+//Pad. Has no use without computer.
 /obj/machinery/bounty_pad
 	name = "civilian bounty pad"
 	desc = "A machine designed to send civilian bounty targets to centcom."
@@ -53,9 +22,6 @@
 	if(default_deconstruction_screwdriver(user, "pad-idle-o_old", "pad-idle_old", I))
 		return
 
-	/*if(exchange_parts(user, O))
-		return
-	*/
 	if(default_pry_open(I))
 		return
 
@@ -68,46 +34,55 @@
 			to_chat(user, "<span class='notice'>You register [src] in [I.name]'s buffer.</span>")
 	return ..()
 
+///Computer for assigning new civilian bounties, and sending bounties for collection.
+/obj/machinery/computer/bounty_control
+	name = "civilian bounty control terminal"
+	desc = "A console for assigning civilian bounties to inserted ID cards, and for controlling the bounty pad for export."
+	icon_state = "bounty"
+	///Message to display on the TGUI window.
+	var/status_report = "Ready for delivery."
+	///Reference to the specific pad that the control computer is linked up to.
+	var/obj/machinery/bounty_pad/pad
+	///How long does it take to warmup the pad to teleport?
+	var/warmup_time = 3 SECONDS
+	///Is the teleport pad/computer sending something right now? TRUE/FALSE
+	var/sending = FALSE
+	///For the purposes of space pirates, how many points does the control pad have collected.
+	var/points = 0
+	///Reference to the export report totaling all sent objects and mobs.
+	var/datum/export_report/total_report
+	///Callback holding the sending timer for sending the goods after a delay.
+	var/sending_timer
+	//circuit = /obj/item/circuitboard/computer/bountypad
+	///Typecast of an inserted, scanned ID card inside the console, as bounties are held within the money account.
+	var/obj/item/weapon/card/id/inserted_scan_id
+	var/datum/money_account/account
+
 /obj/machinery/computer/bounty_control/atom_init(mapload, obj/item/weapon/circuitboard/C)
 	. = ..()
-	reagents_toxin += subtypesof(/datum/reagent/toxin)
-	reagents_drink += subtypesof(/datum/reagent/consumable/drink)
-	reagents_drink += subtypesof(/datum/reagent/consumable/ethanol)
-	reagents_food += subtypesof(/datum/reagent/consumable) - reagents_drink - reagents_toxin
 	return INITIALIZE_HINT_LATELOAD
 
 /obj/machinery/computer/bounty_control/atom_init_late()
-	//LateInitialize()
 	. = ..()
-	if(cargo_hold_id)
-		for(var/obj/machinery/bounty_pad/P in global.machines)
-			if(P.cargo_hold_id == cargo_hold_id)
-				pad = P
-				return
-	else
-		var/obj/machinery/P = locate() in range(4, src)
-		pad = P
+	var/obj/machinery/bounty_pad/P = locate() in range(4, src)
+	pad = P
+
+/obj/machinery/computer/bounty_control/attack_hand(mob/user)
+	if(..())
+		return
+	tgui_interact(user)
 
 /obj/machinery/computer/bounty_control/tgui_interact(mob/user, datum/tgui/ui)
-	. = ..()
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
 		ui = new(user, src, "BountyPad", name)
 		ui.open()
 
-/obj/machinery/computer/bounty_control/ui_interact(mob/user, datum/tgui/ui)
-	tgui_interact(user)
-
-/// Calculates the predicted value of the items on the pirate pad
-/obj/machinery/computer/bounty_control/proc/recalc()
-	return
-
-/// Deletes and sells the item
-/obj/machinery/computer/bounty_control/proc/send()
-	return
+//obj/machinery/computer/bounty_control/ui_interact(mob/user, datum/tgui/ui)
+//	tgui_interact(user)
 
 /// Prepares to sell the items on the pad
-/obj/machinery/computer/bounty_control/proc/start_sending()
+/obj/machinery/computer/bounty_control/proc/start_sending(mob/user)
 	if(!pad)
 		status_report = "No pad detected. Build or link a pad."
 		pad.audible_message("<span class='notice'>[pad] beeps.</span>")
@@ -122,7 +97,7 @@
 	status_report = "Sending... "
 	pad.visible_message("<span class='notice'>[pad] starts charging up.</span>")
 	pad.icon_state = pad.warmup_state
-	sending_timer = addtimer(CALLBACK(src, PROC_REF(send)),warmup_time, TIMER_STOPPABLE)
+	sending_timer = addtimer(CALLBACK(src, PROC_REF(send), user), warmup_time, TIMER_STOPPABLE)
 
 /// Finishes the sending state of the pad
 /obj/machinery/computer/bounty_control/proc/stop_sending(custom_report)
@@ -148,18 +123,7 @@
 		if(M.buffer && istype(M.buffer, /obj/machinery/bounty_pad))
 			pad = M.buffer
 
-/obj/machinery/computer/bounty_control/atom_init_late()
-	. = ..()
-	if(cargo_hold_id)
-		for(var/obj/machinery/bounty_pad/C in global.machines)
-			if(C.cargo_hold_id == cargo_hold_id)
-				pad = C
-				return
-	else
-		var/obj/machinery/bounty_pad/P = locate() in range(4,src)
-		pad = P
-
-/obj/machinery/computer/bounty_control/recalc()
+/obj/machinery/computer/bounty_control/proc/recalc()
 	if(sending)
 		return FALSE
 	if(!inserted_scan_id)
@@ -184,7 +148,7 @@
 /**
  * This fully rewrites base behavior in order to only check for bounty objects, and nothing else.
  */
-/obj/machinery/computer/bounty_control/send()
+/obj/machinery/computer/bounty_control/proc/send(mob/user)
 	playsound(loc, 'sound/machines/wewewew.ogg', VOL_EFFECTS_MASTER)
 	if(!sending)
 		return
@@ -212,7 +176,6 @@
 		//Pay for the bounty with the ID's department funds.
 		status_report += "Bounty completed!"
 		account.reset_bounty()
-		//SSeconomy.civ_bounty_tracker++
 		var/datum/money_account/D = global.department_accounts["Cargo"]
 		charge_to_account(account.account_number, "Bounty", "Bounty Reward", "Centomm", (curr_bounty.reward) * (CIV_BOUNTY_SPLIT/100))
 		charge_to_account(D.account_number, "Bounty Share", "Bounty Reward Share", "Centomm", curr_bounty.reward * (100 - CIV_BOUNTY_SPLIT) / 100)
@@ -222,6 +185,9 @@
 	pad.icon_state = "pad-idle_old"
 	playsound(loc, 'sound/machines/synth_yes.ogg', VOL_EFFECTS_MASTER)
 	sending = FALSE
+
+	if(Adjacent(user))
+		tgui_interact(user)
 
 ///Here is where cargo bounties are added to the player's bank accounts, then adjusted and scaled into a civilian bounty.
 /obj/machinery/computer/bounty_control/proc/add_bounties()
@@ -252,9 +218,8 @@
 
 /obj/machinery/computer/bounty_control/AltClick(mob/user)
 	. = ..()
-	if(!Adjacent(user))
-		return FALSE
-	id_eject(user, inserted_scan_id)
+	if(Adjacent(user))
+		id_eject(user, inserted_scan_id)
 
 /obj/machinery/computer/bounty_control/tgui_data(mob/user)
 	var/list/data = list()
@@ -268,6 +233,10 @@
 			data["id_bounty_info"] = account.civilian_bounty.description
 			data["id_bounty_num"] = account.bounty_num()
 			data["id_bounty_value"] = (account.civilian_bounty.reward) * (CIV_BOUNTY_SPLIT/100)
+		else
+			data["id_bounty_info"] = null
+			data["id_bounty_num"] = null
+			data["id_bounty_value"] = null
 		if(account.bounties)
 			data["picking"] = TRUE
 			data["id_bounty_names"] = list(account.bounties[1].name,
@@ -278,6 +247,11 @@
 											account.bounties[3].reward * (CIV_BOUNTY_SPLIT/100))
 		else
 			data["picking"] = FALSE
+	else
+		data["id_bounty_info"] = null
+		data["id_bounty_num"] = null
+		data["id_bounty_value"] = null
+
 
 	return data
 
@@ -287,45 +261,32 @@
 		return
 	if(!pad)
 		return
-	if(stat & (NOPOWER|BROKEN))
-		return
-	/*if(!usr.can_perform_action(src) || (machine_stat & (NOPOWER|BROKEN)))
-		return*/
 	switch(action)
 		if("recalc")
 			recalc()
-			. = TRUE
 		if("send")
-			start_sending()
-			. = TRUE
+			start_sending(usr)
 		if("stop")
 			stop_sending()
-			. = TRUE
 		if("pick")
 			pick_bounty(params["value"])
 		if("bounty")
 			add_bounties(usr)
 		if("eject")
 			id_eject(usr, inserted_scan_id)
-			inserted_scan_id = null
-	//ui_interact(usr)
 	. = TRUE
 
 ///Self explanitory, holds the ID card in the console for bounty payout and manipulation.
-/obj/machinery/computer/bounty_control/proc/id_insert(mob/user, obj/item/inserting_item, obj/item/target)
-	var/obj/item/weapon/card/id/card_to_insert = inserting_item
-	//if(!inserting_item.forceMove(src))//!user.transferItemToLoc(card_to_insert, src))
-	//	return FALSE
+/obj/machinery/computer/bounty_control/proc/id_insert(mob/user, obj/item/item, obj/item/target)
 	if(target)
 		to_chat(user, "<span class='warning'>There is something inside!</span>")
 		return
-	user.drop_from_inventory(inserting_item, src)
-	//playsound(src, 'sound/machines/terminal_insert_disc.ogg', VOL_EFFECTS_MASTER)
 
-	user.visible_message("<span class='notice'>[user] inserts \the [card_to_insert] into \the [src].</span>",
-						"<span class='notice'>You insert \the [card_to_insert] into \the [src].</span>")
+	user.drop_from_inventory(item, src)
+	user.visible_message("<span class='notice'>[user] inserts \the [item] into \the [src].</span>",
+						"<span class='notice'>You insert \the [item] into \the [src].</span>")
 	playsound(src, 'sound/machines/terminal_insert_disc.ogg', VOL_EFFECTS_MASTER)
-	ui_interact(user)
+	tgui_interact(user)
 	return TRUE
 
 ///Removes A stored ID card.
@@ -333,12 +294,13 @@
 	if(!target)
 		to_chat(user, "<span class='warning'>That slot is empty!</span>")
 		return FALSE
-	else
-		//user.put_in_any_hand_if_possible(target)
-		if(!issilicon(user) && Adjacent(user))
-			user.put_in_hands(target)
-		user.visible_message("<span class='notice'>[user] gets \the [target] from \the [src].</span>", \
-							"<span class='notice'>You get \the [target] from \the [src].</span>")
-		playsound(src, 'sound/machines/terminal_insert_disc.ogg', VOL_EFFECTS_MASTER)
-		inserted_scan_id = null
-		return TRUE
+
+	if(!issilicon(user) && Adjacent(user))
+		user.put_in_hands(target)
+	user.visible_message("<span class='notice'>[user] gets \the [target] from \the [src].</span>", \
+						"<span class='notice'>You get \the [target] from \the [src].</span>")
+	playsound(src, 'sound/machines/terminal_insert_disc.ogg', VOL_EFFECTS_MASTER)
+	inserted_scan_id = null
+	account = null
+	tgui_interact(user)
+	return TRUE
