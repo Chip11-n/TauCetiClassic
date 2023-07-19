@@ -1,6 +1,6 @@
 /datum/bounty/item/chef/random
 	name = "Cheif's special"
-	description = "We want something...special from your cook."
+	description = "We want something...special from your chief."
 
 /datum/bounty/item/chef/random/New()
 	. = ..()
@@ -47,24 +47,13 @@
 		/obj/item/weapon/reagent_containers/food/snacks/sliceable/cake/lime,
 		/obj/item/weapon/reagent_containers/food/snacks/sliceable/cake/lemon,
 		/obj/item/weapon/reagent_containers/food/snacks/sliceable/cake/chocolate,
-		/obj/item/weapon/reagent_containers/food/snacks/cakeslice,
-		/obj/item/weapon/reagent_containers/food/snacks/cakeslice/birthday,
-		/obj/item/weapon/reagent_containers/food/snacks/cakeslice/apple,
-		/obj/item/weapon/reagent_containers/food/snacks/cakeslice/pumpkin,
-		/obj/item/weapon/reagent_containers/food/snacks/cakeslice/carrot,
-		/obj/item/weapon/reagent_containers/food/snacks/cakeslice/brain,
-		/obj/item/weapon/reagent_containers/food/snacks/cakeslice/cheese,
-		/obj/item/weapon/reagent_containers/food/snacks/cakeslice/orange,
-		/obj/item/weapon/reagent_containers/food/snacks/cakeslice/lime,
-		/obj/item/weapon/reagent_containers/food/snacks/cakeslice/lemon,
-		/obj/item/weapon/reagent_containers/food/snacks/cakeslice/chocolate,
 		/obj/item/weapon/reagent_containers/food/snacks/cakeslice/kaholket_alkeha,
 		/obj/item/weapon/reagent_containers/food/snacks/spidereggs,
 		)
-	wanted_types = pick(possbile_food_random)
-	reward = CARGO_CRATE_VALUE * round(required_count / 3)
-	var/obj/item/weapon/reagent_containers/food/snacks/soup/S = wanted_types[1]
-	description += " Send us [required_count] units of [S.name]."
+	reward = CARGO_CRATE_VALUE * 6
+	wanted_types = string_assoc_list(zebra_typecacheof(pick(possbile_food_random), only_root_path = FALSE))
+	var/obj/item/weapon/reagent_containers/food/snacks/S = wanted_types[1]
+	description += " Send us [initial(S.name)]."
 
 
 
@@ -72,28 +61,30 @@
 	name = "Birthday Cake"
 	description = "Nanotrasen's birthday is coming up! Ship Central Command a birthday cake to celebrate!"
 	reward = CARGO_CRATE_VALUE * 8
+	required_count = 5
 	wanted_types = list(
 		/obj/item/weapon/reagent_containers/food/snacks/sliceable/cake/birthday = TRUE,
 		/obj/item/weapon/reagent_containers/food/snacks/cakeslice/birthday = TRUE,
 	)
+
 /datum/bounty/item/chef/birthday_cake/ship(obj/O)
 	. = ..()
 	if(istype(O, /obj/item/weapon/reagent_containers/food/snacks/sliceable/cake/birthday))
-		shipped_count += 4
+		shipped_count = 5
 
 /datum/bounty/item/chef/soup
 	name = "Soup"
-	reward = CARGO_CRATE_VALUE * 6
+	reward = CARGO_CRATE_VALUE * 10
 	description = "To quell the homeless uprising, Nanotrasen will be serving soup to all underpaid workers."
+	required_count = 3
 
 /datum/bounty/item/chef/soup/New()
 	. = ..()
-	//required_volume = pick(10, 15, 20, 25)
-	wanted_types = pick(subtypesof(/obj/item/weapon/reagent_containers/food/snacks/soup))
+	wanted_types = string_assoc_list(list(pick(subtypesof(/obj/item/weapon/reagent_containers/food/snacks/soup)) = TRUE))
+	var/obj/item/weapon/reagent_containers/food/snacks/S = wanted_types[1]
 	// In the future there could be tiers of soup bounty corresponding to soup difficulty
 	// (IE, stew is harder to make than tomato soup, so it should reward more)
-	var/obj/item/weapon/reagent_containers/food/snacks/soup/S = wanted_types[1]
-	description += " Send us [required_count] units of [S.name]."
+	description += " Send us [initial(S.name)] for the afternoon."
 
 /datum/bounty/item/chef/popcorn
 	name = "Popcorn Bags"
@@ -101,14 +92,7 @@
 	reward = CARGO_CRATE_VALUE * 6
 	required_count = 3
 	wanted_types = list(/obj/item/weapon/reagent_containers/food/snacks/popcorn = TRUE)
-/*
-/datum/bounty/item/chef/onionrings
-	name = "Onion Rings"
-	description = "Nanotrasen is remembering Saturn day. Ship onion rings to show the station's support."
-	reward = CARGO_CRATE_VALUE * 6
-	required_count = 3
-	wanted_types = list(/obj/item/weapon/reagent_containers/food/snacks/onionrings = TRUE)
-*/
+
 /datum/bounty/item/chef/icecreamsandwich
 	name = "Ice Cream Sandwiches"
 	description = "Upper management has been screaming non-stop for ice cream sandwiches. Please send some."
@@ -128,25 +112,14 @@
 	description = "Problems with central planning have led to bread prices skyrocketing. Ship some bread to ease tensions."
 	reward = CARGO_CRATE_VALUE * 2
 	wanted_types = list(
-		/obj/item/weapon/reagent_containers/food/snacks/breadslice/banana = TRUE,
-		/obj/item/weapon/reagent_containers/food/snacks/sliceable/bread/cheese = TRUE,
-		/obj/item/weapon/reagent_containers/food/snacks/breadslice/cheese = TRUE,
-		/obj/item/weapon/reagent_containers/food/snacks/sliceable/bread/meat = TRUE,
-		/obj/item/weapon/reagent_containers/food/snacks/breadslice/meat = TRUE,
-		/obj/item/weapon/reagent_containers/food/snacks/sliceable/bread/xeno = TRUE,
-		/obj/item/weapon/reagent_containers/food/snacks/breadslice/xeno = TRUE,
-		/obj/item/weapon/reagent_containers/food/snacks/sliceable/bread/spider = TRUE,
-		/obj/item/weapon/reagent_containers/food/snacks/breadslice/spider = TRUE,
-		/obj/item/weapon/reagent_containers/food/snacks/sliceable/bread/banana = TRUE,
-		/obj/item/weapon/reagent_containers/food/snacks/sliceable/bread = TRUE,
 		/obj/item/weapon/reagent_containers/food/snacks/breadslice = TRUE,
-		/obj/item/weapon/reagent_containers/food/snacks/bun = TRUE,
+		/obj/item/weapon/reagent_containers/food/snacks/sliceable/bread = TRUE,
 	)
 
 /datum/bounty/item/chef/pie
 	name = "Pie"
 	description = "3.14159? No! CentCom management wants edible pie! Ship a whole one."
-	reward = 3142 //Screw it I'll do this one by hand
+	reward = 628.4 //Screw it I'll do this one by hand
 	wanted_types = list(/obj/item/weapon/reagent_containers/food/snacks/pie = TRUE)
 
 /datum/bounty/item/chef/salad

@@ -2,6 +2,11 @@
 	..()
 	description = "Upper management has requested one [name] mech be sent as soon as possible. Ship it to receive a large payment."
 
+/datum/bounty/item/mech/applies_to(obj/O)
+	. = ..()
+	if(locate(/mob) in O.contents)
+		return FALSE
+
 /datum/bounty/item/mech/ship(obj/O)
 	if(!applies_to(O))
 		return
