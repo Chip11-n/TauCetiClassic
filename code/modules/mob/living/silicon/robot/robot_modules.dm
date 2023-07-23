@@ -373,34 +373,28 @@
 	. = ..()
 	modules += new /obj/item/device/flash(src)
 	modules += new /obj/item/weapon/gripper/science(src)
+
+	//To fuck anomalies up
 	modules += new /obj/item/device/analyzer(src)
 	modules += new /obj/item/device/assembly/signaler(src)
 	modules += new /obj/item/device/ano_scanner(src)
 	modules += new /obj/item/device/science_tool(src)
-//To fuck anomalies up
-
+	//To fuck chemistry up
 	modules += new /obj/item/device/reagent_scanner/adv(src)
 	modules += new /obj/item/weapon/reagent_containers/syringe(src)
-	modules += new /obj/item/weapon/reagent_containers/glass/beaker/large(src) //To fuck chemistry up
-
+	modules += new /obj/item/weapon/reagent_containers/glass/beaker/large(src)
+	//To unfuck xenoarcheology up
 	modules += new /obj/item/device/depth_scanner(src)
 	modules += new /obj/item/weapon/pickaxe/cyb(src)
-	modules += new /obj/item/device/measuring_tape(src) //To unfuck xenoarcheology up
+	modules += new /obj/item/device/measuring_tape(src)
 
-	modules += new /obj/item/weapon/circular_saw(src)
-	modules += new /obj/item/weapon/scalpel(src)
-	modules += new /obj/item/weapon/reagent_containers/spray/extinguisher/cyborg(src) //To unfuck xenobiology up
-
-	modules += new /obj/item/weapon/crowbar/red(src)
+	modules += new /obj/item/weapon/reagent_containers/spray/extinguisher/cyborg(src)
 	modules += new /obj/item/weapon/wrench(src)
 	modules += new /obj/item/weapon/screwdriver(src)
-	modules += new /obj/item/weapon/wirecutters(src)
-	modules += new /obj/item/device/multitool(src)
-	modules += new /obj/item/weapon/weldingtool/largetank(src) //To fuck and unfuck (but mostly fuck) shit up
+	modules += new /obj/item/weapon/crowbar/red(src)
 	modules += new /obj/item/device/gps/cyborg(src)
 
 	emag = new /obj/item/weapon/hand_tele(src) //To fuck people's shit up
-
 	emag.name = "Hand tele"
 
 /obj/item/weapon/robot_module/peacekeeper
