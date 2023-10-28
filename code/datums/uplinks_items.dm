@@ -893,9 +893,9 @@
 
 /datum/uplink_item/device_tools/ai_detector
 	name = "Artificial Intelligence Detector" // changed name in case newfriends thought it detected disguised ai's
-	desc = "A functional multitool that turns red when it detects an artificial intelligence watching it or its holder. Knowing when an artificial intelligence is watching you is useful for knowing when to maintain cover."
+	desc = "A multitool, though with a second function that makes the wearer completely invisible to AI, but not to cyborgs. It is sometimes useful to hide from the all-seeing eye of AI or Sa..."
 	item = /obj/item/device/multitool/ai_detect
-	cost = 2
+	cost = 3
 	uplink_types = list("nuclear", "traitor")
 
 /datum/uplink_item/device_tools/hacked_module
