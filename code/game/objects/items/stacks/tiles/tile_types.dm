@@ -11,6 +11,26 @@
 	lefthand_file = 'icons/mob/inhands/tiles_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/tiles_righthand.dmi'
 
+/**
+ * Place our tile on a plating, or replace it.
+ *
+ * Arguments:
+ * * target_plating - Instance of the plating we want to place on. Replaced during sucessful executions.
+ * * user - The mob doing the placing.
+ */
+/obj/item/stack/tile/proc/place_tile(turf/simulated/floor/target_plating)
+	var/turf/placed_turf_path = turf_type
+	if(!ispath(placed_turf_path))
+		return
+	if(!istype(target_plating))
+		return
+
+	if(!use(1))
+		return
+
+	target_plating.ChangeTurf(placed_turf_path)
+	playsound(src, 'sound/weapons/Genhit.ogg', VOL_EFFECTS_MASTER)
+
 /*
  * Grass
  */
@@ -29,6 +49,12 @@
 	origin_tech = "biotech=1"
 	turf_type = /turf/simulated/floor/grass
 
+/obj/item/stack/tile/grass/place_tile(turf/simulated/floor/target_plating)
+	. = ..()
+	for(var/direction in cardinal)
+		if(istype(get_step(target_plating,direction),/turf/simulated/floor))
+			var/turf/simulated/floor/FF = get_step(target_plating,direction)
+			FF.update_icon() //so siding gets updated properly
 /*
  * Wood
  */

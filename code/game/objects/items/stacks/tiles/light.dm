@@ -26,6 +26,11 @@
 	else
 		state = 0 //fine
 
+/obj/item/stack/tile/light/place_tile(turf/simulated/floor/target_plating)
+	. = ..()
+	target_plating.set_lightfloor_state(state)
+	target_plating.set_lightfloor_on(on)
+
 /obj/item/stack/tile/light/attackby(obj/item/I, mob/user, params)
 	if(isprying(I))
 		if(!use(1))

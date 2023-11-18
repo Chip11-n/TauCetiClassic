@@ -520,27 +520,7 @@ var/global/list/icons_to_ignore_at_floor_init = list("damaged1","damaged2","dama
 		if(is_plating())
 			if(!broken && !burnt)
 				var/obj/item/stack/tile/T = C
-				if(!T.use(1))
-					return
-				playsound(src, 'sound/weapons/Genhit.ogg', VOL_EFFECTS_MASTER)
-				if(istype(T,/obj/item/stack/tile/carpet))
-					ChangeTurf(T.turf_type) // for smoothing we need to change type
-					return
-				floor_type = T.type
-				icon = initial(T.turf_type.icon)
-				name = initial(T.turf_type.name)
-				intact = 1
-				if(istype(T,/obj/item/stack/tile/light))
-					var/obj/item/stack/tile/light/L = T
-					set_lightfloor_state(L.state)
-					set_lightfloor_on(L.on)
-				if(istype(T,/obj/item/stack/tile/grass))
-					for(var/direction in cardinal)
-						if(istype(get_step(src,direction),/turf/simulated/floor))
-							var/turf/simulated/floor/FF = get_step(src,direction)
-							FF.update_icon() //so siding gets updated properly
-				update_icon()
-				levelupdate()
+				T.place_tile(src)
 			else
 				to_chat(user, "<span class='notice'>Эта секция слишком повреждена, чтобы выдержать покрытие. Используйте сварочный аппарат для ремонта.</span>")
 
