@@ -147,7 +147,6 @@
 	gloves = /obj/item/clothing/gloves/black
 	l_ear = /obj/item/device/radio/headset
 	glasses = /obj/item/clothing/glasses/sunglasses
-	suit = /obj/item/clothing/suit/wcoat
 	l_pocket = /obj/item/weapon/melee/energy/sword
 	l_hand = /obj/item/weapon/storage/secure/briefcase
 	belt = /obj/item/device/pda/heads
@@ -411,7 +410,7 @@
 /datum/outfit/velocity/chief
 	name = "Velocity: chief"
 
-	uniform = /obj/item/clothing/under/rank/head_of_security/corp
+	uniform = /obj/item/clothing/under/rank/head_of_security
 	shoes = /obj/item/clothing/shoes/boots/combat
 	gloves = /obj/item/clothing/gloves/combat
 	l_ear = /obj/item/device/radio/headset/velocity/chief

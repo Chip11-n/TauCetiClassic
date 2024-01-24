@@ -175,7 +175,7 @@ var/global/datum/notes_storage/note_cache_storage = new
 
 		else if(href_list["play"])
 			playing = TRUE
-			INVOKE_ASYNC(src, /datum/music_player.proc/playsong, usr)
+			INVOKE_ASYNC(src, TYPE_PROC_REF(/datum/music_player, playsong), usr)
 			SEND_SIGNAL(usr, COMSIG_ATOM_STARTING_INSTRUMENT, src)
 
 		else if(href_list["newline"])
@@ -276,7 +276,6 @@ var/global/datum/notes_storage/note_cache_storage = new
 						var/sound/S = global.note_cache_storage.instrument_sound_notes["[sound_path]/[current_note]"]
 						if(!S)
 							S = global.note_cache_storage.instrument_sound_notes["[sound_path]/[current_note]"] = sound("[sound_path]/[current_note].ogg")
-
 						playsound(instrument, S, VOL_EFFECTS_INSTRUMENT, volume, FALSE, null, null, falloff = 5)
 
 				var/pause_time = COUNT_PAUSE(song_tempo)

@@ -207,7 +207,7 @@
 
 	if(data["ticks"] < 5)
 		return
-	
+
 	if(data["ticks"] == 5)
 		M.add_status_flags(FAKEDEATH)
 		M.tod = worldtime2text()
@@ -647,16 +647,16 @@
 	custom_metabolism = 0.1
 	taste_message = "something disgusting"
 	restrict_species = list(IPC, DIONA)
-
+	data = list()
 
 /datum/reagent/bonebreaker/on_general_digest(mob/living/carbon/human/H)
 	..()
 	if(!ishuman(H))
 		return
-	if(data["ticks"])
-		data["ticks"]++
-	else
+	if(!data["ticks"])
 		data["ticks"] = 1
+
+	data["ticks"]++
 	switch(data["ticks"])
 		if(1 to 30)
 			if(prob(15))
@@ -927,3 +927,6 @@
 		M.drowsyness = max(M.drowsyness, 3)
 	if(prob(10))
 		M.emote("drool")
+	if(!istype(M))
+		return
+	SEND_SIGNAL(M, COMSIG_IMPEDREZENE_DIGEST)

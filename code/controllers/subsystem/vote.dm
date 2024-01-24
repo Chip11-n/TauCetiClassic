@@ -19,12 +19,13 @@ SUBSYSTEM_DEF(vote)
 	if(!active_poll)
 		return
 
-	active_poll.process()
+	active_poll.process(wait * 0.1)
 	if(!active_poll)//Need to check again because the active vote can be nulled during its process. For example if an admin forces start
 		return
 
 	if(get_vote_time() < 0)
 		active_poll.check_winners()
+		SSStatistics.add_vote(active_poll)
 		stop_vote()
 
 /datum/controller/subsystem/vote/tgui_interact(mob/user, datum/tgui/ui)
