@@ -22,10 +22,10 @@
 	/// All possible types we can become.
 	/// This should be implemented even if there is only one choice.
 	var/list/possible_shapes = list(
-		/mob/living/simple_animal/mouse,\
-		/mob/living/simple_animal/corgi,\
-		/mob/living/simple_animal/hostile/carp,\
-		/mob/living/simple_animal/hostile/giant_spider/hunter,\
+		/mob/living/simple_animal/mouse,
+		/mob/living/simple_animal/corgi,
+		/mob/living/simple_animal/hostile/carp,
+		/mob/living/simple_animal/hostile/giant_spider/hunter,
 		/mob/living/simple_animal/hostile/blob/blobbernaut/independent,)
 
 /obj/effect/proc_holder/spell/no_target/shapeshift/cast(list/targets, mob/living/user = usr)
@@ -77,7 +77,7 @@
 		if(possiblevent.parents.len && possiblevent.parents[1] == ourpipeline)
 			new gibtype(get_turf(possiblevent))
 			playsound(possiblevent, 'sound/effects/reee.ogg', VOL_EFFECTS_MASTER)
-	user.death() //One will try, the other one will get a warning
+	user.gib() //One will try, the other one will get a warning
 	qdel(user)
 
 /**
@@ -156,10 +156,6 @@
 		shape.spell_list = stored.spell_list
 	stored.forceMove(src)
 	stored.notransform = TRUE
-	if(source.convert_damage)
-		var/damage_percent = (stored.maxHealth - stored.health)/stored.maxHealth;
-		var/damapply = damage_percent * shape.maxHealth;
-		shape.apply_damage(damapply, source.convert_damage_type)
 
 	RegisterSignal(shape, list(COMSIG_PARENT_QDELETING, COMSIG_MOB_DIED), PROC_REF(shape_death))
 	RegisterSignal(stored, list(COMSIG_PARENT_QDELETING, COMSIG_MOB_DIED), PROC_REF(caster_death))
