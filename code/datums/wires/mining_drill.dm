@@ -29,7 +29,7 @@ var/global/const/MINING_DRILL_WIRES_PROTECTOR_DISABLE = 16
 	var/obj/machinery/mining/drill/D = holder
 	return D.panel_open
 
-/datum/wires/mining_drill/update_cut(index, mended)
+/datum/wires/mining_drill/update_cut(index, mended, mob/user)
 	var/obj/machinery/mining/drill/D = holder
 
 	switch(index)
@@ -72,7 +72,7 @@ var/global/const/MINING_DRILL_WIRES_PROTECTOR_DISABLE = 16
 			D.wires_protector_disable = !D.wires_protector_disable
 			D.RefreshParts()
 
-	addtimer(CALLBACK(src, .proc/pulse_reaction, index), 50)
+	addtimer(CALLBACK(src, PROC_REF(pulse_reaction), index), 50)
 
 /datum/wires/mining_drill/proc/pulse_reaction(index)
 	var/obj/machinery/mining/drill/D = holder

@@ -13,6 +13,10 @@
 		/obj/item/weapon/airalarm_electronics,
 		/obj/item/weapon/airlock_electronics,
 		/obj/item/weapon/module/power_control,
+		/obj/item/stack/sheet/metal,
+		/obj/item/stack/sheet/glass,
+		/obj/item/stack/sheet/plasteel,
+		/obj/item/stack/tile,
 		/obj/item/weapon/stock_parts,
 		/obj/item/light_fixture_frame,
 		/obj/item/apc_frame,
@@ -34,11 +38,11 @@
 
 /obj/item/weapon/gripper/atom_init()
 	. = ..()
-	RegisterSignal(src, list(COMSIG_HAND_IS), .proc/is_hand)
-	RegisterSignal(src, list(COMSIG_HAND_ATTACK), .proc/attack_as_hand)
-	RegisterSignal(src, list(COMSIG_HAND_DROP_ITEM), .proc/drop_item)
-	RegisterSignal(src, list(COMSIG_HAND_PUT_IN), .proc/put_in)
-	RegisterSignal(src, list(COMSIG_HAND_GET_ITEM), .proc/get_item)
+	RegisterSignal(src, list(COMSIG_HAND_IS), PROC_REF(is_hand))
+	RegisterSignal(src, list(COMSIG_HAND_ATTACK), PROC_REF(attack_as_hand))
+	RegisterSignal(src, list(COMSIG_HAND_DROP_ITEM), PROC_REF(drop_item))
+	RegisterSignal(src, list(COMSIG_HAND_PUT_IN), PROC_REF(put_in))
+	RegisterSignal(src, list(COMSIG_HAND_GET_ITEM), PROC_REF(get_item))
 
 /obj/item/weapon/gripper/Destroy()
 	UnregisterSignal(src, list(COMSIG_HAND_IS, COMSIG_HAND_ATTACK,
@@ -56,7 +60,7 @@
 /obj/item/weapon/gripper/proc/wrap(obj/item/I)
 	wrapped = I
 	I.forceMove(src)
-	RegisterSignal(I, list(COMSIG_PARENT_QDELETING), .proc/clear_wrapped)
+	RegisterSignal(I, list(COMSIG_PARENT_QDELETING), PROC_REF(clear_wrapped))
 
 /obj/item/weapon/gripper/proc/attack_as_hand(datum/source, atom/T, mob/user, params)
 	if(wrapped)
@@ -164,6 +168,7 @@
 	icon_state = "gripper"
 
 	can_hold = list(
+		/obj/item/bluespace_crystal,
 		/obj/item/weapon/tank,
 		/obj/item/device/assembly/signaler,
 		/obj/item/device/gps,
@@ -203,6 +208,8 @@
 		/obj/item/robot_parts/r_leg,
 		/obj/item/stack/sheet/mineral/phoron,
 		/obj/item/weapon/tank/anesthetic,
+		/obj/item/bodybag,
+		/obj/item/weapon/reagent_containers/syringe
 		)
 
 /obj/item/weapon/gripper/examine(mob/user)
@@ -305,7 +312,7 @@
 		//Different classes of items give different commodities.
 		if (istype(W,/obj/item/weapon/cigbutt))
 			stored_comms["plastic"]++
-		else if(istype(W,/obj/effect/spider/spiderling))
+		else if(istype(W,/obj/structure/spider/spiderling))
 			stored_comms["wood"]++
 			stored_comms["wood"]++
 			stored_comms["plastic"]++

@@ -15,6 +15,7 @@ var/global/list/gurgles = list(
 	anchored = TRUE
 	density = FALSE
 	layer = TURF_LAYER+0.1
+	plane = FLOOR_PLANE
 	var/drainage = 0.5
 	var/last_gurgle = 0
 	var/welded
@@ -28,7 +29,7 @@ var/global/list/gurgles = list(
 	. = ..()
 
 /obj/structure/drain/attackby(obj/item/thing, mob/user)
-	if(iswelder(thing))
+	if(iswelding(thing))
 		var/obj/item/weapon/weldingtool/WT = thing
 		if(WT.isOn())
 			welded = !welded

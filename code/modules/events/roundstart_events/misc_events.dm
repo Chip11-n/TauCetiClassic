@@ -5,7 +5,6 @@
 			message_admins("RoundStart Event: [headset_to_del] was removed from [H]")
 			log_game("RoundStart Event: [headset_to_del] was removed from [H]")
 			qdel(headset_to_del)
-			H.update_inv_ears()
 
 /datum/event/feature/survbox/start()
 	for(var/mob/living/carbon/human/H as anything in human_list)
@@ -133,7 +132,7 @@ var/global/list/sec_closets_list = list()
 			log_game("RoundStart Event: [account1.owner_name] and [account2.owner_name] salaries has been swapped.")
 
 /datum/event/feature/airlock_joke/start()
-	var/list/possible_types = list(/obj/item/weapon/bananapeel, /obj/item/device/assembly/mousetrap, /obj/item/weapon/legcuffs/beartrap, /obj/effect/decal/cleanable/blood/oil)
+	var/list/possible_types = list(/obj/item/weapon/bananapeel, /obj/item/device/assembly/mousetrap/armed, /obj/item/weapon/legcuffs/beartrap/armed, /obj/effect/decal/cleanable/blood/oil)
 	for(var/obj/machinery/door/airlock/A as anything in airlock_list)
 		if(!is_station_level(A.z))
 			continue
@@ -184,5 +183,5 @@ var/global/list/toilet_list = list()
 		if(!is_station_level(bomb.z))
 			continue
 		var/area/A = SSevents.findEventArea()
-		var/list/turfs = get_area_turfs(A, TRUE, black_list=list(/turf/simulated/wall, /turf/simulated/wall/r_wall))
+		var/list/turfs = get_area_turfs(A, TRUE, ignore_blocked = TRUE)
 		bomb.forceMove(pick(turfs))

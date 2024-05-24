@@ -1,18 +1,55 @@
 /turf/simulated/wall/r_wall
 	name = "reinforced wall"
 	desc = "Огромный кусок укрепленного металла для разделения комнат."
-	icon = 'icons/turf/walls/has_false_walls/reinforced_wall.dmi'
+	icon = 'icons/turf/walls/has_false_walls/reinforced.dmi'
 	opacity = 1
 	density = TRUE
 
 	damage_cap = 200
 	max_temperature = 20000
 
+	explosive_resistance = 5
+
 	sheet_type = /obj/item/stack/sheet/plasteel
 
 	seconds_to_melt = 60
 
 	var/d_state = INTACT
+
+/turf/simulated/wall/r_wall/yellow
+	icon = 'icons/turf/walls/has_false_walls/reinforced_yellow.dmi'
+
+/turf/simulated/wall/r_wall/red
+	icon = 'icons/turf/walls/has_false_walls/reinforced_red.dmi'
+
+/turf/simulated/wall/r_wall/purple
+	icon = 'icons/turf/walls/has_false_walls/reinforced_purple.dmi'
+
+/turf/simulated/wall/r_wall/green
+	icon = 'icons/turf/walls/has_false_walls/reinforced_green.dmi'
+
+/turf/simulated/wall/r_wall/beige
+	icon = 'icons/turf/walls/has_false_walls/reinforced_beige.dmi'
+
+/turf/simulated/wall/r_wall/change_color(color)
+	var/new_type
+	switch(color)
+		if("blue")
+			new_type = /turf/simulated/wall/r_wall
+		if("yellow")
+			new_type = /turf/simulated/wall/r_wall/yellow
+		if("red")
+			new_type = /turf/simulated/wall/r_wall/red
+		if("purple")
+			new_type = /turf/simulated/wall/r_wall/purple
+		if("green")
+			new_type = /turf/simulated/wall/r_wall/green
+		if("beige")
+			new_type = /turf/simulated/wall/r_wall/beige
+		else
+			stack_trace("Color [color] does not exist")
+	if(new_type && new_type != type)
+		ChangeTurf(/turf/simulated/wall/r_wall)
 
 /turf/simulated/wall/r_wall/attack_hand(mob/user)
 	user.SetNextMove(CLICK_CD_MELEE)
@@ -51,7 +88,7 @@
 	if(user.is_busy()) return
 
 	if(rotting)
-		if(iswelder(W))
+		if(iswelding(W))
 			var/obj/item/weapon/weldingtool/WT = W
 			if(WT.use(0,user))
 				to_chat(user, "<span class='notice'>Вы сжигаете грибок сваркой.</span>")
@@ -67,15 +104,11 @@
 
 	//THERMITE related stuff. Calls thermitemelt() which handles melting simulated walls and the relevant effects
 	if(thermite)
-		if(iswelder(W))
+		if(iswelding(W))
 			var/obj/item/weapon/weldingtool/WT = W
 			if(WT.use(0,user))
 				thermitemelt(user, seconds_to_melt)
 				return
-
-		else if(istype(W, /obj/item/weapon/pickaxe/plasmacutter))
-			thermitemelt(user, seconds_to_melt)
-			return
 
 		else if(istype(W, /obj/item/weapon/melee/energy/blade))
 			var/obj/item/weapon/melee/energy/blade/EB = W
@@ -92,7 +125,7 @@
 		to_chat(user, "<span class='notice'>Эта стена слишком толстая. Лучше найти другой способ.</span>")
 		return
 
-	if(damage && iswelder(W))
+	if(damage && iswelding(W))
 		var/obj/item/weapon/weldingtool/WT = W
 		if(WT.use(0,user))
 			to_chat(user, "<span class='notice'>Вы начинаете ремонтировать укрепленную стену.</span>")
@@ -104,11 +137,23 @@
 			to_chat(user, "<span class='warning'>Нужно больше топлива.</span>")
 			return
 
+	if(istype(W, /obj/item/weapon/airlock_painter))
+		var/obj/item/weapon/airlock_painter/A = W
+		if(!A.can_use(user, 1))
+			return
+		var/new_color = tgui_input_list(user, "Выберите цвет", "Цвет", WALLS_COLORS)
+		if(!new_color)
+			return
+		if(!A.use_tool(src, user, 10, 1))
+			return
+		change_color(new_color)
+		return
+
 	var/turf/T = user.loc	//get user's location for delay checks
 	//DECONSTRUCTION
 	switch(d_state)
 		if(INTACT)
-			if (iswirecutter(W))
+			if (iscutter(W))
 				if(!handle_fumbling(user, src, SKILL_TASK_TOUGH, list(/datum/skill/engineering = SKILL_LEVEL_PRO),"<span class='notice'>You fumble around figuring out how to cut the outer grille.</span>"))
 					return
 				playsound(src, 'sound/items/Wirecutter.ogg', VOL_EFFECTS_MASTER)
@@ -119,7 +164,7 @@
 				return
 
 		if(SUPPORT_LINES)
-			if (isscrewdriver(W))
+			if (isscrewing(W))
 				to_chat(user, "<span class='notice'>Вы начинаете удалять поддерживающие ряды.</span>")
 				playsound(src, 'sound/items/Screwdriver.ogg', VOL_EFFECTS_MASTER)
 
@@ -146,7 +191,7 @@
 				return
 
 		if(COVER)
-			if(iswelder(W))
+			if(iswelding(W))
 				var/obj/item/weapon/weldingtool/WT = W
 				if(WT.use(0,user))
 
@@ -163,7 +208,7 @@
 					to_chat(user, "<span class='notice'>Нужно больше топлива.</span>")
 				return
 
-			if(istype(W, /obj/item/weapon/pickaxe/plasmacutter))
+			if(istype(W, /obj/item/weapon/gun/energy/laser/cutter))
 				to_chat(user, "<span class='notice'>Вы начинаете разрезать металлическое покрытие.</span>")
 				if(W.use_tool(src, user, SKILL_TASK_TOUGH, volume = 100, required_skills_override = list(/datum/skill/engineering = SKILL_LEVEL_PRO)))
 					if(!istype(src, /turf/simulated/wall/r_wall) || !T)
@@ -176,7 +221,7 @@
 				return
 
 		if(CUT_COVER)
-			if (iscrowbar(W))
+			if (isprying(W))
 				to_chat(user, "<span class='notice'>Вы пытаетесь отделить покрытие.</span>")
 				if(W.use_tool(src, user, SKILL_TASK_DIFFICULT, volume = 100,  required_skills_override = list(/datum/skill/engineering = SKILL_LEVEL_PRO)))
 					if(!istype(src, /turf/simulated/wall/r_wall) || !T)
@@ -189,7 +234,7 @@
 				return
 
 		if(ANCHOR_BOLTS)
-			if (iswrench(W))
+			if (iswrenching(W))
 
 				to_chat(user, "<span class='notice'>Вы ослабляете болты, закрепляющие поддерживающие балки.</span>")
 				if(W.use_tool(src, user, SKILL_TASK_AVERAGE, volume = 100, required_skills_override = list(/datum/skill/engineering = SKILL_LEVEL_PRO)))
@@ -203,7 +248,7 @@
 				return
 
 		if(SUPPORT_RODS)
-			if(iswelder(W))
+			if(iswelding(W))
 				var/obj/item/weapon/weldingtool/WT = W
 				if(WT.use(0,user))
 
@@ -221,7 +266,7 @@
 					to_chat(user, "<span class='notice'>Нужно больше топлива.</span>")
 				return
 
-			if(istype(W, /obj/item/weapon/pickaxe/plasmacutter))
+			if(istype(W, /obj/item/weapon/gun/energy/laser/cutter))
 
 				to_chat(user, "<span class='notice'>Вы разрезаете поддерживающие балки.</span>")
 				if(W.use_tool(src, user, SKILL_TASK_TOUGH, volume = 100, required_skills_override = list(/datum/skill/engineering = SKILL_LEVEL_PRO)))
@@ -236,7 +281,7 @@
 				return
 
 		if(SHEATH)
-			if(iscrowbar(W))
+			if(isprying(W))
 
 				to_chat(user, "<span class='notice'>Вы отделяете внешнюю обшивку.</span>")
 				if(W.use_tool(src, user, SKILL_TASK_DIFFICULT, volume  = 100,  required_skills_override = list(/datum/skill/engineering = SKILL_LEVEL_PRO)))
@@ -251,14 +296,21 @@
 //vv OK, we weren't performing a valid deconstruction step or igniting thermite,let's check the other possibilities vv
 
 	//DRILLING
-	if(istype(W,/obj/item/weapon/changeling_hammer) && !rotting)
-		var/obj/item/weapon/changeling_hammer/C = W
+	//fulldestruct to walls when
+	if(istype(W,/obj/item/weapon/melee/changeling_hammer) && !rotting)
+		var/obj/item/weapon/melee/changeling_hammer/hammer = W
+		//slowdown, user. No need destruct all walls without debuff
+		if(iscarbon(user))
+			var/mob/living/carbon/C = user
+			C.shock_stage += 5
 		user.do_attack_animation(src)
-		visible_message("<span class='warning'><B>[user]</B> бьет укрепленную стену!</span>")
-		if(C.use_charge(user, 4))
-			playsound(user, pick('sound/effects/explosion1.ogg', 'sound/effects/explosion2.ogg'), VOL_EFFECTS_MASTER)
-			take_damage(30)
+		user.visible_message("<span class='warning'><B>[user]</B> бьет укрепленную стену!</span>",
+						"<span class='warning'>Вы пытаетесь снести укрепленную стену!</span>",
+						"<span class='userdanger'>Вы слышите ужасающий грохот!</span>")
+		playsound(user, pick(hammer.hitsound), VOL_EFFECTS_MASTER)
+		take_damage(hammer.get_object_damage())
 		return
+
 	else if (istype(W, /obj/item/weapon/pickaxe/drill/diamond_drill))
 
 		to_chat(user, "<span class='notice'>Вы бурите сквозь укрепленную стену.</span>")
@@ -337,6 +389,20 @@
 	else if(istype(W,/obj/item/weapon/poster))
 		place_poster(W,user)
 		return
+	else if((istype(W, /obj/item/weapon/paper) || istype(W, /obj/item/weapon/paper_bundle) || istype(W, /obj/item/weapon/photo)) && (get_dir(user,src) in global.cardinal))
+		user.drop_from_inventory(W)
+		W.pixel_x = X_OFFSET(24, get_dir(user, src))
+		W.pixel_y = Y_OFFSET(24, get_dir(user, src))
+		RegisterSignal(W, COMSIG_MOVABLE_MOVED, CALLBACK(src, PROC_REF(tied_object_reset_pixel_offset), W))
+		RegisterSignal(W, COMSIG_PARENT_QDELETING, CALLBACK(src, PROC_REF(tied_object_reset_pixel_offset), W))
+		return
+	else if((istype(W, /obj/item/wallclock) || istype(W, /obj/item/portrait)) && (get_dir(user,src) in global.cardinal))
+		user.drop_from_inventory(W)
+		W.pixel_x = X_OFFSET(32, get_dir(user, src))
+		W.pixel_y = Y_OFFSET(32, get_dir(user, src))
+		W.anchored = TRUE
+		RegisterSignal(W, COMSIG_MOVABLE_MOVED, CALLBACK(src, PROC_REF(tied_object_reset_pixel_offset), W, TRUE))
+		RegisterSignal(W, COMSIG_PARENT_QDELETING, CALLBACK(src, PROC_REF(tied_object_reset_pixel_offset), W, TRUE))
 
 	//Finally, CHECKING FOR FALSE WALLS if it isn't damaged
 	else if(!d_state)

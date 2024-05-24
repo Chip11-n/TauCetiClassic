@@ -7,14 +7,23 @@
 var/global/announce_vox_departure = FALSE // Stealth systems - give an announcement or not.
 
 /obj/machinery/proc/console_say(text)
-	visible_message("<b>[src]</b> beeps, \"[text]\'")
+	visible_message("<b>[capitalize(CASE(src, NOMINATIVE_CASE))]</b> сигнализирует, \"[text]\'")
 
 /obj/machinery/computer/vox_stealth
 	name = "skipjack cloaking field terminal"
+	cases = list("терминал маскировочного поля \"Скипджек\"", "терминала маскировочного поля \"Скипджек\"", "терминалу \"Скипджек\"", "терминал маскировочного поля \"Скипджек\"", "терминалом маскировочного поля \"Скипджек\"", "терминале маскировочного поля \"Скипджек\"")
 	icon = 'icons/locations/shuttles/vox_pc.dmi'
 	icon_state = "vox_invs"
 	state_broken_preset = "tcbossb"
 	state_nopower_preset = "tcboss0"
+
+/obj/machinery/computer/vox_stealth/atom_init()
+	. = ..()
+	SSholomaps.holomap_landmarks += src
+
+/obj/machinery/computer/vox_stealth/Destroy()
+	SSholomaps.holomap_landmarks -= src
+	return ..()
 
 /obj/machinery/computer/vox_stealth/attackby(obj/item/I, mob/user)
 	return attack_hand(user)
@@ -27,7 +36,7 @@ var/global/announce_vox_departure = FALSE // Stealth systems - give an announcem
 
 /obj/machinery/computer/vox_stealth/attack_hand(mob/user)
 	if(!VOX_CAN_USE(user))
-		to_chat(user, "<span class='notice'>You have no idea how to use this.</span>")
+		to_chat(user, "<span class='notice'>Вы понятия не имеете, как это использовать.</span>")
 		return
 
 	. = ..()
@@ -38,14 +47,15 @@ var/global/announce_vox_departure = FALSE // Stealth systems - give an announcem
 		return // no point in this console after moving shuttle from start position.
 
 	if(announce_vox_departure)
-		console_say("Смена режима маскировки: полная маскировки. КСН \"Исход\" не будет оповещен о нашем прибытии.")
+		console_say("Смена режима маскировки: полная маскировка. [station_name_ru()] не будет оповещен о нашем прибытии.")
 		announce_vox_departure = FALSE
 	else
-		console_say("Смена режима маскировки: торговое судно. КСН \"Исход\" будет оповещен о нашем прибытии.")
+		console_say("Смена режима маскировки: торговое судно. [station_name_ru()] будет оповещен о нашем прибытии.")
 		announce_vox_departure = TRUE
 
 /obj/machinery/computer/vox_station
 	name = "skipjack terminal"
+	cases = list("терминал \"Скипджек\"", "терминала \"Скипджек\"", "терминалу \"Скипджек\"", "терминал \"Скипджек\"", "терминалом \"Скипджек\"", "терминале \"Скипджек\"")
 	icon = 'icons/locations/shuttles/vox_pc.dmi'
 	icon_state = "vox_cont"
 	state_broken_preset = "tcbossb"
@@ -125,7 +135,7 @@ var/global/announce_vox_departure = FALSE // Stealth systems - give an announcem
 
 /obj/machinery/computer/vox_station/attack_hand(mob/user)
 	if(!VOX_CAN_USE(user))
-		to_chat(user, "<span class='notice'>You have no idea how to use this.</span>")
+		to_chat(user, "<span class='notice'>Вы понятия не имеете, как это использовать.</span>")
 		return
 	. = ..()
 
@@ -150,8 +160,8 @@ var/global/announce_vox_departure = FALSE // Stealth systems - give an announcem
 	var/time_seconds = round(time_to_move * 0.1)
 	var/sec_word = pluralize_russian(time_seconds, "секунду", "секунды", "секунд")
 	var/dat = {"Маскировочное Поле Skipjack: [announce_vox_departure ? "<span style='color: #ff0000;font-weight: bold;'>Деактивировано!</span>" : "<span style='color: #aa00aa'>Активировано!</span>"]<br><br>
-		Локация: [curr_location]<br>
-		Готовность к полёту[time_to_move ? " через [time_seconds] [sec_word]" : ": Готово"]<br><br>
+		Местоположение: <b>[capitalize(CASE(curr_location, NOMINATIVE_CASE))]</b><br>
+		Готов к полёту[time_to_move ? " через [time_seconds] [sec_word]" : ": Готово"]<br><br>
 		<a href='?src=\ref[src];start=1' style='width:100%;text-align:center'>Вернуться в далёкий космос</a>
 		<div class="center_div" style="position: relative;" >
 			<img src="nanomap_[SSmapping.station_image]_1.png" width="[world.maxx]px" height="[world.maxy]px">
@@ -159,7 +169,7 @@ var/global/announce_vox_departure = FALSE // Stealth systems - give an announcem
 		</div>
 		<a href='?src=\ref[src];mining=1' style='width:100%;text-align:center'>Шахтёрский астероид</a><br><br>"}
 
-	var/datum/browser/popup = new(user, "computer", "Shuttle", 500, 500)
+	var/datum/browser/popup = new(user, "computer", "[capitalize(CASE(src, NOMINATIVE_CASE))]", 500, 500)
 	popup.set_content(dat)
 	popup.open()
 
@@ -173,7 +183,7 @@ var/global/announce_vox_departure = FALSE // Stealth systems - give an announcem
 			if(!warning)
 				console_say("<span class='red'>Нажмите кнопку ещё раз для подтверждения процедуры.</span>")
 				warning = TRUE
-				addtimer(CALLBACK(src, .proc/reset_warning), 10 SECONDS) // so, if someone accidentaly uses this, it won't stuck for a whole round.
+				addtimer(CALLBACK(src, PROC_REF(reset_warning)), 10 SECONDS) // so, if someone accidentaly uses this, it won't stuck for a whole round.
 				return
 		vox_move_to(/area/shuttle/vox/arkship)
 

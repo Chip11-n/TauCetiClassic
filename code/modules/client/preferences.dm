@@ -1,6 +1,8 @@
 var/global/list/preferences_datums = list()
 
-var/global/const/MAX_SAVE_SLOTS = 10
+#define MAX_SAVE_SLOTS 10
+#define MAX_SAVE_SLOTS_SUPPORTER MAX_SAVE_SLOTS+10
+#define GET_MAX_SAVE_SLOTS(Client) ((Client && Client.supporter) ? MAX_SAVE_SLOTS_SUPPORTER : MAX_SAVE_SLOTS)
 
 #define MAX_GEAR_COST 5
 #define MAX_GEAR_COST_SUPPORTER MAX_GEAR_COST+3
@@ -53,6 +55,8 @@ var/global/const/MAX_SAVE_SLOTS = 10
 
 	var/show_runechat = TRUE
 
+	var/list/custom_emote_panel = list()
+
 	//TGUI
 	var/tgui_fancy = TRUE
 	var/tgui_lock = FALSE
@@ -76,9 +80,9 @@ var/global/const/MAX_SAVE_SLOTS = 10
 	var/real_name						//our character's name
 	var/be_random_name = 0				//whether we are a random name every round
 	var/gender = MALE					//gender of character (well duh)
+	var/neuter_gender_voice = MALE		//for male/female emote sounds but with neuter gender
 	var/age = 30						//age of character
-	var/height = HUMANHEIGHT_MEDIUM			//height of character
-	var/b_type = "A+"					//blood type (not-chooseable)
+	var/height = HUMANHEIGHT_MEDIUM		//height of character
 	var/underwear = 1					//underwear type
 	var/undershirt = 1					//undershirt type
 	var/socks = 1						//socks type
@@ -103,8 +107,12 @@ var/global/const/MAX_SAVE_SLOTS = 10
 	var/r_eyes = 0						//Eye color
 	var/g_eyes = 0						//Eye color
 	var/b_eyes = 0						//Eye color
+	var/r_belly = 0
+	var/g_belly = 0
+	var/b_belly = 0
 	var/species = HUMAN
 	var/language = "None"				//Secondary language
+	var/insurance = INSURANCE_NONE
 
 	//Some faction information.
 	var/home_system = "None"            //System of birth.
@@ -157,16 +165,26 @@ var/global/const/MAX_SAVE_SLOTS = 10
 	var/parallax = PARALLAX_HIGH
 	var/ambientocclusion = TRUE
 	var/auto_fit_viewport = TRUE
+	var/lobbyanimation = FALSE
+	// lighting settings
+	var/glowlevel = GLOW_MED // or bloom
+	var/lampsexposure = TRUE // idk how we should name it
+	var/lampsglare = FALSE // aka lens flare
+	//Impacts performance clientside
+	var/eye_blur_effect = TRUE
 
   //custom loadout
 	var/list/gear = list()
 	var/gear_tab = "General"
 	var/list/custom_items = list()
 
+	var/chosen_ringtone = "Flip-Flap"
+	var/custom_melody = "E7,E7,E7"
+
 /datum/preferences/New(client/C)
 	parent = C
 	UI_style = global.available_ui_styles[1]
-	b_type = random_blood_type()
+	custom_emote_panel = global.emotes_for_emote_panel
 	if(istype(C))
 		if(!IsGuestKey(C.key))
 			load_path(C.ckey)
@@ -349,9 +367,9 @@ var/global/const/MAX_SAVE_SLOTS = 10
 	character.gen_record = gen_record
 
 	character.gender = gender
+	character.neuter_gender_voice = neuter_gender_voice
 	character.age = age
 	character.height = height
-	character.b_type = b_type
 
 	character.regenerate_icons()
 
@@ -373,6 +391,8 @@ var/global/const/MAX_SAVE_SLOTS = 10
 			if("Human")
 				var/obj/item/organ/external/head/robot/ipc/human/H = new(null)
 				H.insert_organ(character)
+		var/obj/item/organ/internal/eyes/ipc/IO = new(null)
+		IO.insert_organ(character)
 
 	character.r_eyes = r_eyes
 	character.g_eyes = g_eyes
@@ -381,6 +401,10 @@ var/global/const/MAX_SAVE_SLOTS = 10
 	character.r_hair = r_hair
 	character.g_hair = g_hair
 	character.b_hair = b_hair
+
+	character.r_belly = r_belly
+	character.g_belly = g_belly
+	character.b_belly = b_belly
 
 	character.r_grad = r_grad
 	character.g_grad = g_grad
@@ -402,6 +426,7 @@ var/global/const/MAX_SAVE_SLOTS = 10
 
 	character.home_system = home_system
 	character.citizenship = citizenship
+	character.roundstart_insurance = insurance
 	character.personal_faction = faction
 	character.religion = religion
 	character.vox_rank = vox_rank
@@ -467,19 +492,12 @@ var/global/const/MAX_SAVE_SLOTS = 10
 
 	if(socks > socks_t.len || socks < 1)
 		socks = 0
-
 	character.socks = socks
 
 	if(backbag > 5 || backbag < 1)
 		backbag = 1 //Same as above
 	character.backbag = backbag
 	character.use_skirt = use_skirt
-
-	//Debugging report to track down a bug, which randomly assigned the plural gender to people.
-	if(character.gender in list(PLURAL, NEUTER))
-		if(isliving(src)) //Ghosts get neuter by default
-			message_admins("[character] ([character.ckey]) has spawned with their gender as plural or neuter. Please notify coders.")
-			character.gender = MALE
 
 	if(icon_updates)
 		character.update_body()

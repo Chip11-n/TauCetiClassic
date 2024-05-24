@@ -1,6 +1,6 @@
 /mob/living/simple_animal
 	name = "animal"
-	desc = "Just simple animal"
+	desc = "Просто существует."
 	icon = 'icons/mob/animal.dmi'
 	health = 20
 	maxHealth = 20
@@ -60,11 +60,15 @@
 	var/has_arm = FALSE
 	var/has_leg = FALSE
 
+	can_point = FALSE
+
 	///What kind of footstep this mob should have. Null if it shouldn't have any.
 	var/footstep_type
 
 	// See atom_init below.
 	moveset_type = null
+	// used for growing creatures
+	var/evolv_stage = 0
 
 /mob/living/simple_animal/atom_init()
 	if(!moveset_type)
@@ -78,6 +82,14 @@
 	. = ..()
 	if(footstep_type)
 		AddComponent(/datum/component/footstep, footstep_type)
+
+/mob/living/simple_animal/Login()
+	. = ..()
+	stop_automated_movement = TRUE
+
+/mob/living/simple_animal/Logout()
+	. = ..()
+	stop_automated_movement = initial(stop_automated_movement)
 
 /mob/living/simple_animal/Grab(atom/movable/target, force_state, show_warnings = TRUE)
 	return
@@ -284,6 +296,9 @@
 		if(EXPLODE_LIGHT)
 			adjustBruteLoss(30)
 
+/mob/living/simple_animal/blob_act()
+	adjustBruteLoss(20)
+
 /mob/living/simple_animal/adjustBruteLoss(damage)
 	var/perc_block = (10 - harm_intent_damage) / 10 // #define MAX_HARM_INTENT_DAMAGE 10. Turn harm_intent_damage into armor or something. ~Luduk
 	damage *= perc_block
@@ -376,6 +391,9 @@
 	if(IsSleeping())
 		stat = UNCONSCIOUS
 		blinded = TRUE
+	else
+		stat = CONSCIOUS
+		blinded = FALSE
 	med_hud_set_status()
 
 /mob/living/simple_animal/get_scrambled_message(message, datum/language/speaking = null)

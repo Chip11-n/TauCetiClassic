@@ -1,3 +1,6 @@
+/obj
+	var/oldificated = FALSE
+
 /obj/proc/make_old(change_looks = TRUE)
 	color = pick("#996633", "#663300", "#666666")
 	light_color = color
@@ -21,10 +24,12 @@
 	if(prob(50))
 		crit_fail = 1
 	update_icon()
+	oldificated = TRUE
 
 /obj/item/make_old()
 	..()
 	siemens_coefficient += 0.3
+	update_inv_mob()
 
 
 /obj/item/weapon/storage/make_old()
@@ -236,3 +241,4 @@
 
 /obj/effect/decal/mecha_wreckage/make_old()
 	salvage_num = 8
+	oldificated = TRUE

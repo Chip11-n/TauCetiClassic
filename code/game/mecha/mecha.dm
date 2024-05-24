@@ -574,7 +574,7 @@
 	destroy()
 
 /obj/mecha/blob_act()
-	take_damage(10, BRUTE)
+	take_damage(30, BRUTE)
 	return
 
 
@@ -646,7 +646,7 @@
 				to_chat(user, "<span class='warning'>Invalid ID: Access denied.</span>")
 		else
 			to_chat(user, "<span class='warning'>Maintenance protocols disabled by operator.</span>")
-	else if(iswrench(W))
+	else if(iswrenching(W))
 		if(state==1)
 			state = 2
 			to_chat(user, "You undo the securing bolts.")
@@ -654,7 +654,7 @@
 			state = 1
 			to_chat(user, "You tighten the securing bolts.")
 		return
-	else if(iscrowbar(W))
+	else if(isprying(W))
 		if(state==2)
 			state = 3
 			to_chat(user, "You open the hatch to the power unit")
@@ -671,7 +671,7 @@
 			clearInternalDamage(MECHA_INT_SHORT_CIRCUIT)
 			to_chat(user, "You replace the fused wires.")
 		return
-	else if(isscrewdriver(W))
+	else if(isscrewing(W))
 		if(hasInternalDamage(MECHA_INT_TEMP_CONTROL))
 			clearInternalDamage(MECHA_INT_TEMP_CONTROL)
 			to_chat(user, "You repair the damaged temperature controller.")
@@ -699,7 +699,7 @@
 			diag_hud_set_mechcell()
 		return
 
-	else if(iswelder(W) && user.a_intent != INTENT_HARM)
+	else if(iswelding(W) && user.a_intent != INTENT_HARM)
 		var/obj/item/weapon/weldingtool/WT = W
 		user.SetNextMove(CLICK_CD_MELEE)
 		if (WT.use(0,user))
@@ -711,6 +711,7 @@
 		if(src.health<initial(src.health))
 			to_chat(user, "<span class='notice'>You repair some damage to [src.name].</span>")
 			src.health += min(10, initial(src.health)-src.health)
+			update_health()
 		else
 			to_chat(user, "The [src.name] is at full integrity")
 		return
@@ -721,14 +722,12 @@
 		user.visible_message("[user] attaches [W] to [src].", "You attach [W] to [src]")
 		return
 
-	else if(istype(W, /obj/item/weapon/changeling_hammer))
-		var/obj/item/weapon/changeling_hammer/Ham = W
-		user.do_attack_animation(src)
+	else if(istype(W, /obj/item/weapon/melee/changeling_hammer))
+		var/obj/item/weapon/melee/changeling_hammer/hammer = W
 		user.SetNextMove(CLICK_CD_MELEE)
-		visible_message("<span class='warning'><B>[user]</B> has punched \the <B>[src]!</B></span>")
-		playsound(src, 'sound/effects/grillehit.ogg', VOL_EFFECTS_MASTER)
-		if(Ham.use_charge(user,6))
-			take_damage(Ham.force * 2)
+		playsound(src, pick(hammer.hitsound), VOL_EFFECTS_MASTER)
+		dynattackby(hammer, user)
+
 	else
 		user.SetNextMove(CLICK_CD_MELEE)
 		call((proc_res["dynattackby"]||src), "dynattackby")(W,user)
@@ -1024,26 +1023,25 @@
 		mob_container = brain.container
 	else
 		return
-	if(mob_container.forceMove(src.loc))//ejecting mob container
 
-		playsound(src, 'sound/mecha/mech_eject.ogg', VOL_EFFECTS_MASTER, 75, FALSE, null, -3)
-		log_message("[mob_container] moved out.")
-		log_admin("[key_name(mob_container)] has moved out of [src.type] with name [src.name]")
-		occupant.reset_view()
+	mob_container.forceMove(src.loc)
+	playsound(src, 'sound/mecha/mech_eject.ogg', VOL_EFFECTS_MASTER, 75, FALSE, null, -3)
+	log_message("[mob_container] moved out.")
+	log_admin("[key_name(mob_container)] has moved out of [src.type] with name [src.name]")
+	occupant.reset_view()
 
-		src.occupant << browse(null, "window=exosuit")
-		if(src.occupant.hud_used && src.last_user_hud && !isMMI(mob_container))
-			occupant.hud_used.show_hud(HUD_STYLE_STANDARD)
+	src.occupant << browse(null, "window=exosuit")
+	if(src.occupant.hud_used && src.last_user_hud && !isMMI(mob_container))
+		occupant.hud_used.show_hud(HUD_STYLE_STANDARD)
 
-		if(isMMI(mob_container))
-			var/obj/item/device/mmi/mmi = mob_container
-			if(mmi.brainmob)
-				occupant.loc = mmi
-			src.occupant.canmove = 0
-		src.occupant = null
-		src.icon_state = reset_icon()+"-open"
-		set_dir(dir_in)
-	return
+	if(isMMI(mob_container))
+		var/obj/item/device/mmi/mmi = mob_container
+		if(mmi.brainmob)
+			occupant.loc = mmi
+		src.occupant.canmove = 0
+	src.occupant = null
+	src.icon_state = reset_icon()+"-open"
+	set_dir(dir_in)
 
 /////////////////////////
 ////// Access stuff /////

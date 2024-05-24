@@ -13,8 +13,10 @@
 
 	opacity = 1
 	density = TRUE
-	blocks_air = 1
+	blocks_air = AIR_BLOCKED
 	temperature = TCMB
+
+	explosive_resistance = 1
 
 	hud_possible = list(MINE_MINERAL_HUD, MINE_ARTIFACT_HUD)
 	var/mineral/mineral
@@ -51,6 +53,9 @@
 	return .
 
 /turf/simulated/mineral/atom_init_late()
+	if(!istype(src)) // someone already made us as cave turf
+		return
+	..()
 	MineralSpread()
 	update_overlays()
 
@@ -92,6 +97,7 @@
 			return
 	mined_ore = 3 - severity
 	GetDrilled()
+
 /turf/simulated/mineral/Bumped(AM)
 	. = ..()
 	if(ishuman(AM))
@@ -322,11 +328,11 @@
 	return O
 
 
-/turf/simulated/mineral/proc/GetDrilled(artifact_fail = 0, mineral_drop_coefficient = 1)
+/turf/simulated/mineral/proc/GetDrilled(artifact_fail = 0, mineral_drop_coefficient = 1.0)
 	playsound(src, 'sound/effects/rockfall.ogg', VOL_EFFECTS_MASTER)
 	// var/destroyed = 0 //used for breaking strange rocks
 	if (mineral && ore_amount)
-		
+
 		// if the turf has already been excavated, some of it's ore has been removed
 		for (var/i = 1 to round((ore_amount - mined_ore) * mineral_drop_coefficient, 1))
 			DropMineral()
@@ -346,7 +352,11 @@
 				M.flash_eyes()
 				if(prob(50))
 					M.Stun(5)
-			M.apply_effect(25, IRRADIATE)
+			irradiate_one_mob(M, 25)
+		for(var/obj/item/device/analyzer/counter as anything in global.geiger_items_list)
+			var/distance_rad_signal = get_dist(counter, src)
+			var/rads = 25 * sqrt(1 / (distance_rad_signal + 1))
+			counter.recieve_rad_signal(rads, distance_rad_signal)
 
 
 	var/datum/atom_hud/mine/mine = global.huds[DATA_HUD_MINER]
@@ -450,7 +460,16 @@
 	. = ..()
 
 /turf/simulated/mineral/random/caves
+	mineralChance = 5
+
+/turf/simulated/mineral/random/caves/high_chance
+	icon_state = "rock_cave_highchance"
 	mineralChance = 25
+	mineralSpawnChanceList = list("Phoron" = 25, "Silver" = 15, "Gold" = 15, "Uranium" = 10, "Platinum" = 5, "Diamond" = 10)
+
+/turf/simulated/mineral/random/caves/high_chance/atom_init()
+	icon_state = "rock"
+	return ..()
 
 /turf/simulated/mineral/random/high_chance
 	icon_state = "rock_highchance"
@@ -487,6 +506,12 @@
 /turf/simulated/floor/plating/airless/asteroid
 	basetype = /turf/simulated/floor/plating/airless/asteroid
 	can_deconstruct = FALSE
+
+/turf/simulated/floor/plating/airless/asteroid/break_tile()
+	return
+
+/turf/simulated/floor/plating/airless/asteroid/burn_tile()
+	return
 
 /turf/simulated/floor/plating/airless/asteroid/cave
 	var/length = 20
@@ -635,9 +660,22 @@
 	update_overlays()
 
 /turf/simulated/floor/plating/airless/asteroid/atom_init_late()
+	..()
 	update_overlays()
 
 /turf/simulated/floor/plating/airless/asteroid/ex_act(severity)
+	for(var/thing in contents)
+		var/atom/movable/movable_thing = thing
+		if(QDELETED(movable_thing))
+			continue
+		switch(severity)
+			if(EXPLODE_DEVASTATE)
+				SSexplosions.high_mov_atom += movable_thing
+			if(EXPLODE_HEAVY)
+				SSexplosions.med_mov_atom += movable_thing
+			if(EXPLODE_LIGHT)
+				SSexplosions.low_mov_atom += movable_thing
+
 	switch(severity)
 		if(EXPLODE_HEAVY)
 			if(prob(30))
@@ -691,20 +729,6 @@
 	dug = TRUE
 	icon_plating = "asteroid_dug"
 	icon_state = "asteroid_dug"
-
-/turf/simulated/floor/plating/airless/asteroid/Entered(atom/movable/M)
-	..()
-	if(isrobot(M))
-		var/mob/living/silicon/robot/R = M
-		if(istype(R.module, /obj/item/weapon/robot_module/miner))
-			if(istype(R.module_state_1,/obj/item/weapon/storage/bag/ore))
-				attackby(R.module_state_1,R)
-			else if(istype(R.module_state_2,/obj/item/weapon/storage/bag/ore))
-				attackby(R.module_state_2,R)
-			else if(istype(R.module_state_3,/obj/item/weapon/storage/bag/ore))
-				attackby(R.module_state_3,R)
-			else
-				return
 
 #undef MIN_TUNNEL_LENGTH
 #undef MAX_TUNNEL_LENGTH

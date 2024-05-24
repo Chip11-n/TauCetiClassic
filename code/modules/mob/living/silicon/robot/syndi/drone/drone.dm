@@ -29,8 +29,9 @@
 	flavor_text = "It's a tiny little repair drone. The casing is stamped with a Cybersun Ind. logo and the subscript: 'Cybersun Industries: I will definitely fix it tomorrow!'"
 
 /mob/living/silicon/robot/drone/syndi/Destroy()
+	var/datum/action/stop_control/A = locate() in actions
+	qdel(A)
 	loose_control()
-	QDEL_LIST(actions)
 	return ..()
 
 /mob/living/silicon/robot/drone/syndi/init(laws_type, ai_link, datum/religion/R)
@@ -71,7 +72,7 @@
 
 /mob/living/silicon/robot/drone/syndi/proc/control(mob/living/carbon/human/M)
 	if(!laws.zeroth)
-		set_zeroth_law("Only [M.real_name] and people he designates as being such are Syndicate Agents.")
+		set_zeroth_law("Только [M.real_name] и люди, которых он называет таковыми, - агенты Синдиката.")
 	operator = M
 	operator_mind = M.mind
 	operator_health_last = M.health

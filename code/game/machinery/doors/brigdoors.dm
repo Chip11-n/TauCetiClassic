@@ -136,7 +136,7 @@
 		if(C.broken)	continue
 		if(C.opened && !C.close())	continue
 		C.locked = 1
-		C.icon_state = C.icon_locked
+		C.update_icon()
 
 	return
 
@@ -236,7 +236,7 @@
 
 			// Mounted flash controls
 			for(var/obj/machinery/flasher/F in targets)
-				if(F.last_flash && (F.last_flash + 150) > world.time)
+				if(!COOLDOWN_FINISHED(F, cd_flash))
 					dat += "<br/><A href='?src=\ref[src];fc=1'>Вспышка Перезаряжается</A>"
 				else
 					dat += "<br/><A href='?src=\ref[src];fc=1'>Ослепить</A>"

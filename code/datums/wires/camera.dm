@@ -6,7 +6,6 @@ var/global/const/CAMERA_WIRE_NOTHING1 = 16
 var/global/const/CAMERA_WIRE_NOTHING2 = 32
 
 /datum/wires/camera
-	random = TRUE
 	holder_type = /obj/machinery/camera
 	wire_count = 6
 
@@ -22,7 +21,7 @@ var/global/const/CAMERA_WIRE_NOTHING2 = 32
 	var/obj/machinery/camera/C = holder
 	return C.panel_open
 
-/datum/wires/camera/update_cut(index, mended)
+/datum/wires/camera/update_cut(index, mended, mob/user)
 	var/obj/machinery/camera/C = holder
 
 	switch(index)

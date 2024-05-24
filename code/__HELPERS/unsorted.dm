@@ -683,9 +683,11 @@ Turf and target are seperate in case you want to teleport some distance from a t
 			areas += N
 	return areas
 
-//Takes: Area type as text string or as typepath OR an instance of the area.
-//Returns: A list of all turfs in areas of that type of that type in the world.
-/proc/get_area_turfs(areatype, subtypes=TRUE, target_z = 0, list/black_list)
+// Takes: Area type as text string or as typepath OR an instance of the area.
+// Returns: A list of all turfs in areas of that type of that type in the world.
+// Please note that because of (loop in area) this is not really optimal, 
+// but you probably have no choice
+/proc/get_area_turfs(areatype, subtypes=TRUE, filter_by_z = 0, ignore_blocked = FALSE)
 	if(istext(areatype))
 		areatype = text2path(areatype)
 	else if(isarea(areatype))
@@ -697,25 +699,26 @@ Turf and target are seperate in case you want to teleport some distance from a t
 	var/list/turfs = list()
 	if(subtypes)
 		var/list/cache = typecacheof(areatype)
-		for(var/V in global.all_areas)
-			var/area/A = V
+		for(var/area/A as anything in global.all_areas)
 			if(!cache[A.type])
 				continue
 			for(var/turf/T in A)
-				if(black_list && (T.type in black_list))
+				if(filter_by_z && filter_by_z != T.z)
 					continue
-				if(target_z == 0 || target_z == T.z)
-					turfs += T
+				if(ignore_blocked && is_blocked_turf(T))
+					continue
+				turfs += T
 	else
-		for(var/V in global.all_areas)
-			var/area/A = V
+		for(var/area/A as anything in global.all_areas)
 			if(A.type != areatype)
 				continue
 			for(var/turf/T in A)
-				if(black_list && (T.type in black_list))
+				if(filter_by_z && filter_by_z != T.z)
 					continue
-				if(target_z == 0 || target_z == T.z)
-					turfs += T
+				if(ignore_blocked && is_blocked_turf(T))
+					continue
+				turfs += T
+
 	return turfs
 
 //Takes: Area type as text string or as typepath OR an instance of the area.
@@ -846,11 +849,11 @@ Turf and target are seperate in case you want to teleport some distance from a t
 							continue
 						if(!O.simulated)
 							continue
-						O.loc = X
+						O.forceMove(X)
 						O.update_parallax_contents()
 					for(var/mob/M in T)
 						if(!istype(M,/mob) || istype(M, /mob/camera)) continue // If we need to check for more mobs, I'll add a variable
-						M.loc = X
+						M.forceMove(X, TRUE, TRUE)
 						M.update_parallax_contents()
 
 //					var/area/AR = X.loc
@@ -899,7 +902,7 @@ Turf and target are seperate in case you want to teleport some distance from a t
 		var/mob/M = O
 		M.cut_overlays()
 		M.regenerate_icons()
-	
+
 	return O
 
 
@@ -1036,7 +1039,7 @@ Turf and target are seperate in case you want to teleport some distance from a t
 				SSair.tiles_to_update += T1*/
 
 	for(var/obj/O in doors)
-		O:update_nearby_tiles(1)
+		O:update_nearby_tiles()
 
 
 
@@ -1087,6 +1090,19 @@ Turf and target are seperate in case you want to teleport some distance from a t
 			return "left leg"
 		if(BP_R_LEG)
 			return "right leg"
+		else
+			return zone
+
+/proc/parse_zone_ru(zone)
+	switch(zone)
+		if(BP_L_ARM)
+			return "левая рука"
+		if(BP_R_ARM)
+			return "правая рука"
+		if(BP_L_LEG)
+			return "левая нога"
+		if(BP_R_LEG)
+			return "правая нога"
 		else
 			return zone
 
@@ -1143,22 +1159,6 @@ Turf and target are seperate in case you want to teleport some distance from a t
 /proc/get_turf_or_move(turf/location)
 	return get_turf(location)
 
-
-//Quick type checks for some tools
-var/global/list/common_tools = list(
-/obj/item/stack/cable_coil,
-/obj/item/weapon/wrench,
-/obj/item/weapon/weldingtool,
-/obj/item/weapon/screwdriver,
-/obj/item/weapon/wirecutters,
-/obj/item/device/multitool,
-/obj/item/weapon/crowbar)
-
-/proc/istool(O)
-	if(O && is_type_in_list(O, common_tools))
-		return TRUE
-	return FALSE
-
 // For items that can puncture e.g. thick plastic but aren't necessarily sharp
 // Returns TRUE if the given item is capable of popping things like balloons, inflatable barriers, or cutting police tape.
 /obj/item/proc/can_puncture()
@@ -1211,7 +1211,7 @@ var/global/list/common_tools = list(
 /proc/can_operate(mob/living/carbon/M)
 	if(locate(/obj/machinery/optable, M.loc) && M.crawling)
 		return TRUE
-	if((M.buckled || M.lying || M.incapacitated()) && prob(get_surg_chance(M.loc)))
+	if((M.buckled || M.incapacitated()) && prob(get_surg_chance(M.loc)))
 		return TRUE
 	return FALSE
 
@@ -1520,10 +1520,6 @@ var/global/list/WALLITEMS = typecacheof(list(
 
 	return L
 
-//gives us the stack trace from CRASH() without ending the current proc.
-/proc/stack_trace(msg)
-	CRASH(msg)
-
 //Increases delay as the server gets more overloaded,
 //as sleeps aren't cheap and sleeping only to wake up and sleep again is wasteful
 #define DELTA_CALC max(((max(TICK_USAGE, world.cpu) / 100) * max(Master.sleep_delta - 1, 1)), 1)
@@ -1590,15 +1586,17 @@ var/global/list/WALLITEMS = typecacheof(list(
 
 /proc/change_lobbyscreen(new_screen)
 	if(new_screen)
-		global.current_lobby_screen = new_screen
+		global.custom_lobby_image = new_screen
 	else
+		custom_lobby_image = null
+
 		if(SSholiday.holidays[NEW_YEAR])
-			global.current_lobby_screen = pick(global.new_year_screens)
+			lobby_screen = "lobby-ny"
 		else
-			global.current_lobby_screen = pick(global.lobby_screens)
+			lobby_screen = "lobby"
 
 	for(var/mob/dead/new_player/N as anything in new_player_list)
-		INVOKE_ASYNC(N, /mob/dead/new_player.proc/show_titlescreen)
+		INVOKE_ASYNC(N, TYPE_PROC_REF(/mob/dead/new_player, show_titlescreen))
 
 // Converts browser keycodes to BYOND keycodes.
 /proc/browser_keycode_to_byond(keycode)

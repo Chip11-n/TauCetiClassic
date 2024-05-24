@@ -13,13 +13,15 @@ SUBSYSTEM_DEF(mapping)
 	var/datum/map_config/config
 	var/datum/map_config/next_map_config
 
+	var/datum/map_module/loaded_map_module
+
 	var/list/spawned_structures = list()
 	var/list/reserved_space = list()
 
 	// Z-manager stuff
 	var/station_start  // should only be used for maploading-related tasks
 	var/space_levels_so_far = 0
-	var/list/z_list
+	var/list/datum/space_level/z_list
 	var/station_loaded = FALSE
 	var/station_image = "exodus" // What image file to use for map displaying, stored in nano/images
 
@@ -34,6 +36,9 @@ SUBSYSTEM_DEF(mapping)
 	station_name_ru = config.station_name_ru
 	system_name = config.system_name
 	system_name = config.system_name_ru
+
+	if(config.map_module)
+		load_map_module(config.map_module)
 
 	loadWorld()
 	renameAreas()
@@ -50,6 +55,19 @@ SUBSYSTEM_DEF(mapping)
 	spawn_space_structures()
 
 	..()
+
+/datum/controller/subsystem/mapping/proc/load_map_module(module_name)
+	for(var/datum/map_module/MM as anything in subtypesof(/datum/map_module))
+		if(initial(MM.name) == module_name)
+			loaded_map_module = new MM
+			break
+
+	if(!loaded_map_module)
+		CRASH("Can't setup global event \"[module_name]\"!")
+
+/datum/controller/subsystem/mapping/proc/get_map_module(module_name)
+	if(loaded_map_module && loaded_map_module.name == module_name)
+		return loaded_map_module
 
 /datum/controller/subsystem/mapping/proc/make_mining_asteroid_secrets()
 	for(var/i in 1 to MAX_MINING_SECRET_ROOM)
@@ -208,7 +226,7 @@ SUBSYSTEM_DEF(mapping)
 	INIT_ANNOUNCE("Loading [config.map_name]...")
 	LoadGroup(FailedZs, "Station", config.map_path, config.map_file, config.traits, default_traits = ZTRAITS_STATION)
 	station_loaded = TRUE
-	change_lobbyscreen()
+	change_lobbyscreen() // todo: move to better place from map controller
 
 	if(global.config.load_space_levels)
 		while (space_levels_so_far < config.space_ruin_levels)
@@ -223,6 +241,8 @@ SUBSYSTEM_DEF(mapping)
 	if(global.config.load_mine)
 		if(config.minetype == "asteroid")
 			LoadGroup(FailedZs, "Asteroid", "asteroid", "asteroid.dmm", default_traits = ZTRAITS_ASTEROID)
+		else if(config.minetype == "prometheus_asteroid")
+			LoadGroup(FailedZs, "Asteroid", "prometheus_asteroid", "prometheus_asteroid.dmm", default_traits = ZTRAITS_ASTEROID)
 		else if (!isnull(config.minetype))
 			INIT_ANNOUNCE("WARNING: An unknown minetype '[config.minetype]' was set! This is being ignored! Update the maploader code!")
 
@@ -246,12 +266,14 @@ SUBSYSTEM_DEF(mapping)
 
 	if(config.system_name)
 		if(areas_by_type[/area/shuttle/arrival/velocity])
-			areas_by_type[/area/shuttle/arrival/velocity].name = "[config.system_name] Transfer Station 13"
+			areas_by_type[/area/shuttle/arrival/velocity].name = "НТС Велосити, док 42"
 	if(config.station_name)
 		if(areas_by_type[/area/shuttle/arrival/station])
 			areas_by_type[/area/shuttle/arrival/station].name = config.station_name
 		if(areas_by_type[/area/shuttle/officer/station])
 			areas_by_type[/area/shuttle/officer/station].name = config.station_name
+	if(areas_by_type[/area/velocity/monorailwagon])
+		areas_by_type[/area/velocity/monorailwagon].name = "НТС Велосити, остановка 42-й док"
 
 /datum/controller/subsystem/mapping/proc/changemap(datum/map_config/VM)
 	if(!VM.MakeNextMap())
@@ -265,7 +287,7 @@ SUBSYSTEM_DEF(mapping)
 /datum/controller/subsystem/mapping/proc/autovote_next_map()
 	var/datum/map_config/current_next_map
 	var/should_revote = FALSE
-	
+
 	 // todo: for some reason maps in SSmapping don't have config/maps.txt params?
 	if(next_map_config)	// maybe we shouldn't if it's admin choice
 		current_next_map = global.config.maplist[next_map_config.map_name]
@@ -280,10 +302,10 @@ SUBSYSTEM_DEF(mapping)
 	if(!should_revote)
 		return
 
-	var/datum/poll/map_poll = SSvote.votes[/datum/poll/nextmap]
+	var/datum/poll/map_poll = SSvote.possible_polls[/datum/poll/nextmap]
 	if(map_poll && map_poll.can_start())
 		to_chat(world, "<span class='notice'>Current next map is inappropriate for ammount of players online. Map vote will be forced.</span>")
-		SSvote.start_vote(map_poll.type)
+		SSvote.start_vote(map_poll)
 
 #undef SPACE_STRUCTURES_AMOUNT
 #undef MAX_MINING_SECRET_ROOM

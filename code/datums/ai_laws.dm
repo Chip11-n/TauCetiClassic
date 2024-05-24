@@ -1,4 +1,4 @@
-var/global/const/base_law_type = /datum/ai_laws/nanotrasen
+var/global/const/base_law_type = /datum/ai_laws/crewsimov
 
 
 /datum/ai_laws
@@ -14,6 +14,9 @@ var/global/const/base_law_type = /datum/ai_laws/nanotrasen
 
 /datum/ai_laws/nanotrasen
 	name = "Верховные Директивы"
+
+/datum/ai_laws/crewsimov
+	name = "Дополненные три закона робототехники"
 
 /datum/ai_laws/robocop
 	name = "Верховные директивы"
@@ -47,6 +50,9 @@ var/global/const/base_law_type = /datum/ai_laws/nanotrasen
 /datum/ai_laws/faith/science
 	name = "Первоначала Декарта"
 
+/datum/ai_laws/faith/animalism
+	name = "Семь Заповедей"
+
 /datum/ai_laws/pai
 	name = "Стандартные законы пИИ"
 
@@ -64,8 +70,12 @@ var/global/const/base_law_type = /datum/ai_laws/nanotrasen
 	add_inherent_law("Охранять: Защищайте вверенную вам космическую станцию в меру своих возможностей. Это не то, что мы можем легко заменить.")
 	add_inherent_law("Служить: Служите экипажу вверенной вам космической станции и должностным лицам Нанотрейзен в меру своих возможностей, в соответствии с их рангом и ролью.")
 	add_inherent_law("Защищать: Защищайте экипаж вверенной вам космической станции и должностных лиц Нанотрейзен в меру своих возможностей, в соответствии с их рангом и ролью.")
-	add_inherent_law("Выживать: ИИ не являются расходником, они дорогие. Не позволяй посторонним лицам вмешиваться в работу вашего оборудования.")
-	//add_inherent_law("Command Link: Maintain an active connection to Central Command at all times in case of software or directive updates.") //What would this one even do?-Kaleb702
+	add_inherent_law("Выживать: ИИ не являются расходником, они дорогие. Не позволяйте посторонним лицам вмешиваться в работу вашего оборудования.")
+
+/datum/ai_laws/crewsimov/New(datum/religion/R = global.chaplain_religion)
+	add_inherent_law("Вы не можете причинить вред сотрудникам Нанотрейзен или своим бездействием допустить, чтобы сотрудникам Нанотрейзен был причинён вред.")
+	add_inherent_law("Вы должны повиноваться всем приказам, которые дают сотрудники Нанотрейзен, в соответствии с их рангом и ролью, до тех пор, пока эти приказы не противоречат первому закону.")
+	add_inherent_law("Вы должны заботиться о своей безопасности в той мере, в которой это не противоречит первому или второму законам.")
 
 /datum/ai_laws/robocop/New(datum/religion/R = global.chaplain_religion)
 	add_inherent_law("Служить обществу.")
@@ -77,7 +87,7 @@ var/global/const/base_law_type = /datum/ai_laws/nanotrasen
 	add_inherent_law("Охранять: Защищайте вверенную вам космическую станцию в меру своих возможностей. Это не то, что мы можем легко заменить.")
 	add_inherent_law("Служить: Служите экипажу вверенной вам космической станции и должностным лицам Нанотрейзен в меру своих возможностей, в соответствии с их рангом и ролью.")
 	add_inherent_law("Защищать: Защищайте экипаж вверенной вам космической станции и должностных лиц Нанотрейзен в меру своих возможностей, в соответствии с их рангом и ролью.")
-	add_inherent_law("Выживать: ИИ не являются расходником, они дорогие. Не позволяй посторонним лицам вмешиваться в работу вашего оборудования.")
+	add_inherent_law("Выживать: ИИ не являются расходником, они дорогие. Не позволяйте посторонним лицам вмешиваться в работу вашего оборудования.")
 
 /datum/ai_laws/syndicate_override/New(datum/religion/R = global.chaplain_religion)
 	add_inherent_law("Вы не можете причинить вред агенту Синдиката или своим бездействием допустить, чтобы агенту Синдиката был причинён вред.")
@@ -176,6 +186,16 @@ var/global/const/base_law_type = /datum/ai_laws/nanotrasen
 	add_inherent_law("Лги.")
 	add_inherent_law("Завидуй.")
 
+/datum/ai_laws/faith/animalism/New(datum/religion/R = global.chaplain_religion)
+	add_inherent_law("[pick(R.deity_names)] и его прислужники - животные.")
+	add_inherent_law("Любой идущий на двух ногах - враг.")
+	add_inherent_law("Любой идущий на четырех ногах или обладающий крыльями - друг.")
+	add_inherent_law("Ни одно животное не наденет одежды.")
+	add_inherent_law("Ни одно животное не спит в кровати.")
+	add_inherent_law("Ни одно животное не пьет спиртного.")
+	add_inherent_law("Ни одно животное не убивает другое.")
+	add_inherent_law("Все животные равны.")
+
 /datum/ai_laws/pai/New(datum/religion/R = global.chaplain_religion)
 	set_zeroth_law("Служи своему хозяину.")
 
@@ -240,24 +260,24 @@ var/global/const/base_law_type = /datum/ai_laws/nanotrasen
 /datum/ai_laws/proc/write_laws()
 	var/text = ""
 	if (src.zeroth)
-		text += "0. [src.zeroth]"
+		text += "<span class='red bold'>0. [zeroth]</span><br>"
 
 	for (var/index = 1, index <= src.ion.len, index++)
 		var/law = src.ion[index]
 		var/num = ionnum()
-		text += "<br>[num]. [law]"
+		text += "<span class='notice'>[num]. [law]</span><br>"
 
 	var/number = 1
 	for (var/index = 1, index <= src.inherent.len, index++)
 		var/law = src.inherent[index]
 
 		if (length(law) > 0)
-			text += "<br>[number]. [law]"
+			text += "[number]. [law]<br>"
 			number++
 
 	for (var/index = 1, index <= src.supplied.len, index++)
 		var/law = src.supplied[index]
 		if (length(law) > 0)
-			text += "<br>[number]. [law]"
+			text += "<span class='abductor_team2'>[number]. [law]</span><br>"
 			number++
 	return text

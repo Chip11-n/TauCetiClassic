@@ -2,7 +2,6 @@
 	layer = TURF_LAYER
 	plane = GAME_PLANE
 
-	var/level = 2
 	var/flags = 0
 	var/flags_2 = 0
 	var/list/fingerprints
@@ -29,6 +28,9 @@
 	var/list/remove_overlays
 	/// a very temporary list of overlays to add
 	var/list/add_overlays
+
+	/// parallax thing
+	var/list/clients_in_contents
 
 	///This atom's HUD (med/sec, etc) images. Associative list.
 	var/list/image/hud_list = null
@@ -66,7 +68,14 @@
 	///Damage under this value will be completely ignored
 	var/damage_deflection = 0
 
+	///How much this atom resists explosions by, in the end
+	///In terms of explosion, you can read it as additional distance for explosion to spend on this turf
+	var/explosive_resistance = 0
+
 	var/resistance_flags = FULL_INDESTRUCTIBLE // INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | ON_FIRE | UNACIDABLE | ACID_PROOF
+
+	var/can_block_air = FALSE // shared flag between /turf/s and /movable/s, you should use it only for movables
+	                          // if you want to set it true for object then remember to create CanPass or c_airblock methods or it will do nothing (pls refactor it)
 
 /atom/New(loc, ...)
 	if(use_preloader && (src.type == _preloader.target_path))//in case the instanciated atom is creating other atoms in New()
@@ -97,8 +106,12 @@
 // /turf/atom_init
 // /turf/environment/space/atom_init
 // /mob/dead/atom_init
+// /obj/item/atom_init
+// /atom/movable/screen/atom_init
 
-//Do also note that this proc always runs in New for /mob/dead
+// Read commentary above if you want to create:
+// /atom/movable/atom_init
+
 /atom/proc/atom_init(mapload, ...)
 	SHOULD_NOT_SLEEP(TRUE)
 	SHOULD_CALL_PARENT(TRUE)
@@ -109,9 +122,14 @@
 	if(light_power && light_range)
 		update_light()
 
-	if(opacity && isturf(src.loc))
-		var/turf/T = src.loc
+	if(opacity && isturf(loc))
+		var/turf/T = loc
 		T.has_opaque_atom = TRUE // No need to recalculate it in this case, it's guaranteed to be on afterwards anyways.
+
+	if(can_block_air && isturf(loc))
+		var/turf/T = loc
+		if(!T.can_block_air)
+			T.can_block_air = TRUE
 
 	if(uses_integrity)
 		if (!armor)
@@ -202,17 +220,6 @@
 /atom/proc/can_add_container()
 	return flags & INSERT_CONTAINER
 */
-
-/atom/proc/can_mob_interact(mob/user)
-	if (ishuman(user))
-		var/mob/living/carbon/human/H = user
-		if(H.getBrainLoss() >= 60)
-			user.visible_message("<span class='warning'>[H] stares cluelessly at [isturf(loc) ? src : ismob(loc) ? src : "something"] and drools.</span>")
-			return FALSE
-		else if(prob(H.getBrainLoss()))
-			to_chat(user, "<span class='warning'>You momentarily forget how to use [src].</span>")
-			return FALSE
-	return TRUE
 
 /atom/proc/allow_drop()
 	return 1
@@ -349,6 +356,8 @@
 	return
 
 /atom/proc/ex_act()
+	//SHOULD_NOT_SLEEP(TRUE) // todo
+	set waitfor = FALSE
 	return
 
 /atom/proc/blob_act()
@@ -357,7 +366,8 @@
 /atom/proc/airlock_crush_act()
 	return
 
-/atom/proc/fire_act()
+// todo: exposed_temperature is only arg currently used, rest is some legacy (idk what they should do anyway)
+/atom/proc/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume)
 	return
 
 /atom/proc/singularity_act()
@@ -541,7 +551,7 @@
 	M.check_dna()
 	if(!blood_DNA || !istype(blood_DNA, /list))	//if our list of DNA doesn't exist yet (or isn't a list) initialise it.
 		blood_DNA = list()
-	add_dirt_cover(M.species.blood_datum)
+	add_dirt_cover(M.species.blood_datum, FALSE) // FALSE - dont call update_inv_slot in add_dirt_cover as it will be handled in human/add_blood or it will be double call and runtime
 
 /atom/proc/add_dirt_cover(dirt_datum)
 	SHOULD_CALL_PARENT(TRUE)
@@ -590,7 +600,7 @@
 /atom/proc/isinspace()
 	return isspaceturf(get_turf(src))
 
-/atom/proc/checkpass(passflag)
+/atom/proc/checkpass(passflag) // todo: define as macro
 	return pass_flags&passflag
 
 //This proc is called on the location of an atom when the atom is Destroy()'d
@@ -647,7 +657,7 @@
 			lube |= SLIDE_ICE
 
 		if(lube & SLIDE)
-			new /datum/forced_movement(C, get_ranged_target_turf(C, olddir, 4), 1, FALSE, CALLBACK(C, /mob/living/carbon/.proc/spin, 1, 1))
+			new /datum/forced_movement(C, get_ranged_target_turf(C, olddir, 4), 1, FALSE, CALLBACK(C, TYPE_PROC_REF(/mob/living/carbon, spin), 1, 1))
 			C.take_bodypart_damage(2) // Was 5 -- TLE
 		else if(lube & SLIDE_ICE)
 			var/has_NOSLIP = FALSE
@@ -719,15 +729,12 @@
 
 /atom/proc/shake_act(severity, recursive = TRUE)
 	if(isturf(loc))
-		INVOKE_ASYNC(src, /atom.proc/do_shake_animation, severity, 1 SECOND)
-
-/atom/movable/lighting_object/shake_act(severity, recursive = TRUE)
-	return
+		INVOKE_ASYNC(src, TYPE_PROC_REF(/atom, do_shake_animation), severity, 1 SECOND)
 
 /turf/shake_act(severity, recursive = TRUE)
 	for(var/atom/A in contents)
 		A.shake_act(severity - 1)
-	INVOKE_ASYNC(src, /atom.proc/do_shake_animation, severity, 1 SECOND)
+	INVOKE_ASYNC(src, TYPE_PROC_REF(/atom, do_shake_animation), severity, 1 SECOND)
 
 	if(severity >= 3)
 		for(var/dir_ in cardinal)
