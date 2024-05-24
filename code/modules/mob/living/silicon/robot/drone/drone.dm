@@ -75,7 +75,7 @@
 		to_chat(user, "<span class='warning'>The maintenance drone chassis not compatible with \the [W].</span>")
 		return
 
-	else if (iscrowbar(W))
+	else if (isprying(W))
 		to_chat(user, "The machine is hermetically sealed. You can't open the case.")
 		return
 
@@ -143,7 +143,7 @@
 	clear_supplied_laws()
 	clear_inherent_laws()
 	laws = new /datum/ai_laws/syndicate_override
-	set_zeroth_law("Only [user.real_name] and people he designates as being such are Syndicate Agents.")
+	set_zeroth_law("Только [user.real_name] и люди, которых он называет таковыми, - агенты Синдиката.")
 
 	to_chat(src, "<b>Obey these laws:</b>")
 	laws.show_laws(src)

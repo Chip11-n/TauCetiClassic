@@ -21,6 +21,7 @@
 	return INITIALIZE_HINT_LATELOAD
 
 /turf/simulated/floor/light/atom_init_late()
+	..()
 	update_icon()
 	name = initial(name)
 
@@ -36,19 +37,46 @@
 	name = "sand"
 	icon_state = "asteroid"
 
+/turf/simulated/floor/smoothtile
+	name = "smooth floor tile"
+	icon = 'icons/turf/floors/smooth/floortile.dmi'
+	icon_state = "center_8"
+	smooth = SMOOTH_TRUE
+
+/turf/simulated/floor/smoothtile/neutral
+	icon = 'icons/turf/floors/smooth/floortile_neutral.dmi'
+
+/turf/simulated/floor/smoothtile/white
+	icon = 'icons/turf/floors/smooth/floortile_white.dmi'
+
+/turf/simulated/floor/smoothtile/dark
+	icon = 'icons/turf/floors/smooth/floortile_dark.dmi'
+
 /turf/simulated/floor/engine
 	name = "reinforced floor"
-	icon_state = "engine"
+	icon = 'icons/turf/floors/smooth/hardfloor_1.dmi'
+	icon_state = "center_8"
 	thermal_conductivity = 0.025
 	footstep = FOOTSTEP_PLATING
+	smooth = SMOOTH_TRUE
 
-/turf/simulated/floor/goonplaque
-	name = "Comemmorative Plaque";
-	desc = "\"Это металлический диск в честь наших товарищей на станциях G4407. Недеемся модель TG4407 сможет служить на ваше благо.\" Ниже выцарапано грубое изображение метеора и космонавта. Космонавт смеется. Метеор взрывается.";
-	icon_state = "plaque";
+/turf/simulated/floor/engine/type2
+	icon = 'icons/turf/floors/smooth/hardfloor_2.dmi'
+
+/turf/simulated/floor/engine/type3
+	icon = 'icons/turf/floors/smooth/hardfloor_3.dmi'
+
+/turf/simulated/floor/engine/type4
+	icon = 'icons/turf/floors/smooth/hardfloor_4.dmi'
+
+/turf/simulated/floor/engine/break_tile()
+	return
+
+/turf/simulated/floor/engine/burn_tile()
+	return
 
 /turf/simulated/floor/engine/attackby(obj/item/weapon/C, mob/user)
-	if(iswrench(C))
+	if(iswrenching(C))
 		if(user.is_busy(src))
 			return
 		to_chat(user, "<span class='notice'>Вы начинаете удалять стержни.</span>")
@@ -112,7 +140,7 @@
 	name = "plating"
 	icon_state = "plating"
 	floor_type = null
-	intact = 0
+	underfloor_accessibility = UNDERFLOOR_INTERACTABLE
 	footstep = FOOTSTEP_PLATING
 
 /turf/simulated/floor/plating/airless
@@ -149,10 +177,13 @@
 	icon_state = "wall1"
 	opacity = 1
 	density = TRUE
-	blocks_air = 1
+	blocks_air = AIR_BLOCKED
+
+	explosive_resistance = 5
 
 /turf/simulated/shuttle/floor
 	name = "floor"
+	cases = list("пол", "пола", "полу", "пол", "полом", "поле")
 	icon_state = "floor"
 	footstep = FOOTSTEP_FLOOR
 	barefootstep = FOOTSTEP_HARD_BAREFOOT
@@ -167,6 +198,8 @@
 	barefootstep = FOOTSTEP_HARD_BAREFOOT
 	clawfootstep = FOOTSTEP_HARD_CLAW
 	heavyfootstep = FOOTSTEP_GENERIC_HEAVY
+
+	explosive_resistance = 1
 
 /turf/simulated/shuttle/floor4 // Added this floor tile so that I have a seperate turf to check in the shuttle -- Polymorph
 	name = "Brig floor"        // Also added it into the 2x3 brig area of the shuttle.
@@ -207,12 +240,15 @@
 	barefootstep = FOOTSTEP_WATER_DEEP
 	clawfootstep = FOOTSTEP_WATER_DEEP
 	heavyfootstep = FOOTSTEP_WATER_DEEP
-	slowdown = 6
-
-
+	static_fluid_depth  = 800
 
 /turf/simulated/floor/beach/water/waterpool
 	icon_state = "seadeep"
+
+/turf/simulated/floor/beach/water/waterpool/atom_init()
+	. = ..()
+	AddComponent(/datum/component/fishing, list(/obj/item/clothing/mask/snorkel = 10, /obj/item/clothing/shoes/swimmingfins = 10, /obj/item/weapon/bikehorn/rubberducky = 10, /obj/item/clothing/under/bathtowel = 10, /obj/item/weapon/reagent_containers/food/snacks/soap = 5, /mob/living/simple_animal/hostile/xenomorph = 1), 10 SECONDS, rand(1, 3) , 20)
+
 
 /turf/simulated/floor/beach/water/waterpool/Entered(atom/movable/AM, atom/old_loc)
 	..()
@@ -228,7 +264,9 @@
 	return
 
 /mob/living/carbon/human/exited_water_turf()
-	Stun(2)
+	SEND_SIGNAL(src, COMSIG_HUMAN_EXITED_WATER)
+	if(get_species() != SKRELL)
+		Stun(2)
 	playsound(src, 'sound/effects/water_turf_exited_mob.ogg', VOL_EFFECTS_MASTER)
 
 /mob/living/silicon/robot/exited_water_turf()
@@ -243,7 +281,9 @@
 		playsound(src, 'sound/effects/water_turf_entered_obj.ogg', VOL_EFFECTS_MASTER)
 
 /mob/living/carbon/human/entered_water_turf()
-	Stun(2)
+	SEND_SIGNAL(src, COMSIG_HUMAN_ENTERED_WATER)
+	if(get_species() != SKRELL)
+		Stun(2)
 	playsound(src, 'sound/effects/water_turf_entered_mob.ogg', VOL_EFFECTS_MASTER)
 	wear_suit?.make_wet()
 	w_uniform?.make_wet()
@@ -276,6 +316,17 @@
 /turf/simulated/floor/beach/water/burn_tile()
 	return
 
+// indoor wariant of asteroid turfs
+// todo: craft
+// todo: rename?
+// todo: why flood.dmi icons, and not asteroid.dmi
+/turf/simulated/floor/garden
+	icon_state = "asteroid"
+
+/turf/simulated/floor/garden/atom_init()
+	. = ..()
+	icon_regular_floor = icon_state // because some stupid hardcode in parent init, asteroid states are ignored for icon_regular_floor
+
 /turf/simulated/floor/grass
 	name = "Grass patch"
 	icon_state = "grass1"
@@ -290,73 +341,28 @@
 	return INITIALIZE_HINT_LATELOAD
 
 /turf/simulated/floor/grass/atom_init_late()
+	..()
 	update_icon()
 	for(var/direction in cardinal)
 		if(istype(get_step(src,direction),/turf/simulated/floor))
 			var/turf/simulated/floor/FF = get_step(src,direction)
 			FF.update_icon() //so siding get updated properly
 
-/turf/simulated/floor/carpet
-	name = "carpet"
-	icon_state = "carpet"
-	floor_type = /obj/item/stack/tile/carpet
-	icon = 'icons/turf/carpets.dmi'
-	footstep = FOOTSTEP_CARPET
-	barefootstep = FOOTSTEP_CARPET_BAREFOOT
-	clawfootstep = FOOTSTEP_CARPET_BAREFOOT
+/turf/simulated/floor/fairy
+	name = "fairygrass patch"
+	desc = "Something about this grass makes you want to frolic. Or get high."
+	icon_state = "fairygrass1"
+	floor_type = /obj/item/stack/tile/fairygrass
+	light_range = 2
+	light_power = 0.80
+	light_color = COLOR_BLUE_LIGHT
+	footstep = FOOTSTEP_GRASS
+	barefootstep = FOOTSTEP_GRASS
+	clawfootstep = FOOTSTEP_GRASS
 
-/turf/simulated/floor/carpet/black
-	name = "black carpet"
-	icon_state = "blackcarpet"
-	floor_type = /obj/item/stack/tile/carpet/black
-
-/turf/simulated/floor/carpet/purple
-	name = "purple carpet"
-	icon_state = "purplecarpet"
-	floor_type = /obj/item/stack/tile/carpet/purple
-
-/turf/simulated/floor/carpet/orange
-	name = "orange carpet"
-	icon_state = "orangecarpet"
-	floor_type = /obj/item/stack/tile/carpet/orange
-
-/turf/simulated/floor/carpet/green
-	name = "green carpet"
-	icon_state = "greencarpet"
-	floor_type = /obj/item/stack/tile/carpet/green
-
-/turf/simulated/floor/carpet/blue
-	name = "blue carpet"
-	icon_state = "bluecarpet"
-	floor_type = /obj/item/stack/tile/carpet/blue
-
-/turf/simulated/floor/carpet/blue2
-	name = "blue carpet"
-	icon_state = "blue2carpet"
-	floor_type = /obj/item/stack/tile/carpet/blue2
-
-/turf/simulated/floor/carpet/red
-	name = "red carpet"
-	icon_state = "redcarpet"
-	floor_type = /obj/item/stack/tile/carpet/red
-
-/turf/simulated/floor/carpet/cyan
-	name = "cyan carpet"
-	icon_state = "cyancarpet"
-	floor_type = /obj/item/stack/tile/carpet/cyan
-
-/turf/simulated/floor/carpet/atom_init()
-	if(!icon_state)
-		icon_state = "carpet"
-	..()
-	return INITIALIZE_HINT_LATELOAD
-
-/turf/simulated/floor/carpet/atom_init_late()
+/turf/simulated/floor/fairy/atom_init()
+	. = ..()
 	update_icon()
-	for(var/direction in list(1,2,4,8,5,6,9,10))
-		if(istype(get_step(src,direction),/turf/simulated/floor))
-			var/turf/simulated/floor/FF = get_step(src,direction)
-			FF.update_icon() //so siding get updated properly
 
 /turf/simulated/floor/plating/ironsand
 	name = "Iron Sand"
@@ -367,8 +373,18 @@
 	clawfootstep = FOOTSTEP_SAND
 	can_deconstruct = FALSE
 
-/turf/simulated/floor/plating/ironsand/ex_act()
-	return 0
+/turf/simulated/floor/plating/ironsand/ex_act(severity)
+	for(var/thing in contents)
+		var/atom/movable/movable_thing = thing
+		if(QDELETED(movable_thing))
+			continue
+		switch(severity)
+			if(EXPLODE_DEVASTATE)
+				SSexplosions.high_mov_atom += movable_thing
+			if(EXPLODE_HEAVY)
+				SSexplosions.med_mov_atom += movable_thing
+			if(EXPLODE_LIGHT)
+				SSexplosions.low_mov_atom += movable_thing
 
 /turf/simulated/floor/plating/ironsand/burn_tile()
 	return 0
@@ -388,7 +404,17 @@
 	can_deconstruct = FALSE
 
 /turf/simulated/floor/plating/snow/ex_act(severity)
-	return
+	for(var/thing in contents)
+		var/atom/movable/movable_thing = thing
+		if(QDELETED(movable_thing))
+			continue
+		switch(severity)
+			if(EXPLODE_DEVASTATE)
+				SSexplosions.high_mov_atom += movable_thing
+			if(EXPLODE_HEAVY)
+				SSexplosions.med_mov_atom += movable_thing
+			if(EXPLODE_LIGHT)
+				SSexplosions.low_mov_atom += movable_thing
 
 // CATWALKS
 // Space and plating, all in one buggy fucking turf!
@@ -400,21 +426,26 @@
 
 	thermal_conductivity = OPEN_HEAT_TRANSFER_COEFFICIENT
 	heat_capacity = HEAT_CAPACITY_VACUUM
-	intact = 0
+	underfloor_accessibility = UNDERFLOOR_INTERACTABLE
 	footstep = FOOTSTEP_CATWALK
+
+	var/image/environment_underlay
+
+	level_light_source = TRUE
 
 /turf/simulated/floor/plating/airless/catwalk/atom_init()
 	. = ..()
 	update_icon(1)
 
-	var/env_light_color = SSenvironment.turf_light_color[z]
-	if(env_light_color)
-		set_light(1.5, l_color = env_light_color)
+/turf/simulated/floor/plating/airless/catwalk/Destroy()
+	environment_underlay = null
+	return ..()
 
 /turf/simulated/floor/plating/airless/catwalk/update_icon(propogate=1)
-	underlays.Cut()
-	var/image/I = SSenvironment.turf_image[z]
-	underlays += I
+	if(environment_underlay)
+		underlays -= environment_underlay
+	environment_underlay = SSenvironment.turf_image[z]
+	underlays |= environment_underlay
 
 	var/dirs = 0
 	for(var/direction in cardinal)
@@ -428,5 +459,3 @@
 
 /turf/simulated/floor/plating/airless/catwalk/is_catwalk()
 	return TRUE
-
-/turf/simulated/floor/exodus

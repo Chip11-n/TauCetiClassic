@@ -13,15 +13,17 @@
 	if(!impact_area)
 		CRASH("No valid areas for anomaly found.")
 	var/list/turf_test = get_area_turfs(impact_area)
-	if(!turf_test)
+	if(!turf_test || !turf_test.len)
 		CRASH("Anomaly : No valid turfs found for [impact_area] - [impact_area.type]")
 
 /datum/event/anomaly/start()
 	var/list/turfs = get_area_turfs(impact_area)
-	if(!turfs)
+	if(!turfs || !turfs.len)
 		return
 	var/turf/T = pick(turfs)
 	newAnomaly = new anomaly_type(T)
+	if (newAnomaly)
+		notify_ghosts("[newAnomaly] in [get_area(newAnomaly)]!", source=newAnomaly, action=NOTIFY_ORBIT, header="[newAnomaly]")
 
 /datum/event/anomaly/tick()
 	if(QDELETED(newAnomaly))

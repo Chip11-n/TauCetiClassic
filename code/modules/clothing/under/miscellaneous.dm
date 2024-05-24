@@ -3,14 +3,14 @@
 	desc = "Sleepwear."
 	icon_state = "red_pyjamas"
 	item_state = "red_pyjamas"
-	flags = ONESIZEFITSALL
+	flags = ONESIZEFITSALL|HEAR_TALK
 
 /obj/item/clothing/under/pj/blue
 	name = "blue pj's"
 	desc = "Sleepwear."
 	icon_state = "blue_pyjamas"
 	item_state = "blue_pyjamas"
-	flags = ONESIZEFITSALL
+	flags = ONESIZEFITSALL|HEAR_TALK
 
 /obj/item/clothing/under/captain_fly
 	name = "rogue captains uniform"
@@ -34,14 +34,14 @@
 	desc = "It's a very smart uniform with a special pocket for tip."
 	icon_state = "waiter"
 	item_state = "waiter"
-	flags = ONESIZEFITSALL
+	flags = ONESIZEFITSALL|HEAR_TALK
 
 /obj/item/clothing/under/tourist
 	name = "hawaiian shirt"
 	desc = "How gauche."
 	icon_state = "tourist"
 	item_state = "tourist"
-	flags = ONESIZEFITSALL
+	flags = ONESIZEFITSALL|HEAR_TALK
 
 /obj/item/clothing/under/rank/mailman
 	name = "mailman's jumpsuit"
@@ -61,7 +61,7 @@
 	desc = "It's the standard issue pretty-boy outfit, as seen on Holo-Vision."
 	icon_state = "vice"
 	item_state = "vice"
-	flags = ONESIZEFITSALL
+	flags = ONESIZEFITSALL|HEAR_TALK
 
 /obj/item/clothing/under/rank/centcom_officer
 	desc = "It's a jumpsuit worn by CentCom Officers."
@@ -110,20 +110,20 @@
 	name = "owl uniform"
 	desc = "A jumpsuit with owl wings. Photorealistic owl feathers! Twooooo!"
 	icon_state = "owl"
-	flags = ONESIZEFITSALL
+	flags = ONESIZEFITSALL|HEAR_TALK
 
 /obj/item/clothing/under/johnny
 	name = "johnny~~ jumpsuit"
 	desc = "Johnny~~"
 	icon_state = "johnny"
-	flags = ONESIZEFITSALL
+	flags = ONESIZEFITSALL|HEAR_TALK
 
 /obj/item/clothing/under/rainbow
 	name = "rainbow"
 	desc = "rainbow"
 	icon_state = "rainbow"
 	item_state = "rainbow"
-	flags = ONESIZEFITSALL
+	flags = ONESIZEFITSALL|HEAR_TALK
 
 /obj/item/clothing/under/psysuit
 	name = "dark undersuit"
@@ -143,14 +143,14 @@
 	desc = "A green suit and yellow necktie. Exemplifies authority."
 	icon_state = "green_suit"
 	item_state = "green_suit"
-	flags = ONESIZEFITSALL
+	flags = ONESIZEFITSALL|HEAR_TALK
 
 /obj/item/clothing/under/gimmick/rank/head_of_personnel/suit
 	name = "head of personnel's suit"
 	desc = "A teal suit and yellow necktie. An authoritative yet tacky ensemble."
 	icon_state = "teal_suit"
 	item_state = "teal_suit"
-	flags = ONESIZEFITSALL
+	flags = ONESIZEFITSALL|HEAR_TALK
 
 /obj/item/clothing/under/suit_jacket
 	name = "black suit"
@@ -183,7 +183,7 @@
 	desc = "A red suit and blue tie. Somewhat formal."
 	icon_state = "red_suit"
 	item_state = "red_suit"
-	flags = ONESIZEFITSALL
+	flags = ONESIZEFITSALL|HEAR_TALK
 
 /obj/item/clothing/under/suit_jacket/charcoal
 	name = "charcoal suit"
@@ -226,7 +226,7 @@
 	desc = "A  suit and jacket with a jeans. For the bad guy!"
 	icon_state = "rogue_jacket"
 	item_state = "rogue_jacket"
-	flags = ONESIZEFITSALL
+	flags = ONESIZEFITSALL|HEAR_TALK
 
 /obj/item/clothing/under/blackskirt
 	name = "black skirt"
@@ -351,21 +351,21 @@
 	name = "captain dress uniform"
 	desc = "Feminine fashion for the style concious captain."
 	icon_state = "dress_cap"
-	flags = ONESIZEFITSALL
+	flags = ONESIZEFITSALL|HEAR_TALK
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|ARMS
 
 /obj/item/clothing/under/dress/dress_hop
 	name = "head of personal dress uniform"
 	desc = "Feminine fashion for the style concious HoP."
 	icon_state = "dress_hop"
-	flags = ONESIZEFITSALL
+	flags = ONESIZEFITSALL|HEAR_TALK
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|ARMS
 
 /obj/item/clothing/under/dress/dress_hr
 	name = "human resources director uniform"
 	desc = "Superior class for the nosy H.R. Director."
 	icon_state = "huresource"
-	flags = ONESIZEFITSALL
+	flags = ONESIZEFITSALL|HEAR_TALK
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|ARMS
 
 /obj/item/clothing/under/dress/cheongsam // Mai Yang's pretty pretty dress.
@@ -389,19 +389,19 @@
 	name = "blue plaid skirt"
 	desc = "A preppy blue skirt with a white blouse."
 	icon_state = "plaid_blue"
-	flags = ONESIZEFITSALL
+	flags = ONESIZEFITSALL|HEAR_TALK
 
 /obj/item/clothing/under/dress/plaid_red
 	name = "red plaid skirt"
 	desc = "A preppy red skirt with a white blouse."
 	icon_state = "plaid_red"
-	flags = ONESIZEFITSALL
+	flags = ONESIZEFITSALL|HEAR_TALK
 
 /obj/item/clothing/under/dress/plaid_purple
 	name = "blue purple skirt"
 	desc = "A preppy purple skirt with a white blouse."
 	icon_state = "plaid_purple"
-	flags = ONESIZEFITSALL
+	flags = ONESIZEFITSALL|HEAR_TALK
 
 //wedding stuff
 /obj/item/clothing/under/wedding
@@ -445,33 +445,17 @@
 	item_state = "sundress"
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO
 
-/obj/item/clothing/under/rank/mecha_operator
-	desc = "It's a slimming black with reinforced seams."
-	name = "pilot's jumpsuit"
-	icon_state = "robotics2"
-	item_state = "robotics"
-	flags = ONESIZEFITSALL
-
 /obj/item/clothing/under/rank/cadet
 	desc = ""
 	name = "security cadet's uniform"
 	icon_state = "cadet"
 	item_state = "cadet"
-	flags = ONESIZEFITSALL
+	flags = ONESIZEFITSALL|HEAR_TALK
 
 /obj/item/clothing/under/rank/cadet/skirt
 	name = "security cadet's jumpskirt"
 	icon_state = "skirt_cadet"
 	item_state = "skirt_cadet"
-
-/obj/item/clothing/under/rank/forensic_technician
-	desc = "It has a Forensics rank stripe on it."
-	name = "forensics jumpsuit"
-	icon_state = "forensicsred"
-	item_state = "forensicsred"
-	armor = list(melee = 10, bullet = 0, laser = 0,energy = 0, bomb = 0, bio = 0, rad = 0)
-	flags = ONESIZEFITSALL
-	siemens_coefficient = 0.9
 
 /obj/item/clothing/under/rank/cargo_fem
 	name = "quartermaster's dress"
@@ -514,12 +498,6 @@
 	icon_state = "bar_f"
 	item_state = "bar_f"
 
-/obj/item/clothing/under/kimono
-	name = "kimono"
-	icon_state = "kimono"
-	item_state = "kimono"
-	body_parts_covered = UPPER_TORSO|LOWER_TORSO
-
 /obj/item/clothing/under/blacktango
 	name = "black tango dress"
 	desc = "Filled with latin fire."
@@ -556,12 +534,6 @@
 	desc = "The big drum sounds good only from a distance."
 	icon_state = "mafia_tan"
 	item_state = "mafia_tan"
-
-/obj/item/clothing/under/mafia/flappers
-	name = "flappers"
-	desc = "Nothing like the roaring 20s, flapping the night away on the dance floor."
-	icon_state = "flapper"
-	item_state = "flapper"
 
 /obj/item/clothing/under/rank/capcamsole
 	desc = "It's a blue feminine camisole with some gold markings denoting the rank of \"Captain\" and gold aquila on it."
@@ -694,13 +666,6 @@
 	item_state = "M35_Filde_Jacket_Officer"
 	armor = list(melee = 10, bullet = 5, laser = 5,energy = 5, bomb = 0, bio = 10, rad = 0)
 
-/obj/item/clothing/under/Waffen_SS_Form
-	name = "Waffen SS Form"
-	desc = "A special uniform for the SS."
-	icon_state = "SS_Form"
-	item_state = "SS_Form"
-	armor = list(melee = 10, bullet = 5, laser = 5,energy = 5, bomb = 0, bio = 10, rad = 0)
-
 /obj/item/clothing/under/jackbros
 	name = "jack bros outfit"
 	desc = "For when it's time to hee some hos."
@@ -740,14 +705,6 @@
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|ARMS|HEAD
 	flags_inv = HIDEGLOVES|HIDESHOES|HIDEEARS|HIDEEYES
 
-/obj/item/clothing/under/henchmen/equipped(mob/user, slot)
-	. = ..()
-	if(ishuman(user))
-		var/mob/living/carbon/human/H = user
-		H.update_hair()
-		H.update_inv_ears()
-		H.update_inv_wear_mask()
-
 /obj/item/clothing/shoes/yakuza
 	name = "tojo clan shoes"
 	desc = "Steel-toed and intimidating."
@@ -770,13 +727,13 @@
 	item_state = "test_subject"
 	has_sensor = 2
 	sensor_mode = SUIT_SENSOR_TRACKING
-	flags = ONESIZEFITSALL
+	flags = ONESIZEFITSALL|HEAR_TALK
 
 /obj/item/clothing/under/indiana
 	name = "leather suit"
 	icon_state = "indiana"
 	item_state = "indiana"
-	flags = ONESIZEFITSALL
+	flags = ONESIZEFITSALL|HEAR_TALK
 
 /obj/item/clothing/under/cowboy
 	name = "western suit"
@@ -797,3 +754,12 @@
 	desc = "Pair of old jeans combined with a red tank-top"
 	icon_state = "kung_suit"
 	w_class = SIZE_SMALL
+
+/obj/item/clothing/under/durathread
+	name = "durathread suit"
+	desc = "Made from duratread. It's made of a slightly sturdier material than standard jumpsuits, to allow for robust protection."
+	icon_state = "Durauniform"
+	item_state = "Durauniform"
+	flags = ONESIZEFITSALL|HEAR_TALK
+	siemens_coefficient = 0.8
+	armor = list(melee = 5, bullet = 0, laser = 5, energy = 5, bomb = 0, bio = 0, rad = 0)

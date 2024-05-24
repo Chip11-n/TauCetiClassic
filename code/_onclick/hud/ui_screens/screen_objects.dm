@@ -21,6 +21,17 @@
 	var/hud_slot = HUD_SLOT_ADDING
 	var/copy_flags = ALL
 
+/**
+  * Doesn't call parent, see [/atom/proc/atom_init]
+  */
+/atom/movable/screen/atom_init(mapload)
+	SHOULD_CALL_PARENT(FALSE)
+	if(initialized)
+		stack_trace("Warning: [src]([type]) initialized multiple times!")
+	initialized = TRUE
+
+	return INITIALIZE_HINT_NORMAL
+
 /atom/movable/screen/Destroy()
 	master = null
 	return ..()
@@ -154,7 +165,7 @@
 	cooldown_time = delay
 	set_maptext(cooldown_time)
 	if(need_timer)
-		timer = addtimer(CALLBACK(src, .proc/tick), 1 SECOND, TIMER_STOPPABLE)
+		timer = addtimer(CALLBACK(src, PROC_REF(tick)), 1 SECOND, TIMER_STOPPABLE)
 
 /atom/movable/screen/cooldown_overlay/proc/tick()
 	if(cooldown_time == 1)
@@ -163,7 +174,7 @@
 	cooldown_time--
 	set_maptext(cooldown_time)
 	if(timer)
-		timer = addtimer(CALLBACK(src, .proc/tick), 1 SECOND, TIMER_STOPPABLE)
+		timer = addtimer(CALLBACK(src, PROC_REF(tick)), 1 SECOND, TIMER_STOPPABLE)
 
 /atom/movable/screen/cooldown_overlay/proc/stop_cooldown()
 	if(cooldown_time == 0)

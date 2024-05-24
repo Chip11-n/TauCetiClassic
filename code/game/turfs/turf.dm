@@ -1,10 +1,16 @@
 /turf
 	icon = 'icons/turf/floors.dmi'
-	level = 1.0
+	
+	// base turf luminosity, works against byond native darkness
+	// most likely you shouldn't touch it
+	// currently direcly used only by starlight/environment lighting
+	// dynamic lighting subsystem uses lighting_object's for luminosity
+	luminosity = 0
+
 	var/turf/basetype = /turf/environment/space
-	//for floors, use is_plating(), is_plasteel_floor() and is_light_floor()
-	var/intact = 1
 	var/can_deconstruct = FALSE
+
+	var/underfloor_accessibility = UNDERFLOOR_HIDDEN
 
 	//Properties for open tiles (/floor)
 	var/airless = FALSE
@@ -20,7 +26,7 @@
 	//Properties for both
 	var/temperature = T20C
 
-	var/blocks_air = 0
+	var/blocks_air = NONE
 	var/icon_old = null
 	var/pathweight = 1
 
@@ -34,6 +40,25 @@
 	var/barefootstep
 	var/clawfootstep
 	var/heavyfootstep
+
+	//Depth for water turf and liqud`s
+	var/static_fluid_depth = null
+
+	var/list/turf_decals
+
+	var/level_light_source = FALSE
+
+	var/tmp/lighting_corners_initialised = FALSE
+
+	///Our lighting object.
+	var/tmp/atom/movable/lighting_object/lighting_object
+	///Lighting Corner datums.
+	var/tmp/datum/lighting_corner/lighting_corner_NE
+	var/tmp/datum/lighting_corner/lighting_corner_SE
+	var/tmp/datum/lighting_corner/lighting_corner_SW
+	var/tmp/datum/lighting_corner/lighting_corner_NW
+
+	var/tmp/has_opaque_atom = FALSE // Not to be confused with opacity, this will be TRUE if there's any opaque atom on the tile.
 
 /**
   * Turf Initialize
@@ -51,6 +76,9 @@
 
 	for(var/atom/movable/AM in src)
 		Entered(AM)
+
+	if(level_light_source)
+		LEVEL_LIGHTING_SOURCE(src)
 
 	if(light_power && light_range)
 		update_light()
@@ -91,47 +119,114 @@
 	else if(istype(Proj ,/obj/item/projectile/bullet/gyro))
 		explosion(src, -1, 0, 2)
 
-/turf/Enter(atom/movable/mover as mob|obj, atom/forget as mob|obj|turf|area)
+/proc/get_exit_bump_target(turf/T, atom/movable/mover as mob|obj)
+	// Obstacle to use if no preferred target is found
+	var/atom/rollback_obstacle = null
+	var/turf/mover_loc = mover.loc
+	// First, check objects to block exit (not on border priority)
+	for(var/obj/obstacle as anything in mover_loc)
+		if(mover != obstacle)
+			if(!obstacle.CheckExit(mover, T))
+				if(obstacle.flags & ON_BORDER)
+					if(isnull(rollback_obstacle))
+						rollback_obstacle = obstacle
+				else
+					return obstacle
+
+	return rollback_obstacle // obstacle on border or null
+
+/proc/get_projectile_bump_target(turf/T, obj/item/projectile/mover)
+	// Obstacle to use if no preferred target is found
+	var/atom/rollback_obstacle
+
+	// First check objects to block exit
+	rollback_obstacle = get_exit_bump_target(T, mover)
+
+	if(rollback_obstacle)
+		return rollback_obstacle
+
+	var/mob/living/alive_obstacle
+	var/turf/mover_loc = mover.loc
+	var/atom/priority_target = mover.original
+
+	// Then check priority target if it on the tile
+	if(!isturf(priority_target) && priority_target.loc == T)
+		if(isliving(priority_target))
+			if(!mover.check_miss(priority_target))
+				alive_obstacle = priority_target
+		else
+			rollback_obstacle = priority_target
+
+	// Then check objects to block entry (on border priority)
+	for(var/atom/movable/obstacle as anything in T)
+		if(!obstacle.CanPass(mover, mover_loc, 1))
+			if(!(obstacle in mover.permutated) && (obstacle != mover.firer))
+				if(obstacle.flags & ON_BORDER)
+					return obstacle
+				if(isnull(alive_obstacle))
+					if(isliving(obstacle) && obstacle != priority_target) // living and we haven't missed it before
+						var/mob/living/L = obstacle
+						if(L.stat != DEAD)
+							if(!mover.check_miss(L))
+								alive_obstacle = obstacle
+							continue
+					if(isnull(rollback_obstacle))
+						rollback_obstacle = obstacle
+
+	// Then living on turf
+	if(alive_obstacle)
+		return alive_obstacle
+
+	// Then check the turf itself
+	if (!T.CanPass(mover, T))
+		return T
+
+	// Not living and not on border obstacle, or null
+	return rollback_obstacle
+
+/proc/get_bump_target(turf/T, atom/movable/mover as mob|obj)
+	// Obstacle to use if no preferred target is found
+	var/atom/rollback_obstacle
+
+	// First check objects to block exit
+	rollback_obstacle = get_exit_bump_target(T, mover)
+
+	if(rollback_obstacle)
+		return rollback_obstacle
+
+	var/turf/mover_loc = mover.loc
+	// Then check objects to block entry (on border priority)
+	for(var/atom/movable/obstacle as anything in T)
+		if(!obstacle.CanPass(mover, mover_loc, 1))
+			if(obstacle.flags & ON_BORDER)
+				return obstacle
+			else if(isnull(rollback_obstacle))
+				rollback_obstacle = obstacle
+
+	// Then check the turf itself
+	if (!T.CanPass(mover, T))
+		return T
+
+	// Obstacle not on border or null
+	return rollback_obstacle
+
+/turf/Enter(atom/movable/mover as mob|obj, atom/old_loc as mob|obj|turf)
 	if(movement_disabled && usr.ckey != movement_disabled_exception)
 		to_chat(usr, "<span class='warning'>Передвижение отключено администрацией.</span>")//This is to identify lag problems
-		return
-	if (!mover || !isturf(mover.loc))
-		return 1
+		return FALSE
 
+	var/atom/bump_target
 
-	//First, check objects to block exit that are not on the border
-	for(var/obj/obstacle in mover.loc)
-		if(!(obstacle.flags & ON_BORDER) && (mover != obstacle) && (forget != obstacle))
-			if(!obstacle.CheckExit(mover, src))
-				mover.Bump(obstacle, 1)
-				return 0
+	if(istype(mover, /obj/item/projectile))
+		bump_target = get_projectile_bump_target(src, mover)
+	else
+		bump_target = get_bump_target(src, mover)
 
-	//Now, check objects to block exit that are on the border
-	for(var/obj/border_obstacle in mover.loc)
-		if((border_obstacle.flags & ON_BORDER) && (mover != border_obstacle) && (forget != border_obstacle))
-			if(!border_obstacle.CheckExit(mover, src))
-				mover.Bump(border_obstacle, 1)
-				return 0
+	if(bump_target)
+		mover.Bump(bump_target, TRUE)
+		return FALSE
 
-	//Next, check objects to block entry that are on the border
-	for(var/obj/border_obstacle in src)
-		if(border_obstacle.flags & ON_BORDER)
-			if(!border_obstacle.CanPass(mover, mover.loc, 1, 0) && (forget != border_obstacle))
-				mover.Bump(border_obstacle, 1)
-				return 0
-
-	//Then, check the turf itself
-	if (!CanPass(mover, src))
-		mover.Bump(src, 1)
-		return 0
-
-	//Finally, check objects/mobs to block entry that are not on the border
-	for(var/atom/movable/obstacle in src)
-		if(!(obstacle.flags & ON_BORDER))
-			if(!obstacle.CanPass(mover, mover.loc, 1, 0) && (forget != obstacle))
-				mover.Bump(obstacle, 1)
-				return 0
-	return 1 //Nothing found to block so return success!
+	return TRUE
 
 /turf/proc/is_mob_placeable(mob/M) // todo: maybe rewrite as COMSIG_ATOM_INTERCEPT_TELEPORT
 	if(density)
@@ -154,7 +249,6 @@
 	if(!istype(AM, /atom/movable))
 		return
 
-	var/loopsanity = 100
 	if(ismob(AM))
 		var/mob/M = AM
 		if(!M.lastarea)
@@ -167,15 +261,8 @@
 		recalc_atom_opacity() // Make sure to do this before reconsider_lights(), incase we're on instant updates.
 		reconsider_lights()
 
-	var/objects = 0
-	for(var/atom/O as mob|obj|turf|area in range(1))
-		if(objects > loopsanity)	break
-		objects++
-		spawn( 0 )
-			if ((O && AM))
-				O.HasProximity(AM, 1)
-			return
-	return
+	if(AM?.can_block_air && !can_block_air)
+		can_block_air = TRUE
 
 /turf/Exited(atom/movable/Obj, atom/newloc)
 	. = ..()
@@ -203,19 +290,15 @@
 	return 0
 /turf/proc/is_catwalk()
 	return 0
-/turf/proc/return_siding_icon_state()		//used for grass floors, which have siding.
-	return 0
 
 /turf/proc/levelupdate()
 	for(var/obj/O in src)
-		if(O.level == 1)
-			O.hide(src.intact)
+		if(O.initialized)
+			SEND_SIGNAL(O, COMSIG_OBJ_LEVELUPDATE, underfloor_accessibility)
 
 // override for environment turfs, since they should never hide anything
 /turf/environment/levelupdate()
-	for(var/obj/O in src)
-		if(O.level == 1)
-			O.hide(0)
+	return
 
 // Removes all signs of lattice on the pos of the turf -Donkieyo
 /turf/proc/RemoveLattice()
@@ -240,6 +323,8 @@
 	if (!path)
 		return
 
+	clean_turf_decals()
+
 	/*if(istype(src, path))
 		stack_trace("Warning: [src]([type]) changeTurf called for same turf!")
 		return*/
@@ -257,17 +342,19 @@
 	// BYOND never deletes turfs, when you "delete" a turf, it actually morphs the turf into a new one.
 	// Running procs do NOT get stopped due to this.
 	var/old_opacity = opacity
-	var/old_dynamic_lighting = dynamic_lighting
-	var/old_force_lighting_update = force_lighting_update
-	var/old_affecting_lights = affecting_lights
 	var/old_lighting_object = lighting_object
-	var/old_corners = corners
+	var/old_lighting_corner_NE = lighting_corner_NE
+	var/old_lighting_corner_SE = lighting_corner_SE
+	var/old_lighting_corner_SW = lighting_corner_SW
+	var/old_lighting_corner_NW = lighting_corner_NW
 
 	var/old_basetype = basetype
 	var/old_flooded = flooded
 	var/obj/effect/fluid/F = locate() in src
 
 	var/list/temp_res = resources
+
+	var/old_can_block_air = can_block_air
 
 	//world << "Replacing [src.type] with [N]"
 
@@ -328,28 +415,27 @@
 	if(SSair)
 		SSair.mark_for_update(W)
 
+	W.can_block_air = old_can_block_air
+
 	W.levelupdate()
 
 	basetype = old_basetype
 
 	queue_smooth_neighbors(W)
 
+	lighting_corner_NE = old_lighting_corner_NE
+	lighting_corner_SE = old_lighting_corner_SE
+	lighting_corner_SW = old_lighting_corner_SW
+	lighting_corner_NW = old_lighting_corner_NW
+
 	if(SSlighting.initialized)
 		recalc_atom_opacity()
 		lighting_object = old_lighting_object
-		affecting_lights = old_affecting_lights
-		corners = old_corners
-		if (force_lighting_update || old_force_lighting_update || old_opacity != opacity || dynamic_lighting != old_dynamic_lighting)
+
+		if (old_opacity != opacity)
 			reconsider_lights()
 
-		if (dynamic_lighting != old_dynamic_lighting)
-			if (IS_DYNAMIC_LIGHTING(src))
-				lighting_build_overlay()
-			else
-				lighting_clear_overlay()
-
-		for(var/turf/environment/space/S in RANGE_TURFS(1, src)) //RANGE_TURFS is in code\__HELPERS\game.dm
-			S.update_starlight()
+		recast_level_light()
 
 	if(F)
 		F.forceMove(src)
@@ -409,23 +495,16 @@
 
 ////////////////
 
-/turf/singularity_act()
-	if(intact)
+/turf/singularity_act(obj/singularity/S, current_size)
+	if(underfloor_accessibility == UNDERFLOOR_HIDDEN)
 		for(var/obj/O in contents) //this is for deleting things like wires contained in the turf
-			if(O.level != 1)
-				continue
-			if(O.invisibility == 101)
-				O.singularity_act()
+			if(HAS_TRAIT(O, TRAIT_UNDERFLOOR))
+				O.singularity_act(S, current_size)
 	ChangeTurf(/turf/environment/space)
 	return(2)
 
-/turf/hitby(atom/movable/AM, datum/thrownthing/throwingdatum)
-	if(isliving(AM))
-		var/mob/living/L = AM
-		L.turf_collision(src)
-
 /turf/update_icon()
-	if(is_flooded(absolute = 1))
+	if(is_flooded(absolute = 1)) // wtf this doing here
 		if(!(locate(/obj/effect/flood) in contents))
 			new /obj/effect/flood(src)
 	else
@@ -443,7 +522,8 @@
 
 	var/typepath
 	if(ishuman(M))
-		typepath = /obj/effect/decal/cleanable/blood/tracks/footprints
+		var/mob/living/carbon/human/H = M
+		typepath = H.species.blood_trail_type
 	else if(isxeno(M))
 		typepath = /obj/effect/decal/cleanable/blood/tracks/footprints/claws
 	else // can shomeone make shlime footprint shprites later pwetty pwease?
@@ -498,20 +578,48 @@
 	else if(isrobot(M))
 		new /obj/effect/decal/cleanable/blood/oil(src)
 
-/turf/proc/add_vomit_floor(mob/living/carbon/C, toxvomit = 0)
+/turf/proc/add_vomit_floor(mob/living/carbon/C, vomit_type = DEFAULT_VOMIT)
 	if(flags & NOBLOODY)
 		return
 
 	var/obj/effect/decal/cleanable/vomit/V = new /obj/effect/decal/cleanable/vomit(src)
 	// Make toxins vomit look different
-	if(toxvomit)
-		var/datum/reagent/new_color = locate(/datum/reagent/luminophore) in C.reagents.reagent_list
-		if(!new_color)
-			V.icon_state = "vomittox_[pick(1,4)]"
-		else
-			V.icon_state = "vomittox_nc_[pick(1,4)]"
-			V.alpha = 127
-			V.color = new_color.color
-			V.light_color = V.color
-			V.set_light(3)
-			V.stop_light()
+	switch(vomit_type)
+		if(VOMIT_TOXIC)
+			var/datum/reagent/new_color = locate(/datum/reagent/luminophore) in C.reagents.reagent_list
+			if(!new_color)
+				V.icon_state = "vomittox_[pick(1,4)]"
+			else
+				V.icon_state = "vomittox_nc_[pick(1,4)]"
+				V.alpha = 127
+				V.color = new_color.color
+				V.light_color = V.color
+				V.set_light(3)
+				V.stop_light()
+		if(VOMIT_NANITE)
+			V.name = "metallic slurry"
+			V.desc = "A puddle of metallic slurry that looks vaguely like very fine sand. It almost seems like it's moving..."
+			V.icon_state = "vomitnanite_[pick(1,4)]"
+
+/turf/proc/add_turf_decal(mutable_appearance/decal)
+	if(length(turf_decals) > TURF_DECALS_LIMIT)
+		CRASH("Too many turf decals on [src]: [x].[y].[z]")
+
+	if(decal in turf_decals)
+		CRASH("Decal already exists on [src]: [x].[y].[z]")
+
+	LAZYADD(turf_decals, decal)
+	add_overlay(decal)
+
+/turf/proc/remove_turf_decal(mutable_appearance/decal)
+	LAZYREMOVE(turf_decals, decal)
+	cut_overlay(decal)
+
+/turf/proc/clean_turf_decals()
+	if(!length(turf_decals))
+		return
+
+	cut_overlay(turf_decals)
+	turf_decals = null
+/*	for(var/appearance in turf_decals)
+		LAZYREMOVE(turf_decals, decal)*/

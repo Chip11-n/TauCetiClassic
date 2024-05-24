@@ -49,6 +49,7 @@
 	icon = 'icons/obj/janitor.dmi'
 	icon_state = "trashbag"
 	item_state = "trashbag"
+	item_state_world = "trashbag_world"
 
 	w_class = SIZE_TINY
 	max_w_class = SIZE_SMALL
@@ -93,18 +94,24 @@
 /obj/item/weapon/storage/bag/trash/update_icon()
 	switch(w_class)
 		if(2)
-			icon_state = "[initial(icon_state)]"
+			item_state_inventory = "[initial(icon_state)]"
+			item_state_world = "[initial(icon_state)]_world"
 		if(3)
-			icon_state = "[initial(icon_state)]1"
+			item_state_inventory = "[initial(icon_state)]1"
+			item_state_world = "[initial(icon_state)]1_world"
 		if(4)
-			icon_state = "[initial(icon_state)]2"
+			item_state_inventory = "[initial(icon_state)]2"
+			item_state_world = "[initial(icon_state)]2_world"
 		if(5 to INFINITY)
-			icon_state = "[initial(icon_state)]3"
+			item_state_inventory = "[initial(icon_state)]3"
+			item_state_world = "[initial(icon_state)]3_world"
+	update_world_icon()
 
 /obj/item/weapon/storage/bag/trash/bluespace
 	name = "trash bag of holding"
 	desc = "The latest and greatest in custodial convenience, a trashbag that is capable of holding vast quantities of garbage."
 	icon_state = "bluetrashbag"
+	item_state_world = "bluetrashbag_world"
 	max_storage_space = 56
 
 
@@ -173,6 +180,19 @@
 	max_w_class = SIZE_SMALL
 	can_hold = list(/obj/item/slime_extract,/obj/item/weapon/reagent_containers/syringe,/obj/item/weapon/reagent_containers/dropper,/obj/item/weapon/reagent_containers/glass/beaker,/obj/item/weapon/reagent_containers/glass/bottle,/obj/item/weapon/reagent_containers/blood,/obj/item/weapon/reagent_containers/food/snacks/monkeycube,/obj/item/organ)
 
+// -----------------------------
+//          Chemistry bag
+// -----------------------------
+
+/obj/item/weapon/storage/bag/chemistry
+	name = "Chemistry bag"
+	icon = 'icons/obj/chemical.dmi'
+	icon_state = "chembag"
+	desc = "Bag for safe transportation of chemicals."
+	max_storage_space = 50
+	w_class = SIZE_SMALL
+	max_w_class = SIZE_SMALL
+	can_hold = list(/obj/item/weapon/reagent_containers/glass/bottle, /obj/item/weapon/reagent_containers/pill, /obj/item/weapon/storage/pill_bottle)
 
 // -----------------------------
 //        Sheet Snatcher
@@ -295,4 +315,4 @@
 	max_storage_space = 100
 	max_w_class = SIZE_BIG
 	w_class = SIZE_TINY
-	can_hold = list(/obj/item/weapon/coin,/obj/item/weapon/spacecash)
+	can_hold = list(/obj/item/weapon/coin,/obj/item/weapon/spacecash,/obj/item/weapon/ewallet)

@@ -121,7 +121,7 @@
 
 // attack with item, place item on conveyor
 /obj/machinery/conveyor/attackby(obj/item/I, mob/user)
-	if(iscrowbar(I))
+	if(isprying(I))
 		if(!(stat & BROKEN))
 			var/obj/item/conveyor_construct/C = new/obj/item/conveyor_construct(src.loc)
 			C.id = id
@@ -130,7 +130,7 @@
 		to_chat(user, "<span class='notice'>You remove the conveyor belt.</span>")
 		qdel(src)
 		return
-	if(iswrench(I))
+	if(iswrenching(I))
 		if(!(stat & BROKEN))
 			playsound(src, 'sound/items/Ratchet.ogg', VOL_EFFECTS_MASTER)
 			set_dir(turn(dir,-45))
@@ -284,7 +284,7 @@
 			S.update()
 
 /obj/machinery/conveyor_switch/attackby(obj/item/I, mob/user)
-	if(iscrowbar(I))
+	if(isprying(I))
 		var/obj/item/conveyor_switch_construct/C = new/obj/item/conveyor_switch_construct(src.loc)
 		C.id = id
 		transfer_fingerprints_to(C)
@@ -306,6 +306,8 @@
 	name = "conveyor belt assembly"
 	desc = "A conveyor belt assembly."
 	w_class = SIZE_NORMAL
+	m_amt = 1200
+	g_amt = 300
 	var/id = "" //inherited by the belt
 
 /obj/item/conveyor_construct/attackby(obj/item/I, mob/user, params)
@@ -335,6 +337,8 @@
 	icon = 'icons/obj/recycling.dmi'
 	icon_state = "switch-off"
 	w_class = SIZE_NORMAL
+	m_amt = 700
+	g_amt = 500
 	var/id = "" //inherited by the switch
 
 /obj/item/conveyor_switch_construct/atom_init()

@@ -281,6 +281,14 @@ AI MODULES
 	origin_tech = "programming=3;materials=4"
 	laws_type = /datum/ai_laws/asimov
 
+/******************** Crewsimov ********************/
+
+/obj/item/weapon/aiModule/crewsimov
+	name = "'Crewsimov' core AI module"
+	desc = "Модуль основных законов ИИ 'Crewsimov': 'Перезаписывает основные законы ИИ на 3 адаптированных для экипажа закона робототехники Азимова.'"
+	origin_tech = "programming=3;materials=4"
+	laws_type = /datum/ai_laws/crewsimov
+
 /******************** NanoTrasen ********************/
 
 /obj/item/weapon/aiModule/nanotrasen // -- TLE
@@ -401,14 +409,14 @@ AI MODULES
 /******************** Syndicate Core ******************/
 
 /obj/item/weapon/aiModule/freeform/syndicate
-	name = "hacked AI module"
-	desc = "Взломанный модуль законов ИИ: '<freeform>'"
+	name = "AI module"
+	desc = "Модуль законов ИИ без каких-либо маркировок: '<freeform>'"
 	origin_tech = "programming=3;materials=6;syndicate=7"
 	report_AI = FALSE
 
 /obj/item/weapon/aiModule/freeform/syndicate/attack_self(mob/user)
 	newFreeFormLaw = sanitize(input(user, "Пожалуйста, введите новый закон для ИИ.", "Новый закон"))
-	desc = "Взломанный модуль законов ИИ: '[newFreeFormLaw]'"
+	desc = "Модуль законов ИИ без каких-либо маркировок: '[newFreeFormLaw]'"
 
 /obj/item/weapon/aiModule/freeform/syndicate/transmitInstructions(mob/living/silicon/ai/target, mob/sender)
 	to_chat(target, "<span class='warning'>БЗЗЗЗКХ   '[newFreeFormLaw]'</span>")

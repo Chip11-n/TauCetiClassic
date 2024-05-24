@@ -163,7 +163,9 @@
 	end_message = "<span class='notice'>The air seems to be cooling off again.</span>"
 
 	area_type = /area
-	protected_areas = list(/area/station/maintenance, /area/station/civilian/dormitories/male, /area/station/civilian/dormitories/female, /area/station/storage/emergency, /area/station/storage/emergency2, /area/station/storage/emergency3, /area/station/storage/tech, /area/asteroid/mine)
+
+	protected_areas = list(/area/station/maintenance, /area/station/civilian/dormitories/male, /area/station/civilian/dormitories/female, /area/station/storage/emergency, /area/station/storage/emergency2, /area/station/storage/emergency3, /area/station/storage/tech, /area/asteroid/mine, /area/station/security/prison/toilet, /area/station/security/brig/solitary_confinement)
+
 	target_ztrait = ZTRAIT_STATION
 
 	immunity_type = "rad"
@@ -174,6 +176,12 @@
 	..()
 	status_alarm("alert")
 
+/datum/weather/rad_storm/start()
+	..()
+
+	for(var/Z in SSmapping.levels_by_trait(target_ztrait))
+		var/datum/space_level/SL = SSmapping.get_level(Z)
+		SL.set_level_light(new /datum/level_lighting_effect/random_aurora(weather_duration))
 
 /datum/weather/rad_storm/impact(mob/living/L)
 	var/resist = L.getarmor(null, "rad")
@@ -191,7 +199,7 @@
 					else
 						randmutg(H) // Applies good mutation
 					domutcheck(H,null,MUTCHK_FORCED)
-		L.apply_effect((rand(40,70)),IRRADIATE,0)
+		irradiate_one_mob(L, rand(40,70))
 
 /datum/weather/rad_storm/end()
 	if(..())
@@ -200,7 +208,7 @@
 	if(timer_maint_revoke_id)
 		deltimer(timer_maint_revoke_id)
 		timer_maint_revoke_id = 0
-	timer_maint_revoke_id = addtimer(CALLBACK(GLOBAL_PROC, .proc/revoke_maint_all_access, FALSE), 600, TIMER_UNIQUE|TIMER_STOPPABLE) // Want to give them time to get out of maintenance.
+	timer_maint_revoke_id = addtimer(CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(revoke_maint_all_access), FALSE), 600, TIMER_UNIQUE|TIMER_STOPPABLE) // Want to give them time to get out of maintenance.
 
 
 /datum/weather/rad_storm/proc/status_alarm(command)	//Makes the status displays show the radiation warning for those who missed the announcement.

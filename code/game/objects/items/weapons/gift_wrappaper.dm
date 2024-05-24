@@ -49,7 +49,7 @@
 /obj/effect/spresent/attackby(obj/item/weapon/W, mob/user)
 	..()
 
-	if (!iswirecutter(W))
+	if (!iscutter(W))
 		to_chat(user, "<span class='notice'>I need wirecutters for that.</span>")
 		return
 
@@ -103,6 +103,7 @@
 		/obj/item/toy/prize/seraph,
 		/obj/item/toy/spinningtoy,
 		/obj/item/toy/sword,
+		/obj/item/toy/dualsword,
 		/obj/item/weapon/reagent_containers/food/snacks/grown/ambrosiadeus,
 		/obj/item/weapon/reagent_containers/food/snacks/grown/ambrosiavulgaris,
 		/obj/item/device/paicard,
@@ -143,7 +144,7 @@
 		return
 
 	if(I.w_class < SIZE_NORMAL)
-		if(iswirecutter(user.l_hand) || iswirecutter(user.r_hand) || istype(user.l_hand, /obj/item/weapon/scissors) || istype(user.r_hand, /obj/item/weapon/scissors))
+		if(iscutter(user.l_hand) || iscutter(user.r_hand) || istype(user.l_hand, /obj/item/weapon/scissors) || istype(user.r_hand, /obj/item/weapon/scissors))
 			var/a_used = 2 ** (src.w_class - 1)
 			if (src.amount < a_used)
 				to_chat(user, "<span class='notice'>You need more paper!</span>")

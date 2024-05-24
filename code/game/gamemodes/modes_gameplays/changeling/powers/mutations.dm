@@ -39,6 +39,7 @@
 	name = "Organic Suit"
 	desc = "Go tell a coder if you see this."
 	helptext = "Yell at Miauw and/or Perakp"
+	button_icon_state = "organic_suit"
 	chemical_cost = 1000
 	genomecost = -1
 	genetic_damage = 1000
@@ -60,9 +61,6 @@
 		H.visible_message("<span class='warning'>[H] casts off their [suit_name_simple]!</span>", "<span class='warning'>We cast off our [suit_name_simple][genetic_damage > 0 ? ", temporarily weakening our genomes." : "."]</span>", "<span class='warning'>You hear the organic matter ripping and tearing!</span>")
 		qdel(H.wear_suit)
 		qdel(H.head)
-		H.update_inv_wear_suit()
-		H.update_inv_head()
-		H.update_hair()
 
 		if(blood_on_castoff)
 			var/turf/T = get_turf(H)
@@ -86,8 +84,8 @@
 	user.drop_from_inventory(user.head)
 	user.drop_from_inventory(user.wear_suit)
 
-	user.equip_to_slot_if_possible(new suit_type(user), SLOT_WEAR_SUIT, 1, 1, 1)
-	user.equip_to_slot_if_possible(new helmet_type(user), SLOT_HEAD, 1, 1, 1)
+	user.equip_to_slot_if_possible(new suit_type(user), SLOT_WEAR_SUIT, TRUE, TRUE)
+	user.equip_to_slot_if_possible(new helmet_type(user), SLOT_HEAD, TRUE, TRUE)
 
 	var/datum/role/changeling/changeling = user.mind.GetRoleByType(/datum/role/changeling)
 	changeling.chem_recharge_slowdown += recharge_slowdown
@@ -97,6 +95,7 @@
 	name = "Arm Blade"
 	desc = "We reform one of our arms into a deadly blade."
 	helptext = "Cannot be used while in lesser form."
+	button_icon_state = "arm_blade"
 	chemical_cost = 20
 	genomecost = 2
 	genetic_damage = 10
@@ -118,6 +117,9 @@
 	throwforce = 0 //Just to be on the safe side
 	throw_range = 0
 	throw_speed = 0
+	qualities = list(
+		QUALITY_PRYING = 1
+	)
 
 /obj/item/weapon/melee/arm_blade/atom_init()
 	. = ..()
@@ -131,15 +133,8 @@
 /obj/item/weapon/melee/arm_blade/afterattack(atom/target, mob/user, proximity, params)
 	if(!proximity)
 		return
-	if(istype(target, /obj/structure/table))
-		var/obj/structure/table/T = target
-		T.deconstruct(TRUE)
 
-	else if(istype(target, /obj/machinery/computer))
-		var/obj/machinery/computer/C = target
-		C.attack_alien(user) //muh copypasta
-
-	else if(istype(target, /obj/machinery/door/airlock))
+	if(istype(target, /obj/machinery/door/airlock))
 		var/obj/machinery/door/airlock/A = target
 
 		if(A.hasPower() && (!A.requiresID() || A.allowed(user))) //This is to prevent stupid shit like hitting a door with an arm blade, the door opening because you have acces and still getting a "the airlocks motors resist our efforts to force it" message.
@@ -165,6 +160,7 @@
 	name = "Organic Shield"
 	desc = "We reform one of our arms into hard shield."
 	helptext = "Organic tissue cannot resist damage forever, the shield will break after it is hit too much. The more genomes we absorb, the stronger it is.. Cannot be used while in lesser form."
+	button_icon_state = "shield"
 	chemical_cost = 20
 	genomecost = 2
 	genetic_damage = 12
@@ -209,10 +205,14 @@
 		remaining_uses--
 		return block_chance
 
+/obj/item/weapon/shield/changeling/toggle_wallshield(mob/living/user)
+	to_chat(user, "<span class='warning'>You are fucking INVINCIBLE!</span>")
+
 /obj/effect/proc_holder/changeling/suit/organic_space_suit
 	name = "Organic Space Suit"
 	desc = "We grow an organic suit to protect ourselves from space exposure."
 	helptext = "We must constantly repair our form to make it space-proof, reducing chemical production while we are protected. Retreating the suit damages our genomes. Cannot be used in lesser form."
+	button_icon_state = "organic_suit"
 	chemical_cost = 20
 	genomecost = 2
 	genetic_damage = 8
@@ -265,6 +265,7 @@
 	name = "Chitinous Armor"
 	desc = "We turn our skin into tough chitin to protect us from damage."
 	helptext = "Upkeep of the armor requires a low expenditure of chemicals. The armor is strong against brute force, but does not provide much protection from lasers. Retreating the armor damages our genomes. Cannot be used in lesser form."
+	button_icon_state = "chitinous_armor"
 	chemical_cost = 25
 	genomecost = 2
 	genetic_damage = 10

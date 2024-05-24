@@ -49,6 +49,7 @@
 	gender = PLURAL
 	icon = 'icons/obj/items.dmi'
 	icon_state = "soap"
+	item_state_world = "soap_world"
 	w_class = SIZE_TINY
 	throwforce = 0
 	throw_speed = 4
@@ -64,14 +65,17 @@
 /obj/item/weapon/reagent_containers/food/snacks/soap/nanotrasen
 	desc = "A Nanotrasen brand bar of soap. Smells of phoron."
 	icon_state = "soapnt"
+	item_state_world = "soapnt_world"
 
 /obj/item/weapon/reagent_containers/food/snacks/soap/deluxe
 	desc = "A deluxe Waffle Co. brand bar of soap. Smells of condoms."
 	icon_state = "soapdeluxe"
+	item_state_world = "soapdeluxe_world"
 
 /obj/item/weapon/reagent_containers/food/snacks/soap/syndie
 	desc = "An untrustworthy bar of soap. Smells of fear."
 	icon_state = "soapsyndie"
+	item_state_world = "soapsyndie_world"
 	list_reagents = list("cleaner" = 3, "cyanide" = 2)
 
 /obj/item/weapon/reagent_containers/food/snacks/soap/afterattack(atom/target, mob/user, proximity, params)
@@ -111,38 +115,31 @@
 					return
 				if("groin")
 					if(H.belt)
-						if(H.belt.clean_blood())
-							H.update_inv_belt()
+						H.belt.clean_blood()
 				if("head")
 					if(H.head)
 						var/washmask = !(H.head.flags_inv & HIDEMASK)
 						var/washears = !((H.head.flags_inv & HIDEEARS) || (H.wear_mask && H.wear_mask.flags_inv & HIDEEARS))
 						var/washglasses = !((H.head.flags_inv & HIDEEYES) || (H.wear_mask && H.wear_mask.flags_inv & HIDEEYES))
-						if(washmask && H.wear_mask && H.wear_mask.clean_blood())
-							H.update_inv_wear_mask()
-						else
+						if(!(washmask && H.wear_mask && H.wear_mask.clean_blood()))
 							H.lip_style = null
 							H.update_body()
-						if(H.glasses && washglasses && H.glasses.clean_blood())
-							H.update_inv_glasses()
-						if(H.l_ear && washears && H.l_ear.clean_blood())
-							H.update_inv_ears()
-						if(H.r_ear && washears && H.r_ear.clean_blood())
-							H.update_inv_ears()
-						if(H.head.clean_blood())
-							H.update_inv_head()
+						if(H.glasses && washglasses)
+							H.glasses.clean_blood()
+						if(H.l_ear && washears)
+							H.l_ear.clean_blood()
+						if(H.r_ear && washears)
+							H.r_ear.clean_blood()
+						H.head.clean_blood()
 				if("chest")
-					if(H.wear_suit && H.wear_suit.clean_blood())
-						H.update_inv_wear_suit()
-					else if(H.w_uniform && H.w_uniform.clean_blood())
-						H.update_inv_w_uniform()
-					if(H.belt && H.belt.clean_blood())
-						H.update_inv_belt()
+					if(!(H.wear_suit && H.wear_suit.clean_blood()) && H.w_uniform)
+						H.w_uniform.clean_blood()
+					if(H.belt)
+						H.belt.clean_blood()
 				if("eyes")
 					if(!(H.head && (H.head.flags_inv & HIDEEYES)))
 						if(H.glasses)
 							H.glasses.clean_blood()
-							H.update_inv_glasses()
 						else
 							H.blurEyes(5)
 							H.eye_blind = max(H.eye_blind, 1)
@@ -154,12 +151,10 @@
 					if((!l_foot || (l_foot && (l_foot.is_stump))) && (!r_foot || (r_foot && (r_foot.is_stump))))
 						no_legs = TRUE
 					if(!no_legs)
-						if(H.shoes && H.shoes.clean_blood())
-							H.update_inv_shoes()
-						else
-							H.feet_blood_DNA = null
-							H.feet_dirt_color = null
-							H.update_inv_shoes()
+						if(!(H.shoes && H.shoes.clean_blood()))
+							H.feet_blood_DNA = null  // blood mechanic (feet_blood_DNA, feet_dirt_color, etc) should be fused into organ item objects on mob instead of mob itself,
+							H.feet_dirt_color = null // so we can refer to that info in update_icons.dm to draw blood and do more advanced stuff which is much harder when its hardcoded to mob while actually tied to limbs.
+							H.update_inv_slot(SLOT_SHOES)
 					else
 						to_chat(user, "<span class='red'>There is nothing to clean!</span>")
 						return
@@ -168,12 +163,11 @@
 					var/obj/item/organ/external/l_hand = H.bodyparts_by_name[BP_R_ARM]
 					if((l_hand && !(l_hand.is_stump)) && (r_hand && !(r_hand.is_stump)))
 						if(H.gloves && H.gloves.clean_blood())
-							H.update_inv_gloves()
 							H.gloves.germ_level = 0
 						else
-							if(H.bloody_hands)
-								H.bloody_hands = 0
-								H.update_inv_gloves()
+							if(H.dirty_hands_transfers)
+								H.dirty_hands_transfers = 0
+								H.update_inv_slot(SLOT_GLOVES)
 							H.germ_level = 0
 			H.clean_blood()
 			if(target == user)
@@ -190,6 +184,23 @@
 /*
  * Bike Horns
  */
+
+/obj/item/weapon/bikehorn/gold
+	name = "golden bike horn"
+	desc = "Golden? Clearly, it's made with bananium! Honk!"
+	icon = 'icons/obj/golden_bikehorn.dmi'
+	icon_state = "gold_horn"
+	item_state = "bike_horn"
+	COOLDOWN_DECLARE(golden_horn_cooldown)
+
+/obj/item/weapon/bikehorn/gold/honk(mob/user)
+	. = ..()
+	if(!COOLDOWN_FINISHED(src, golden_horn_cooldown))
+		return
+	var/turf/T = get_turf(src)
+	for(var/mob/living/M in ohearers(7, T))
+		M.SpinAnimation(7, 1)
+	COOLDOWN_START(src, golden_horn_cooldown, 1 SECONDS)
 
 /obj/item/weapon/bikehorn
 	name = "bike horn"
@@ -401,7 +412,7 @@
 	flick("sound_button_down", src)
 	icon_state = "sound_button_off"
 	cooldown = TRUE
-	addtimer(CALLBACK(src, .proc/release_cooldown), cooldown_max)
+	addtimer(CALLBACK(src, PROC_REF(release_cooldown)), cooldown_max)
 	..()
 
 /obj/item/toy/sound_button/proc/release_cooldown()

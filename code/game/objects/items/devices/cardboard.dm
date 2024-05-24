@@ -10,6 +10,15 @@
 	var/painting = FALSE
 	var/static/list/coloring
 
+/obj/item/cardboard_cutout/atom_init()
+	. = ..()
+	AddComponent(/datum/component/tactical, null, TRUE)
+	var/datum/twohanded_component_builder/TCB = new
+	TCB.require_twohands = TRUE
+	TCB.force_wielded = 5
+	TCB.force_unwielded = 2
+	AddComponent(/datum/component/twohanded, TCB)
+
 /obj/item/cardboard_cutout/attack_hand(mob/living/user)
 	if(user.a_intent == INTENT_HELP || pushed_over)
 		return ..()
@@ -91,7 +100,7 @@
 		return
 	if(!user.Adjacent(src))
 		return
-	if(!do_after(user, 10, FALSE, src, FALSE))
+	if(!do_after(user, 10, FALSE, src))
 		return
 	user.visible_message("<span class='notice'>[user] gives [src] a new look.</span>", "<span class='notice'>Voila! You give [src] a new look.</span>")
 	alpha = 255
@@ -106,7 +115,7 @@
 			desc = "A cardboard cutout of a clown. You get the feeling that it should be in a corner."
 			icon_state = "cutout_clown"
 		if("Mime")
-			name = "[pick(first_names_male)] [pick(last_names)]"
+			name = pick(mime_names)
 			desc = "...(A cardboard cutout of a mime.)"
 			icon_state = "cutout_mime"
 		if("Traitor")

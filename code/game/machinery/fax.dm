@@ -115,17 +115,18 @@ var/global/list/alldepartments = list("Central Command")
 
 	if(href_list["remove"])
 		if(tofax)
-			if(!ishuman(usr))
-				to_chat(usr, "<span class='warning'>You can't do it.</span>")
-			else
+			if(usr.Adjacent(loc))
 				tofax.loc = usr.loc
 				usr.put_in_hands(tofax)
-				to_chat(usr, "<span class='notice'>You take the paper out of \the [src].</span>")
-				tofax = null
+			else
+				tofax.forceMove(loc)
+
+			to_chat(usr, "<span class='notice'>You take the paper out of \the [src].</span>")
+			tofax = null
 
 	if(href_list["scan"])
 		if (scan)
-			if(ishuman(usr))
+			if(ishuman(usr) && usr.Adjacent(loc))
 				scan.loc = usr.loc
 				if(!usr.get_active_hand())
 					usr.put_in_hands(scan)
@@ -144,9 +145,10 @@ var/global/list/alldepartments = list("Central Command")
 		authenticated = 0
 
 	if(href_list["dept"])
-		var/lastdpt = dptdest
-		dptdest = input(usr, "Which department?", "Choose a department", "") as null|anything in alldepartments
-		if(!dptdest) dptdest = lastdpt
+		var/new_dep_dest = input(usr, "Which department?", "Choose a department", "") as null|anything in alldepartments
+		if(!new_dep_dest || !can_still_interact_with(usr))
+			return
+		dptdest = new_dep_dest
 
 	if(href_list["auth"])
 		if ( (!( authenticated ) && (scan)) )
@@ -181,7 +183,7 @@ var/global/list/alldepartments = list("Central Command")
 				var/mob/living/carbon/human/H = usr
 				H.sec_hud_set_ID()
 
-	else if(iswrench(O))
+	else if(iswrenching(O))
 		default_unfasten_wrench(user, O)
 
 /proc/centcomm_fax(mob/sender, obj/item/weapon/paper/P, obj/machinery/faxmachine/fax)

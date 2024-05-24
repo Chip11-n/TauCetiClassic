@@ -1,5 +1,14 @@
 /proc/random_blood_type()
-	return pick(4;"O-", 36;"O+", 3;"A-", 28;"A+", 1;"B-", 20;"B+", 1;"AB-", 5;"AB+")
+	return pickweight(list(
+		BLOOD_O_MINUS  = 4,
+		BLOOD_O_PLUS   = 36,
+		BLOOD_A_MINUS  = 3,
+		BLOOD_A_PLUS   = 28,
+		BLOOD_B_MINUS  = 1,
+		BLOOD_B_PLUS   = 20,
+		BLOOD_AB_MINUS = 1,
+		BLOOD_AB_PLUS  = 5
+	))
 
 /proc/random_hair_style(gender, species = HUMAN, ipc_head)
 	var/h_style = "Bald"
@@ -114,7 +123,7 @@
 			break
 		if(uninterruptible)
 			continue
-		if(user.loc != user_loc || target.loc != target_loc || user.incapacitated() || user.lying || (extra_checks && !extra_checks.Invoke()))
+		if(user.loc != user_loc || target.loc != target_loc || user.incapacitated() || (extra_checks && !extra_checks.Invoke()))
 			. = FALSE
 			break
 
@@ -239,3 +248,187 @@
 	if(!mind || !mind.assigned_job)
 		return
 	return mind.assigned_job.head_position
+
+/mob/proc/IsShockproof()
+	return HAS_TRAIT(src, TRAIT_SHOCKIMMUNE)
+
+/mob/proc/IsClumsy()
+	return HAS_TRAIT(src, TRAIT_CLUMSY)
+
+/mob/proc/ClumsyProbabilityCheck(probability)
+	if(HAS_TRAIT(src, TRAIT_CLUMSY) && prob(probability))
+		return TRUE
+	return FALSE
+
+/proc/health_analyze(mob/living/M, mob/living/user, mode, output_to_chat, hide_advanced_information, scan_hallucination = FALSE, advanced = FALSE)
+	var/message = ""
+	var/insurance_type
+
+	if(ishuman(M))
+		insurance_type = get_insurance_type(M)
+
+	if(!output_to_chat)
+		message += "<HTML><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'><title>Результаты сканирования [M.name]</title></head><BODY>"
+
+	if(user.ClumsyProbabilityCheck(50) || (user.getBrainLoss() >= 60 && prob(50)))
+		user.visible_message("<span class='warning'>[user] сканирует жизненные показатели пола!</span>", "<span class = 'warning'>Вы пытаетесь просканировать жизненные показатели пола!</span>")
+		message += "<span class='notice'>Результаты сканирования пола:\n&emsp; Общее состояние: здоров</span><br>"
+		message += "<span class='notice'>&emsp; Специфика повреждений: [0]-[0]-[0]-[0]</span><br>"
+		message += "<span class='notice'>Типы: Асфиксия/Интоксикация/Термические/Механические</span><br>"
+		message += "<span class='notice'>Температура тела: ???</span>"
+		if(!output_to_chat)
+			message += "</BODY></HTML>"
+		return message
+	user.visible_message("<span class='notice'>[user] сканирует жизненные показатели [M].</span>","<span class='notice'>Вы просканировали жизненные показатели [M].</span>")
+
+	var/fake_oxy = max(rand(1,40), M.getOxyLoss(), (300 - (M.getToxLoss() + M.getFireLoss() + M.getBruteLoss())))
+	var/OX = M.getOxyLoss() > 50 	? 	"<b>[M.getOxyLoss()]</b>" 		: M.getOxyLoss()
+	var/TX = M.getToxLoss() > 50 	? 	"<b>[M.getToxLoss()]</b>" 		: M.getToxLoss()
+	var/BU = M.getFireLoss() > 50 	? 	"<b>[M.getFireLoss()]</b>" 		: M.getFireLoss()
+	var/BR = M.getBruteLoss() > 50 	? 	"<b>[M.getBruteLoss()]</b>" 	: M.getBruteLoss()
+	if(M.status_flags & FAKEDEATH)
+		OX = fake_oxy > 50 			? 	"<b>[fake_oxy]</b>" 			: fake_oxy
+		message += "<span class='notice'>Результаты сканирования [M]:\n&emsp; Общее состояние: мёртв</span><br>"
+	else
+		message += "<span class='notice'>Результаты сканирования [M]:\n&emsp; Общее состояние: [M.stat > 1 ? "мёртв" : "Здоровье: [M.health - M.halloss]%"]</span><br>"
+	message += "&emsp; Типы: <font color='blue'>Асфиксия</font>/<font color='green'>Интоксикация</font>/<font color='#FFA500'>Термические</font>/<font color='red'>Механические</font><br>"
+	message += "&emsp; Специфика повреждений: <font color='blue'>[OX]</font> - <font color='green'>[TX]</font> - <font color='#FFA500'>[BU]</font> - <font color='red'>[BR]</font><br>"
+	message += "<span class='notice'>Температура тела: [M.bodytemperature-T0C]&deg;C ([M.bodytemperature*1.8-459.67]&deg;F)</span><br>"
+	if(M.tod && (M.stat == DEAD || (M.status_flags & FAKEDEATH)))
+		message += "<span class='notice'>Время смерти: [M.tod]</span><br>"
+	if(ishuman(M) && mode)
+		var/mob/living/carbon/human/H = M
+		var/list/damaged = H.get_damaged_bodyparts(1, 1)
+		message += "<span class='notice'>Обнаруженные повреждения:</span><br>"
+		if(length(damaged))
+			for(var/obj/item/organ/external/BP in damaged)
+				message += "<span class='notice'>&emsp; [capitalize(CASE(BP, NOMINATIVE_CASE))]: \
+					[(BP.brute_dam > 0) ? "<span class='warning'>[BP.brute_dam]</span>" : 0]\
+					[(BP.status & ORGAN_BLEEDING) ? "<span class='warning bold'> \[Кровотечение\]</span>" : "&emsp;"] - \
+					[(BP.burn_dam > 0) ? "<font color='#FFA500'>[BP.burn_dam]</font>" : 0]\
+					[BP.controller.bodypart_type == BODYPART_ROBOTIC ? " (Кибернетический)" : ""]</span><br>"
+		else
+			message += "<span class='notice'>&emsp; Конечности целы.</span><br>"
+
+	if(hide_advanced_information)
+		if(!output_to_chat)
+			message += "</BODY></HTML>"
+
+		return message
+
+	OX = M.getOxyLoss() > 50 ? "<font color='blue'><b>Обнаружено сильное кислородное голодание</b></font>" : "Уровень кислорода в крови субъекта в норме"
+	TX = M.getToxLoss() > 50 ? "<font color='green'><b>Обнаружено опасное количество токсинов</b></font>" : "Уровень токсинов в крови субъекта минимальный"
+	BU = M.getFireLoss() > 50 ? "<font color='#FFA500'><b>Обнаружена серьезная ожоговая травма</b></font>" : "Термических травм не обнаружено"
+	BR = M.getBruteLoss() > 50 ? "<font color='red'><b>Обнаружена серьезная анатомическая травма</b></font>" : "Механических травм не обнаружено"
+	if(M.status_flags & FAKEDEATH)
+		OX = fake_oxy > 50 ? 		"<span class='warning'>Обнаружено сильное кислородное голодание</span>" : "Уровень кислорода в крови субъекта в норме"
+	message += "[OX]<br>[TX]<br>[BU]<br>[BR]<br>"
+	if(iscarbon(M))
+		var/mob/living/carbon/C = M
+		if(C.reagents.total_volume && advanced)
+			message += "<span class='warning'>Обнаруженные вещества в крови:</span><br>"
+			for(var/datum/reagent/R in C.reagents.reagent_list)
+				message += "&emsp; <span class='notice'>\
+					[R.overdose != 0 && R.volume >= R.overdose ? "<span class='bold warning'>OD: </span>" : ""]\
+					[round(R.volume, 1)]u [R.name]</span><br>"
+		if(C.virus2.len)
+			if(C.is_infected_with_zombie_virus() && advanced)
+				message += "<span class='warning'>Внимание: Обнаружена нетипичная активность патогена в крови!</span><br>"
+			for (var/ID in C.virus2)
+				if (ID in virusDB)
+					var/datum/data/record/V = virusDB[ID]
+					message += "<span class='warning'>Внимание: Обнаружен патоген [V.fields["name"]] в крови. Известный антиген: [V.fields["antigen"]]</span><br>"
+		if(C.roundstart_quirks.len)
+			message += "\t<span class='info'>Объект имеет следующие физиологические особенности: [C.get_trait_string()].</span><br>"
+	if(M.getCloneLoss())
+		to_chat(user, "<span class='warning'>Объект, по-видимому, был некачественно клонирован.</span>")
+	if(M.has_brain_worms())
+		message += "<span class='warning'>Объект страдает от аномальной активности мозга. Рекомендуется дополнительное сканирование.</span><br>"
+	else if(ishuman(M))
+		var/mob/living/carbon/human/H = M
+		if(!H.has_brain() && H.should_have_organ(O_BRAIN))
+			message += "<span class='warning'>У субъекта отсутствует мозг.</span><br>"
+	else if(M.getBrainLoss() >= 100)
+		message += "<span class='warning'>Мозг субъекта мёртв.</span><br>"
+	else if(M.getBrainLoss() >= 60)
+		message += "<span class='warning'>Обнаружено тяжелое повреждение головного мозга. Вероятна умственная отсталость.</span><br>"
+	else if(M.getBrainLoss() >= 10)
+		message += "<span class='warning'>Обнаружено значительное повреждение головного мозга. Возможно, у пациента было сотрясение мозга.</span><br>"
+	if(ishuman(M))
+		var/mob/living/carbon/human/H = M
+		var/found_bleed
+		var/found_broken
+		for(var/obj/item/organ/external/BP in H.bodyparts)
+			if(BP.status & ORGAN_BROKEN)
+				if(((BP.body_zone == BP_L_ARM) || (BP.body_zone == BP_R_ARM) || (BP.body_zone == BP_L_LEG) || (BP.body_zone == BP_R_LEG)) && !(BP.status & ORGAN_SPLINTED))
+					message += "<span class='warning'>Обнаружен незафиксированный перелом в [CASE(BP, PREPOSITIONAL_CASE)]. При транспортировке рекомендуется наложение шины.</span><br>"
+				if(!found_broken)
+					found_broken = TRUE
+
+			if(!found_bleed && (BP.status & ORGAN_ARTERY_CUT))
+				found_bleed = TRUE
+
+			if(BP.has_infected_wound())
+				message += "<span class='warning'>Обнаружена инфекция в [CASE(BP, PREPOSITIONAL_CASE)]. Рекомендуется дезинфекция.</span><br>"
+
+		if(found_bleed)
+			message += "<span class='warning'>Обнаружено артериальное кровотечение. Для определения местоположения требуется медицинский сканер.</span><br>"
+		if(found_broken)
+			message += "<span class='warning'>Обнаружен перелом костей. Для определения местоположения требуется медицинский сканер.</span><br>"
+
+		var/blood_volume = H.blood_amount()
+		var/blood_percent =  100.0 * blood_volume / BLOOD_VOLUME_NORMAL
+		var/blood_type = H.dna.b_type
+		if(blood_volume <= BLOOD_VOLUME_SAFE && blood_volume > BLOOD_VOLUME_OKAY)
+			message += "<span class='warning bold'>Внимание: критический уровень крови: [blood_percent]% [blood_volume]сл.</span><span class='notice'>Группа крови: [blood_type]</span><br>"
+		else if(blood_volume <= BLOOD_VOLUME_OKAY)
+			message += "<span class='warning bold'>Внимание: Уровень крови КРИТИЧЕСКИЙ: [blood_percent]% [blood_volume]сл.</span><span class='notice bold'>Группа крови: [blood_type]</span><br>"
+		else
+			message += "<span class='notice'>Уровень крови нормальный: [blood_percent]% [blood_volume]сл. Группа крови: [blood_type]</span><br>"
+
+		var/obj/item/organ/internal/heart/Heart = H.organs_by_name[O_HEART]
+		if(Heart)
+			switch(Heart.heart_status)
+				if(HEART_FAILURE)
+					message += "<span class='notice'><font color='red'>Внимание! Остановка сердца!</font></span><br>"
+				if(HEART_FIBR)
+					message += "<span class='notice'>Состояние сердца пациента: <font color='blue'>Внимание! Сердце подвержено фибрилляции.</font></span><br>"
+			message += "<span class='notice'>Пульс пациента: <font color='[H.pulse == PULSE_THREADY || H.pulse == PULSE_NONE ? "red" : "blue"]'>[H.get_pulse(GETPULSE_TOOL)] уд/мин.</font></span><br>"
+	var/list/reflist = list(message, scan_hallucination)
+	SEND_SIGNAL(M, COMSIG_LIVING_HEALTHSCAN, reflist)
+	message = reflist[1]
+
+	if(insurance_type)
+		message += "<span class='notice'><font color='blue'>Страховка: [insurance_type]</font></span><br>"
+
+	if(!output_to_chat)
+		message += "</BODY></HTML>"
+
+	return message
+
+/proc/get_sound_by_voice(mob/user, male_sounds, female_sounds)
+	if(user.gender == FEMALE)
+		return pick(female_sounds)
+
+	else if(user.gender == NEUTER)
+		return pick(user.neuter_gender_voice == MALE ? male_sounds : female_sounds)
+
+	return pick(male_sounds)
+
+/proc/get_germ_level_name(germ_level)
+	switch(germ_level)
+		if(INFECTION_LEVEL_ONE to INFECTION_LEVEL_ONE_PLUS)
+			return "Лёгкая инфекция"
+		if(INFECTION_LEVEL_ONE_PLUS to INFECTION_LEVEL_ONE_PLUS_PLUS)
+			return "Лёгкая инфекция+"
+		if(INFECTION_LEVEL_ONE_PLUS_PLUS to INFECTION_LEVEL_TWO)
+			return "Лёгкая инфекция++"
+		if(INFECTION_LEVEL_TWO to INFECTION_LEVEL_TWO_PLUS)
+			return "Острая инфекция"
+		if(INFECTION_LEVEL_TWO_PLUS to INFECTION_LEVEL_TWO_PLUS_PLUS)
+			return "Острая инфекция+"
+		if(INFECTION_LEVEL_TWO_PLUS_PLUS to INFECTION_LEVEL_THREE)
+			return "Острая инфекция++"
+		if(INFECTION_LEVEL_THREE to INFINITY)
+			return "Сепсис"
+	return

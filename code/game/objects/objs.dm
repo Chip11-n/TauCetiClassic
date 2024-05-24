@@ -19,6 +19,8 @@
 
 	var/being_shocked = 0
 
+	var/list/price_tag = null //list("description" = lot_description, "price" = lot_price, "category" = lot_category, "account" = lot_account_number)
+
 	uses_integrity = TRUE
 
 /obj/item/proc/is_used_on(obj/O, mob/user)
@@ -32,6 +34,21 @@
 		STOP_PROCESSING(SSobj, src) // TODO: Have a processing bitflag to reduce on unnecessary loops through the processing lists
 	nanomanager.close_uis(src)
 	return ..()
+
+/obj/examine(mob/user)
+	. = ..()
+
+	if(price_tag)
+		to_chat(user, "Прикреплён ценник. Описание: [price_tag["description"]], Цена: [price_tag["price"]]$")
+
+/obj/proc/remove_price_tag()
+	set name = "Снять ценник"
+	set src in view(1)
+	set category = "Object"
+
+	price_tag = null
+	underlays -= icon(icon = 'icons/obj/device.dmi', icon_state = "tag")
+	verbs -= /obj/proc/remove_price_tag
 
 /obj/proc/get_current_temperature()
 	/*
@@ -172,12 +189,6 @@
 /obj/proc/alter_health()
 	return 1
 
-/obj/proc/hide(h)
-	return
-
-/obj/proc/hides_under_flooring()
-	return level == 1
-
 // haha we spam with empty lists recursively for every mob and object in view for each SAY call
 // todo: we don't need these listeners procs, replace with get_hearers_in_view
 /atom/movable/proc/get_listeners()
@@ -191,7 +202,7 @@
 		. |= M.get_listeners()
 
 /atom/movable/proc/get_listening_objs()
-	. = list() 
+	. = list()
 	if(flags & (HEAR_TALK | HEAR_PASS_SAY | HEAR_TA_SAY))
 		. = list(src)
 

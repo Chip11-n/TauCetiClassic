@@ -17,6 +17,8 @@
 		var/datum/announcement/station/code/code_announce
 		switch(level)
 			if(SEC_LEVEL_GREEN)
+				if(security_level == SEC_LEVEL_DELTA)
+					SSsmartlight.reset_smartlight()
 				security_level = SEC_LEVEL_GREEN
 				code_announce = new /datum/announcement/station/code/downtogreen
 
@@ -32,6 +34,8 @@
 					code_announce = new /datum/announcement/station/code/uptoblue
 				else
 					code_announce = new /datum/announcement/station/code/downtoblue
+				if(security_level == SEC_LEVEL_DELTA)
+					SSsmartlight.reset_smartlight()
 				security_level = SEC_LEVEL_BLUE
 				for(var/obj/machinery/firealarm/FA in firealarm_list)
 					if(is_station_level(FA.z) || is_mining_level(FA.z))
@@ -45,6 +49,8 @@
 					code_announce = new /datum/announcement/station/code/uptored
 				else
 					code_announce = new /datum/announcement/station/code/downtored
+				if(security_level == SEC_LEVEL_DELTA)
+					SSsmartlight.reset_smartlight()
 				security_level = SEC_LEVEL_RED
 
 				var/obj/machinery/computer/communications/CC = locate() in communications_list
@@ -67,7 +73,9 @@
 						FA.add_overlay(image('icons/obj/monitors.dmi', "overlay_delta"))
 				if(!delta_timer_id)
 					delta_alarm()
-		SSnightshift.check_nightshift() // Night shift mode turns off if security level is raised to red or above
+				SSsmartlight.update_mode(light_modes_by_name["Code Delta"], TRUE)
+			// commented in favor of deltacode above, also because we don't use NS actively atm. Need to revisit this
+			//SSsmartlight.check_nightshift() // Night shift mode turns off if security level is raised to red or above
 		code_announce.play()
 	else
 		return
@@ -76,7 +84,7 @@ var/global/list/loud_alarm_areas = typecacheof(typesof(/area/station))
 var/global/list/quiet_alarm_areas = typecacheof(typesof(/area/station/maintenance) + typesof(/area/station/storage))
 
 /proc/delta_alarm()
-    delta_timer_id = addtimer(CALLBACK(GLOBAL_PROC, .proc/delta_alarm, FALSE), 8 SECONDS, TIMER_UNIQUE|TIMER_STOPPABLE)
+    delta_timer_id = addtimer(CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(delta_alarm), FALSE), 8 SECONDS, TIMER_UNIQUE|TIMER_STOPPABLE)
     for(var/mob/M in player_list)
         if (is_station_level(M.z))
             var/area/A = get_area(M)
