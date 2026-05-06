@@ -736,7 +736,13 @@ var/global/list/airlock_overlays = list()
 
 				if(5)
 					// Un-electrify door
-					unelectrify(usr)
+					if(isWireCut(AIRLOCK_WIRE_ELECTRIFY))
+						to_chat(usr, "Can't un-electrify the airlock - The electrification wire is cut.")
+					else if(secondsElectrified == -1)
+						secondsElectrified = 0
+					else if(secondsElectrified > 0)
+						secondsElectrified = 0
+					diag_hud_set_electrified()
 
 				if(7)
 					// Close door
@@ -777,7 +783,11 @@ var/global/list/airlock_overlays = list()
 
 				if(11)
 					// Emergency access
-					enable_emergency_access(usr)
+					if(emergency)
+						emergency = 0
+						update_icon()
+					else
+						to_chat(usr, "Emergency access is already disabled!")
 
 		else if(href_list["aiEnable"])
 			var/code = text2num(href_list["aiEnable"])
@@ -820,7 +830,17 @@ var/global/list/airlock_overlays = list()
 
 				if(6)
 					// Electrify door indefinitely
-					electrify(usr)
+					if(isWireCut(AIRLOCK_WIRE_ELECTRIFY))
+						to_chat(usr, "The electrification wire has been cut.<br>\n")
+					else if(secondsElectrified == -1)
+						to_chat(usr, "The door is already indefinitely electrified.<br>\n")
+					else if(secondsElectrified)
+						to_chat(usr, "The door is already electrified. You can't re-electrify it while it's already electrified.<br>\n")
+					else
+						shockedby += "\[[time_stamp()]\][usr](ckey:[usr.ckey])"
+						usr.attack_log += "\[[time_stamp()]\] <font color='red'>Electrified the [name] at [COORD(src)]</font>"
+						secondsElectrified = -1
+						diag_hud_set_electrified()
 
 				if(7)
 					// Open door
@@ -861,48 +881,14 @@ var/global/list/airlock_overlays = list()
 
 				if(11)
 					// Emergency access
-					disable_emergency_access(usr)
+					if(!emergency)
+						emergency = 1
+						update_icon()
+					else
+						to_chat(usr, "Emergency access is already disabled!")
 
 	if(!no_window)
 		updateUsrDialog()
-
-/obj/machinery/door/airlock/proc/electrify(mob/user)
-	// Electrify door indefinitely
-	if(isWireCut(AIRLOCK_WIRE_ELECTRIFY))
-		to_chat(user, "The electrification wire has been cut.<br>\n")
-	else if(secondsElectrified == -1)
-		to_chat(user, "The door is already indefinitely electrified.<br>\n")
-	else if(secondsElectrified > 0)
-		to_chat(user, "The door is already electrified. You can't re-electrify it while it's already electrified.<br>\n")
-	else
-		shockedby += "\[[time_stamp()]\][user](ckey:[user.ckey])"
-		user.attack_log += "\[[time_stamp()]\] <font color='red'>Electrified the [name] at [COORD(src)]</font>"
-		secondsElectrified = -1
-		diag_hud_set_electrified()
-
-/obj/machinery/door/airlock/proc/unelectrify(mob/user)
-	// Un-electrify door
-	if(isWireCut(AIRLOCK_WIRE_ELECTRIFY))
-		to_chat(user, "Can't un-electrify the airlock - The electrification wire is cut.")
-	else if(secondsElectrified == -1)
-		secondsElectrified = 0
-	else if(secondsElectrified > 0)
-		secondsElectrified = 0
-	diag_hud_set_electrified()
-
-/obj/machinery/door/airlock/proc/enable_emergency_access(mob/user)
-	if(emergency)
-		emergency = FALSE
-		update_icon()
-	else
-		to_chat(user, "Emergency access is already disabled!")
-
-/obj/machinery/door/airlock/proc/disable_emergency_access(mob/user)
-	if(!emergency)
-		emergency = TRUE
-		update_icon()
-	else
-		to_chat(user, "Emergency access is already disabled!")
 
 /obj/machinery/door/airlock/try_open(mob/user, obj/item/tool = null)
 	if(isElectrified() && !issilicon(user) && !isobserver(user))

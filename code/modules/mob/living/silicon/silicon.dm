@@ -202,5 +202,3 @@
 /mob/living/silicon/vomit(punched = FALSE, masked = FALSE, vomit_type = DEFAULT_VOMIT, stun = TRUE, force = FALSE)
 	return
 
-/mob/living/silicon/proc/is_antag()
-	return FALSE
